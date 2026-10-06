@@ -1,0 +1,1172 @@
+<title>Director's Cut</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+/* Layout: one-column mobile app (max 560px) — marquee header, scrolling screen, fixed bottom nav / wizard bar.
+   Look: a velvet screening room. Burgundy velvet ground, cream ticket-stock cards, marquee-bulb amber accent. */
+:root {
+  --velvet: #1b0d12;
+  --velvet-2: #26131a;
+  --card: #2f1820;
+  --card-2: #3a1f28;
+  --line: #4d2c37;
+  --cream: #f4e7d2;
+  --muted: #b89c92;
+  --bulb: #f2b441;
+  --bulb-dim: #8a6424;
+  --good: #8fcf8f;
+  --bad: #ec7a68;
+  --info: #8fb8d8;
+  --display: "Oswald", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--velvet); color: var(--cream);
+  font: 15px/1.45 var(--body);
+  background-image: repeating-linear-gradient(90deg, rgba(0,0,0,.18) 0 2px, transparent 2px 22px), radial-gradient(120% 60% at 50% 0%, #3a1520 0%, var(--velvet) 70%);
+  background-attachment: fixed;
+  -webkit-tap-highlight-color: transparent;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--bulb); outline-offset: 2px; }
+#app { max-width: 560px; margin: 0 auto; padding-inline: 16px; padding-block: 12px 110px; min-height: 100%; }
+h1, h2, h3 { font-family: var(--display); font-weight: 600; letter-spacing: .02em; text-wrap: balance; margin: 0; }
+h2 { font-size: 22px; text-transform: uppercase; }
+h3 { font-size: 16px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 500; }
+.mono, .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.stack { display: flex; flex-direction: column; gap: 14px; }
+.row { display: flex; gap: 10px; align-items: center; }
+.row.wrap { flex-wrap: wrap; }
+.spacer { flex: 1; }
+
+/* Marquee header: the one bold element */
+.marquee {
+  position: relative; border-radius: 14px; padding: 14px 16px 12px;
+  background: linear-gradient(180deg, #4a1a24, #2a1118);
+  border: 1px solid #5d2a35;
+}
+.marquee::before {
+  content: ""; position: absolute; inset: 5px; border-radius: 10px; pointer-events: none;
+  background:
+    radial-gradient(circle, var(--bulb) 0 2px, transparent 3px) 0 0 / 14px 100% repeat-x,
+    radial-gradient(circle, var(--bulb) 0 2px, transparent 3px) 0 100% / 14px 6px repeat-x;
+  background-position: 7px 0, 7px 100%;
+  -webkit-mask: linear-gradient(#000 0 0) top / 100% 6px no-repeat, linear-gradient(#000 0 0) bottom / 100% 6px no-repeat;
+          mask: linear-gradient(#000 0 0) top / 100% 6px no-repeat, linear-gradient(#000 0 0) bottom / 100% 6px no-repeat;
+  animation: bulbs 1.6s steps(2) infinite;
+  opacity: .9;
+}
+@keyframes bulbs { 50% { opacity: .45; } }
+.marquee .studio { font-family: var(--display); font-size: 26px; font-weight: 700; text-transform: uppercase; line-height: 1.05; color: var(--bulb); text-shadow: 0 0 18px rgba(242,180,65,.35); padding-top: 6px; }
+.marquee .sub { font-size: 13px; color: var(--muted); }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
+.stat { background: rgba(0,0,0,.22); border-radius: 8px; padding: 6px 8px; min-width: 0; }
+.stat b { display: block; font-family: var(--mono); font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat span { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.langbtn { background: rgba(0,0,0,.25); border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; font-size: 12px; font-family: var(--mono); }
+
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+.ticket { position: relative; background: var(--cream); color: #2a1218; border-radius: 10px; padding: 14px 16px; }
+.ticket::before, .ticket::after { content: ""; position: absolute; top: 50%; width: 16px; height: 16px; margin-top: -8px; border-radius: 50%; background: var(--velvet); }
+.ticket::before { left: -8px; } .ticket::after { right: -8px; }
+.ticket .muted { color: #6e4a48; }
+
+.btn { border: 0; border-radius: 10px; padding: 12px 16px; font-family: var(--display); font-size: 17px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; background: var(--card-2); border: 1px solid var(--line); }
+.btn.primary { background: var(--bulb); color: #2a1218; border-color: var(--bulb); box-shadow: 0 0 22px rgba(242,180,65,.25); }
+.btn.big { width: 100%; padding: 16px; font-size: 20px; }
+.btn:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
+.btn.sm { padding: 7px 12px; font-size: 14px; }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+
+/* Choice grids */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.opt { position: relative; text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.opt .t { font-family: var(--display); font-size: 17px; font-weight: 500; text-transform: uppercase; }
+.opt .d { font-size: 12px; color: var(--muted); }
+.opt.sel { border-color: var(--bulb); background: #43231c; box-shadow: inset 0 0 0 1px var(--bulb); }
+.opt.locked { opacity: .45; }
+.opt .tag { position: absolute; top: 8px; right: 8px; font-size: 11px; font-family: var(--mono); padding: 1px 6px; border-radius: 99px; background: rgba(0,0,0,.3); }
+.tag.g2 { color: var(--good); } .tag.g1 { color: #c6e3a0; } .tag.g0 { color: var(--muted); } .tag.gm { color: var(--bad); } .tag.hot { color: var(--bulb); }
+.swatch { width: 100%; height: 4px; border-radius: 2px; margin-bottom: 6px; }
+
+.opt.person { flex-direction: row; gap: 10px; align-items: center; text-align: left; }
+.avatar { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-family: var(--display); font-weight: 600; font-size: 16px; color: #2a1218; }
+.person .info { min-width: 0; flex: 1; }
+.person .name { font-weight: 600; font-size: 15px; }
+.bars { display: flex; gap: 10px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+.bars b { color: var(--cream); font-family: var(--mono); font-weight: 500; }
+.fee { font-family: var(--mono); font-size: 13px; color: var(--bulb); white-space: nowrap; }
+
+.steps { display: flex; gap: 4px; margin-block: 4px 12px; }
+.steps i { flex: 1; height: 4px; border-radius: 2px; background: var(--line); }
+.steps i.on { background: var(--bulb); }
+
+.focusrow { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; padding-block: 8px; border-bottom: 1px dashed var(--line); }
+.focusrow:last-child { border-bottom: 0; }
+.pips { display: flex; gap: 4px; grid-column: 1 / -1; }
+.pips i { flex: 1; height: 10px; border-radius: 3px; background: rgba(0,0,0,.3); border: 1px solid var(--line); }
+.pips i.on { background: var(--bulb); border-color: var(--bulb); }
+.pips i.ideal { border-color: var(--good); border-style: dashed; }
+.pm { display: flex; gap: 6px; }
+.pm button { width: 38px; height: 34px; border-radius: 8px; background: var(--card-2); border: 1px solid var(--line); font-size: 18px; font-family: var(--mono); }
+
+/* Bottom bars */
+.bottombar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; background: rgba(27,13,18,.96); border-top: 1px solid var(--line); padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)); backdrop-filter: blur(6px); }
+.bottombar .inner { max-width: 528px; margin: 0 auto; display: flex; gap: 10px; align-items: center; }
+.nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: 100%; }
+.nav button { background: none; border: 0; padding: 6px 2px; border-radius: 8px; font-family: var(--display); font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.nav button svg { width: 22px; height: 22px; }
+.nav button.on { color: var(--bulb); background: rgba(242,180,65,.08); }
+
+/* Posters */
+.poster { position: relative; aspect-ratio: 2 / 3; max-width: 100%; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 8px; color: #fff; box-shadow: 0 6px 18px rgba(0,0,0,.4); }
+.poster .pt { font-family: var(--display); font-weight: 700; text-transform: uppercase; line-height: 1; font-size: 15px; text-shadow: 0 2px 8px rgba(0,0,0,.6); overflow-wrap: anywhere; }
+.poster .py { font-family: var(--mono); font-size: 10px; opacity: .8; margin-top: 4px; }
+.poster .ps { position: absolute; top: 6px; right: 6px; font-family: var(--mono); font-size: 12px; font-weight: 600; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,.55); }
+.poster .shape { position: absolute; inset: 0; opacity: .55; }
+.filmlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; }
+.filmrow { display: grid; grid-template-columns: 74px 1fr; gap: 12px; align-items: start; }
+.filmrow .poster .pt { font-size: 11px; }
+
+.score { font-family: var(--display); font-size: 56px; font-weight: 700; line-height: 1; }
+.scorebox { flex: 1; text-align: center; padding: 12px 6px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; min-width: 0; }
+.scorebox span { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+.hi { color: var(--good); } .mid { color: var(--bulb); } .lo { color: var(--bad); }
+
+.chart { display: flex; align-items: flex-end; gap: 6px; height: 120px; padding-top: 10px; }
+.chart .col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; min-width: 0; }
+.chart .bar { width: 100%; background: linear-gradient(180deg, var(--bulb), var(--bulb-dim)); border-radius: 4px 4px 0 0; transition: height .5s ease-out; min-height: 2px; }
+.chart .lbl { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.ledger { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; font-size: 14px; }
+.ledger .v { font-family: var(--mono); text-align: right; }
+.ledger .total { border-top: 1px dashed var(--line); padding-top: 6px; font-weight: 600; }
+.pill { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 99px; background: rgba(0,0,0,.3); border: 1px solid var(--line); }
+
+.xpbar { height: 6px; border-radius: 3px; background: rgba(0,0,0,.35); overflow: hidden; margin-top: 4px; }
+.xpbar i { display: block; height: 100%; background: var(--bulb); }
+
+.reel { width: 120px; height: 120px; margin: 10px auto; border-radius: 50%; border: 8px solid var(--bulb); position: relative; animation: spin 1.2s linear infinite; }
+.reel::before { content: ""; position: absolute; inset: 14px; border-radius: 50%; background: radial-gradient(circle at 50% 18%, var(--velvet) 0 12px, transparent 13px), radial-gradient(circle at 82% 50%, var(--velvet) 0 12px, transparent 13px), radial-gradient(circle at 50% 82%, var(--velvet) 0 12px, transparent 13px), radial-gradient(circle at 18% 50%, var(--velvet) 0 12px, transparent 13px), var(--bulb-dim); }
+.reel.stop { animation-play-state: paused; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.progress { height: 10px; background: rgba(0,0,0,.35); border-radius: 5px; overflow: hidden; }
+.progress i { display: block; height: 100%; background: var(--bulb); transition: width .25s linear; }
+
+.toast { position: fixed; left: 50%; top: calc(16px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); z-index: 20; background: var(--cream); color: #2a1218; padding: 10px 16px; border-radius: 10px; font-weight: 500; max-width: calc(100% - 32px); box-shadow: 0 8px 24px rgba(0,0,0,.4); animation: pop .2s ease-out; }
+@keyframes pop { from { opacity: 0; transform: translate(-50%, -8px); } }
+input[type=text] { width: 100%; background: var(--velvet-2); border: 1px solid var(--line); color: var(--cream); border-radius: 8px; padding: 10px 12px; font: 16px var(--body); }
+.trophy { font-family: var(--display); color: var(--bulb); }
+.discover li { margin-bottom: 4px; }
+.discover { padding-left: 18px; margin: 0; }
+@media (prefers-reduced-motion: reduce) { .marquee::before, .reel { animation: none; } .chart .bar { transition: none; } }
+</style>
+
+<div id="app"></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- Telegram ---------- */
+const TG = (window.Telegram && window.Telegram.WebApp) || null;
+const inTG = !!(TG && TG.initData);
+if (TG) { try { TG.ready(); TG.expand(); if (TG.setHeaderColor) TG.setHeaderColor('#1b0d12'); if (TG.setBackgroundColor) TG.setBackgroundColor('#1b0d12'); } catch (e) {} }
+function haptic(kind) {
+  try {
+    if (!inTG || !TG.HapticFeedback) return;
+    if (kind === 'ok' || kind === 'err' || kind === 'warn') TG.HapticFeedback.notificationOccurred(kind === 'ok' ? 'success' : kind === 'err' ? 'error' : 'warning');
+    else TG.HapticFeedback.impactOccurred(kind || 'light');
+  } catch (e) {}
+}
+
+/* ---------- Data ---------- */
+const GENRES = [
+  { id: 'drama', ru: 'Драма', en: 'Drama', col: '#7b4b8e', focus: [40, 40, 10, 10], aud: .85, rat: ['12', '16', '18'], req: {} },
+  { id: 'comedy', ru: 'Комедия', en: 'Comedy', col: '#d68a2e', focus: [35, 40, 10, 15], aud: 1.2, rat: ['0', '12', '16'], req: {} },
+  { id: 'horror', ru: 'Ужасы', en: 'Horror', col: '#7a1f24', focus: [25, 15, 30, 30], aud: 1.0, rat: ['16', '18'], req: {} },
+  { id: 'action', ru: 'Боевик', en: 'Action', col: '#c4452f', focus: [15, 20, 45, 20], aud: 1.3, rat: ['12', '16', '18'], req: {} },
+  { id: 'documentary', ru: 'Документальный', en: 'Documentary', col: '#5f7d6a', focus: [55, 10, 15, 20], aud: .55, rat: ['0', '12', '16'], req: { rep: 5 } },
+  { id: 'romance', ru: 'Мелодрама', en: 'Romance', col: '#c75b7a', focus: [35, 45, 5, 15], aud: .95, rat: ['12', '16'], req: { rep: 10 } },
+  { id: 'thriller', ru: 'Триллер', en: 'Thriller', col: '#3d5a73', focus: [40, 25, 15, 20], aud: 1.0, rat: ['16', '18'], req: { rep: 15 } },
+  { id: 'western', ru: 'Вестерн', en: 'Western', col: '#a0662e', focus: [30, 30, 25, 15], aud: .8, rat: ['12', '16', '18'], req: { rep: 25 } },
+  { id: 'musical', ru: 'Мюзикл', en: 'Musical', col: '#b8489b', focus: [20, 30, 10, 40], aud: .9, rat: ['0', '12'], req: { up: 'sound' } },
+  { id: 'scifi', ru: 'Фантастика', en: 'Sci-Fi', col: '#2f7fa0', focus: [25, 10, 50, 15], aud: 1.25, rat: ['12', '16'], req: { up: 'vfx' } },
+  { id: 'animation', ru: 'Анимация', en: 'Animation', col: '#3d9a6c', focus: [35, 15, 35, 15], aud: 1.3, rat: ['0', '12'], req: { up: 'animation' } },
+  { id: 'fantasy', ru: 'Фэнтези', en: 'Fantasy', col: '#5a5fb0', focus: [25, 15, 45, 15], aud: 1.25, rat: ['0', '12', '16'], req: { up: 'vfx', rep: 40 } },
+];
+const THEMES = [
+  { id: 'love', ru: 'Любовь', en: 'Love', req: {} },
+  { id: 'revenge', ru: 'Месть', en: 'Revenge', req: {} },
+  { id: 'family', ru: 'Семья', en: 'Family', req: {} },
+  { id: 'heist', ru: 'Ограбление', en: 'Heist', req: {} },
+  { id: 'war', ru: 'Война', en: 'War', req: {} },
+  { id: 'zombies', ru: 'Зомби', en: 'Zombies', req: {} },
+  { id: 'ghosts', ru: 'Призраки', en: 'Ghosts', req: {} },
+  { id: 'sports', ru: 'Спорт', en: 'Sports', req: {} },
+  { id: 'mafia', ru: 'Мафия', en: 'Mafia', req: { rep: 10 } },
+  { id: 'survival', ru: 'Выживание', en: 'Survival', req: { rep: 10 } },
+  { id: 'pirates', ru: 'Пираты', en: 'Pirates', req: { rep: 15 } },
+  { id: 'politics', ru: 'Политика', en: 'Politics', req: { rep: 20 } },
+  { id: 'timetravel', ru: 'Путешествия во времени', en: 'Time travel', req: { rep: 20 } },
+  { id: 'space', ru: 'Космос', en: 'Space', req: { up: 'vfx' } },
+  { id: 'robots', ru: 'Роботы', en: 'Robots', req: { up: 'vfx' } },
+  { id: 'superheroes', ru: 'Супергерои', en: 'Superheroes', req: { up: 'vfx', rep: 30 } },
+];
+const ERAS = [
+  { id: 'modern', ru: 'Наши дни', en: 'Present day', mult: 1.0, req: {} },
+  { id: 'eighties', ru: '1980-е', en: 'The 1980s', mult: 1.05, req: {} },
+  { id: 'sixties', ru: '1960-е', en: 'The 1960s', mult: 1.1, req: {} },
+  { id: 'twenties', ru: '1920-е', en: 'The 1920s', mult: 1.2, req: {} },
+  { id: 'ww2', ru: 'Вторая мировая', en: 'World War II', mult: 1.3, req: {} },
+  { id: 'wildwest', ru: 'Дикий Запад', en: 'Wild West', mult: 1.15, req: {} },
+  { id: 'victorian', ru: 'XIX век', en: 'Victorian era', mult: 1.25, req: { up: 'costume' }, period: true },
+  { id: 'medieval', ru: 'Средневековье', en: 'Middle Ages', mult: 1.4, req: { up: 'costume' }, period: true },
+  { id: 'ancient', ru: 'Античность', en: 'Antiquity', mult: 1.5, req: { up: 'costume' }, period: true },
+  { id: 'nearfuture', ru: 'Ближнее будущее', en: 'Near future', mult: 1.25, req: { up: 'vfx' } },
+  { id: 'farfuture', ru: 'Далёкое будущее', en: 'Far future', mult: 1.5, req: { up: 'vfx' } },
+];
+const RATINGS = [
+  { id: '0', label: '0+', reach: 1.0 }, { id: '12', label: '12+', reach: 1.0 },
+  { id: '16', label: '16+', reach: .85 }, { id: '18', label: '18+', reach: .65 },
+];
+const BUDGETS = [
+  { id: 'indie', ru: 'Инди', en: 'Indie', cost: 15000, vis: 2, snd: 1, hype: 0, req: {} },
+  { id: 'standard', ru: 'Стандарт', en: 'Standard', cost: 80000, vis: 4, snd: 2, hype: .15, req: {} },
+  { id: 'large', ru: 'Крупный', en: 'Major', cost: 350000, vis: 6, snd: 3, hype: .3, req: { up: 'stage' } },
+  { id: 'blockbuster', ru: 'Блокбастер', en: 'Blockbuster', cost: 1200000, vis: 8.5, snd: 4, hype: .55, req: { up: 'megalot' } },
+];
+const MARKETING = [
+  { id: 'none', ru: 'Без рекламы', en: 'No marketing', cost: 0, screens: 1, hype: 0, req: {} },
+  { id: 'small', ru: 'Афиши и радио', en: 'Posters & radio', cost: 25000, screens: 2.5, hype: .2, req: {} },
+  { id: 'medium', ru: 'ТВ-ролики', en: 'TV spots', cost: 120000, screens: 6, hype: .5, req: {} },
+  { id: 'big', ru: 'Национальная кампания', en: 'National campaign', cost: 450000, screens: 15, hype: 1.0, req: { rep: 20 } },
+  { id: 'global', ru: 'Мировая премьера', en: 'Global premiere', cost: 1500000, screens: 35, hype: 1.6, req: { up: 'marketing' } },
+];
+const AREAS = [
+  { id: 'script', ru: 'Сценарий', en: 'Script' },
+  { id: 'acting', ru: 'Актёрская игра', en: 'Acting' },
+  { id: 'visuals', ru: 'Визуал и эффекты', en: 'Visuals & VFX' },
+  { id: 'sound', ru: 'Звук и музыка', en: 'Sound & music' },
+];
+const ACTORS = [
+  // tier 1
+  { id: 'a1', en: 'Bob Mallory', ru: 'Боб Мэллори', tier: 1, skill: 3, star: 1, fee: 4000, aff: ['comedy', 'action'], col: '#d68a2e' },
+  { id: 'a2', en: 'Anna Petrova', ru: 'Анна Петрова', tier: 1, skill: 4, star: 1, fee: 5000, aff: ['drama', 'romance'], col: '#c75b7a' },
+  { id: 'a3', en: 'Lucas Fern', ru: 'Лукас Ферн', tier: 1, skill: 3, star: 2, fee: 5000, aff: ['horror', 'thriller'], col: '#7a1f24' },
+  { id: 'a4', en: 'Mia Torres', ru: 'Миа Торрес', tier: 1, skill: 3, star: 2, fee: 5000, aff: ['comedy', 'romance'], col: '#b8489b' },
+  { id: 'a5', en: 'Dmitri Volkov', ru: 'Дмитрий Волков', tier: 1, skill: 4, star: 1, fee: 4500, aff: ['drama', 'western'], col: '#a0662e' },
+  { id: 'a6', en: 'Jessie Kwan', ru: 'Джесси Кван', tier: 1, skill: 3, star: 1, fee: 3500, aff: ['action', 'scifi'], col: '#2f7fa0' },
+  // tier 2
+  { id: 'b1', en: 'Oliver Grant', ru: 'Оливер Грант', tier: 2, skill: 5, star: 4, fee: 25000, aff: ['action', 'thriller'], col: '#c4452f' },
+  { id: 'b2', en: 'Sofia Lindqvist', ru: 'София Линдквист', tier: 2, skill: 6, star: 3, fee: 22000, aff: ['drama', 'fantasy'], col: '#5a5fb0' },
+  { id: 'b3', en: 'Marcus Bell', ru: 'Маркус Белл', tier: 2, skill: 5, star: 4, fee: 24000, aff: ['comedy', 'musical'], col: '#d68a2e' },
+  { id: 'b4', en: 'Elena Rossi', ru: 'Елена Росси', tier: 2, skill: 6, star: 3, fee: 22000, aff: ['romance', 'thriller'], col: '#c75b7a' },
+  { id: 'b5', en: 'Taro Nakamura', ru: 'Таро Накамура', tier: 2, skill: 6, star: 3, fee: 21000, aff: ['scifi', 'horror'], col: '#3d5a73' },
+  { id: 'b6', en: "Grace O'Neil", ru: 'Грейс О’Нил', tier: 2, skill: 5, star: 4, fee: 23000, aff: ['animation', 'comedy'], col: '#3d9a6c' },
+  // tier 3
+  { id: 'c1', en: 'Victor Hale', ru: 'Виктор Хейл', tier: 3, skill: 7, star: 7, fee: 120000, aff: ['action', 'western'], col: '#c4452f' },
+  { id: 'c2', en: 'Isabella Moreau', ru: 'Изабелла Моро', tier: 3, skill: 8, star: 6, fee: 110000, aff: ['drama', 'romance'], col: '#7b4b8e' },
+  { id: 'c3', en: 'Jack Rainer', ru: 'Джек Райнер', tier: 3, skill: 7, star: 7, fee: 125000, aff: ['scifi', 'fantasy'], col: '#2f7fa0' },
+  { id: 'c4', en: 'Nora Quinn', ru: 'Нора Куинн', tier: 3, skill: 8, star: 6, fee: 105000, aff: ['thriller', 'horror'], col: '#3d5a73' },
+  { id: 'c5', en: 'Leo Carter', ru: 'Лео Картер', tier: 3, skill: 7, star: 6, fee: 95000, aff: ['comedy', 'musical'], col: '#b8489b' },
+  // tier 4
+  { id: 'd1', en: 'Max Steel', ru: 'Макс Стил', tier: 4, skill: 8, star: 10, fee: 550000, aff: ['action', 'scifi'], col: '#f2b441' },
+  { id: 'd2', en: 'Celeste Vaughn', ru: 'Селеста Вон', tier: 4, skill: 9, star: 9, fee: 480000, aff: ['drama', 'musical'], col: '#f2b441' },
+  { id: 'd3', en: 'Adrian Black', ru: 'Адриан Блэк', tier: 4, skill: 9, star: 9, fee: 500000, aff: ['thriller', 'western'], col: '#f2b441' },
+  { id: 'd4', en: 'Lily Hart', ru: 'Лили Харт', tier: 4, skill: 9, star: 9, fee: 470000, aff: ['romance', 'fantasy'], col: '#f2b441' },
+];
+const WRITERS = [
+  { id: 'w1', en: 'Sam Penn', ru: 'Сэм Пенн', tier: 1, skill: 3, fee: 3000, aff: ['comedy', 'action'], col: '#8fb8d8' },
+  { id: 'w2', en: 'Olga Shor', ru: 'Ольга Шор', tier: 1, skill: 4, fee: 5000, aff: ['drama', 'documentary'], col: '#8fb8d8' },
+  { id: 'w3', en: 'Kevin Doyle', ru: 'Кевин Дойл', tier: 1, skill: 3, fee: 3500, aff: ['horror', 'thriller'], col: '#8fb8d8' },
+  { id: 'w4', en: 'Rita Moss', ru: 'Рита Мосс', tier: 2, skill: 6, fee: 20000, aff: ['thriller', 'drama'], col: '#8fb8d8' },
+  { id: 'w5', en: 'Paul Ventura', ru: 'Пол Вентура', tier: 2, skill: 5, fee: 15000, aff: ['action', 'scifi', 'western'], col: '#8fb8d8' },
+  { id: 'w6', en: 'Helen Cross', ru: 'Хелен Кросс', tier: 3, skill: 8, fee: 70000, aff: ['drama', 'romance', 'musical'], col: '#8fb8d8' },
+  { id: 'w7', en: 'Igor Lamb', ru: 'Игорь Лэмб', tier: 3, skill: 7, fee: 60000, aff: ['fantasy', 'scifi', 'animation'], col: '#8fb8d8' },
+  { id: 'w8', en: 'Arthur Klein', ru: 'Артур Кляйн', tier: 4, skill: 10, fee: 250000, aff: ['thriller', 'drama', 'comedy'], col: '#8fb8d8' },
+];
+const TIER_REQ = { 1: {}, 2: { rep: 10 }, 3: { rep: 30, up: 'casting' }, 4: { rep: 60, up: 'casting' } };
+
+const UPGRADES = [
+  { id: 'office', ru: 'Свой офис', en: 'Own office', cost: 40000, req: {}, d: { ru: '+0,5 к сценарию. Хватит писать на кухне.', en: '+0.5 to script. No more writing at the kitchen table.' } },
+  { id: 'costume', ru: 'Костюмерный цех', en: 'Costume department', cost: 90000, req: { rep: 5 }, d: { ru: 'Открывает XIX век, Средневековье и Античность. +0,5 к визуалу исторических фильмов.', en: 'Unlocks the Victorian era, Middle Ages and Antiquity. +0.5 visuals on period films.' } },
+  { id: 'casting', ru: 'Кастинговое агентство', en: 'Casting agency', cost: 120000, req: { rep: 10 }, d: { ru: 'Доступ к звёздам 3 и 4 уровня, гонорары −10%.', en: 'Access to tier 3 and 4 stars, fees −10%.' } },
+  { id: 'sound', ru: 'Тонстудия', en: 'Sound studio', cost: 150000, req: { rep: 10 }, d: { ru: 'Открывает мюзиклы. +1,5 к звуку.', en: 'Unlocks musicals. +1.5 to sound.' } },
+  { id: 'stage', ru: 'Большой павильон', en: 'Sound stage', cost: 250000, req: { rep: 15 }, d: { ru: 'Открывает крупный бюджет.', en: 'Unlocks the Major budget.' } },
+  { id: 'vfx', ru: 'Студия спецэффектов', en: 'VFX studio', cost: 300000, req: { rep: 20 }, d: { ru: 'Открывает фантастику, будущее, космос и роботов. +1 к визуалу.', en: 'Unlocks sci-fi, future eras, space and robots. +1 to visuals.' } },
+  { id: 'marketing', ru: 'Отдел маркетинга', en: 'Marketing department', cost: 350000, req: { rep: 25 }, d: { ru: 'Реклама дешевле на 20% и даёт больше ажиотажа. Открывает мировую премьеру.', en: 'Marketing costs 20% less and builds more hype. Unlocks global premieres.' } },
+  { id: 'animation', ru: 'Анимационный отдел', en: 'Animation department', cost: 500000, req: { rep: 30, up: 'vfx' }, d: { ru: 'Открывает анимацию.', en: 'Unlocks animation.' } },
+  { id: 'school', ru: 'Своя киношкола', en: 'Film school', cost: 600000, req: { rep: 35 }, d: { ru: '+30% опыта режиссёру, +1 к сценарию.', en: '+30% director XP, +1 to script.' } },
+  { id: 'megalot', ru: 'Киногородок', en: 'Studio lot', cost: 1500000, req: { rep: 50, up: 'stage' }, d: { ru: 'Открывает бюджет блокбастера.', en: 'Unlocks the Blockbuster budget.' } },
+  { id: 'cinemas', ru: 'Сеть кинотеатров', en: 'Cinema chain', cost: 3000000, req: { rep: 60 }, d: { ru: 'Доля студии в прокате +10%.', en: 'Studio share of box office +10%.' } },
+  { id: 'streaming', ru: 'Стриминг-сервис', en: 'Streaming service', cost: 8000000, req: { rep: 75 }, d: { ru: 'После проката фильм приносит ещё 20% сборов.', en: 'Each film earns another 20% of its gross after the theatrical run.' } },
+];
+const SKILLS = [
+  { id: 'story', ru: 'Драматургия', en: 'Storytelling', d: { ru: '+0,5 к сценарию за уровень', en: '+0.5 script per level' } },
+  { id: 'actors', ru: 'Работа с актёрами', en: 'Directing actors', d: { ru: '+0,5 к актёрской игре', en: '+0.5 acting per level' } },
+  { id: 'visual', ru: 'Визуальный стиль', en: 'Visual style', d: { ru: '+0,5 к визуалу', en: '+0.5 visuals per level' } },
+  { id: 'sound', ru: 'Чувство ритма', en: 'Sense of rhythm', d: { ru: '+0,5 к звуку', en: '+0.5 sound per level' } },
+  { id: 'charisma', ru: 'Обаяние', en: 'Charm', d: { ru: 'Гонорары −6% за уровень', en: 'Fees −6% per level' } },
+  { id: 'showman', ru: 'Шоумен', en: 'Showman', d: { ru: '+ажиотаж вокруг премьер', en: 'More hype around premieres' } },
+];
+const SKILL_MAX = 5;
+
+/* Combo tables: genre-theme, genre-era, theme-era. Values −2..2, default 0. */
+function table(spec) { const m = {}; for (const [v, list] of Object.entries(spec)) for (const k of list.split(' ')) m[k] = +v; return m; }
+const GT = table({
+  '2': 'drama|family drama|war drama|politics drama|sports comedy|family comedy|heist horror|zombies horror|ghosts horror|survival action|heist action|revenge action|superheroes action|war romance|love thriller|revenge thriller|politics thriller|mafia thriller|heist scifi|space scifi|robots scifi|timetravel animation|family animation|pirates animation|robots fantasy|pirates fantasy|ghosts musical|love western|revenge western|heist documentary|war documentary|sports documentary|politics',
+  '1': 'drama|love drama|mafia drama|survival comedy|love comedy|ghosts comedy|zombies comedy|timetravel comedy|pirates horror|family horror|space action|mafia action|space action|pirates action|sports romance|war romance|family thriller|heist thriller|survival scifi|survival scifi|superheroes animation|superheroes animation|space fantasy|love fantasy|superheroes musical|family musical|sports western|survival western|family documentary|space documentary|survival romance|timetravel',
+  '-1': 'drama|zombies drama|superheroes comedy|war horror|love romance|mafia romance|politics thriller|zombies scifi|mafia animation|mafia animation|war musical|war musical|politics musical|zombies western|robots western|ghosts documentary|ghosts fantasy|politics fantasy|sports',
+  '-2': 'horror|sports documentary|superheroes documentary|zombies documentary|timetravel western|space romance|zombies musical|survival',
+});
+const GE = table({
+  '2': 'western|wildwest scifi|farfuture scifi|nearfuture fantasy|medieval fantasy|ancient musical|twenties drama|ww2 action|eighties horror|victorian romance|victorian thriller|twenties documentary|ww2',
+  '1': 'action|modern comedy|modern comedy|eighties horror|modern thriller|modern musical|sixties romance|twenties drama|sixties animation|farfuture animation|ancient western|sixties documentary|modern scifi|eighties',
+  '-1': 'documentary|ancient documentary|medieval musical|ww2 animation|ww2 romance|farfuture comedy|ww2',
+  '-2': 'western|modern western|eighties western|sixties western|twenties western|ww2 western|victorian western|medieval western|ancient western|farfuture scifi|ancient scifi|medieval documentary|farfuture documentary|nearfuture fantasy|nearfuture',
+});
+const TE = table({
+  '2': 'war|ww2 mafia|twenties space|farfuture robots|farfuture superheroes|modern ghosts|victorian pirates|medieval',
+  '1': 'war|medieval war|ancient mafia|sixties heist|twenties heist|modern zombies|modern sports|eighties sports|modern politics|ancient revenge|wildwest robots|nearfuture space|nearfuture survival|farfuture survival|ww2 timetravel|nearfuture pirates|farfuture politics|modern superheroes|eighties heist|sixties',
+  '-1': 'mafia|farfuture pirates|modern superheroes|ancient superheroes|medieval ghosts|farfuture',
+  '-2': 'space|ancient space|medieval space|victorian space|wildwest space|twenties space|ww2 robots|ancient robots|medieval robots|wildwest robots|twenties zombies|ancient',
+});
+function gtVal(g, t) { return GT[g + '|' + t] || 0; }
+function geVal(g, e) { return GE[g + '|' + e] || 0; }
+function teVal(t, e) { return TE[t + '|' + e] || 0; }
+
+const EVENTS = [
+  { id: 'trailer', ru: 'Звезда требует, чтобы её лицо было на всех афишах.', en: 'Your lead demands their face on every poster.',
+    a: { ru: 'Согласиться (+8 000 $)', en: 'Agree (+$8,000)', fx: { cost: 8000, hype: .2 } },
+    b: { ru: 'Отказать', en: 'Refuse', fx: { q: -.4 } } },
+  { id: 'storm', ru: 'Буря разнесла декорации на площадке.', en: 'A storm wrecked the set.',
+    a: { ru: 'Отстроить заново (+15% бюджета)', en: 'Rebuild (+15% of budget)', fx: { costPct: .15 } },
+    b: { ru: 'Снимать на том, что осталось', en: 'Shoot with what is left', fx: { q: -.7 } } },
+  { id: 'twist', ru: 'Сценарист предлагает дерзкий финальный твист.', en: 'The writer pitches a bold twist ending.',
+    a: { ru: 'Рискнуть', en: 'Take the risk', fx: { risk: 1.4 } },
+    b: { ru: 'Оставить как было', en: 'Keep it safe', fx: {} } },
+  { id: 'gossip', ru: 'Папарацци сняли главных актёров вместе в ресторане.', en: 'Paparazzi caught your leads having dinner together.',
+    a: { ru: 'Раздуть слухи', en: 'Fan the rumours', fx: { hype: .35, rep: -2 } },
+    b: { ru: 'Замять (5 000 $)', en: 'Hush it up ($5,000)', fx: { cost: 5000 } } },
+  { id: 'improv', ru: 'Актёры просят разрешения импровизировать.', en: 'The actors ask to improvise.',
+    a: { ru: 'Пусть играют', en: 'Let them play', fx: { improv: true } },
+    b: { ru: 'Строго по сценарию', en: 'Stick to the script', fx: {} } },
+  { id: 'cut', ru: 'Прокатчик требует сократить хронометраж на 20 минут.', en: 'The distributor wants 20 minutes cut.',
+    a: { ru: 'Сократить', en: 'Cut it', fx: { reach: 1.1, crit: -5 } },
+    b: { ru: 'Отстоять режиссёрскую версию (10 000 $)', en: "Fight for the director's cut ($10,000)", fx: { cost: 10000, crit: 3 } } },
+  { id: 'score', ru: 'Известный композитор готов написать музыку.', en: 'A famous composer offers to write the score.',
+    a: { ru: 'Нанять (20 000 $)', en: 'Hire ($20,000)', fx: { cost: 20000, q: .6, sndOnly: true } },
+    b: { ru: 'Обойтись библиотекой звуков', en: 'Use library music', fx: {} } },
+  { id: 'test', ru: 'Тестовый показ прошёл плохо: зрители скучали.', en: 'The test screening went badly. The audience was bored.',
+    a: { ru: 'Доснять сцены (+20% бюджета)', en: 'Reshoot scenes (+20% of budget)', fx: { costPct: .2, q: .8 } },
+    b: { ru: 'Выпускать как есть', en: 'Release as is', fx: { q: -.3 } } },
+  { id: 'cameo', ru: 'Знаменитость хочет сыграть эпизодическую роль бесплатно.', en: 'A celebrity offers a cameo for free.',
+    a: { ru: 'Конечно!', en: 'Of course!', fx: { hype: .25 } },
+    b: { ru: 'Это отвлечёт от сюжета', en: 'It would distract from the story', fx: { crit: 2 } } },
+];
+
+const OUTLETS = { ru: ['Киновзгляд', 'Экран и сцена', 'Ночной сеанс', 'Плёнка', 'Синема Таймс'], en: ['The Reel Review', 'Screen Weekly', 'Midnight Matinee', 'Celluloid', 'Cinema Times'] };
+const QUOTES = {
+  ru: [
+    ['Два часа, которые хочется вернуть.', 'Даже попкорн был интереснее.', 'Кино, о котором лучше забыть.'],
+    ['Местами живо, но в целом проходняк.', 'Есть искра, но огня не случилось.', 'Смотреть можно, пересматривать не тянет.'],
+    ['Уверенная работа с настоящим характером.', 'Зал смеялся, плакал и аплодировал.', 'Режиссёр знает, чего хочет.'],
+    ['Шедевр, который будут цитировать годами.', 'Лучший фильм года. Без вариантов.', 'Кино в его чистейшей форме.'],
+  ],
+  en: [
+    ['Two hours I want back.', 'Even the popcorn had more depth.', 'A film best forgotten.'],
+    ['Lively in places, forgettable overall.', 'There is a spark, but no fire.', 'Watchable once. Only once.'],
+    ['Assured filmmaking with real character.', 'The audience laughed, cried and cheered.', 'A director who knows what they want.'],
+    ['A masterpiece people will quote for years.', 'Film of the year. No contest.', 'Cinema in its purest form.'],
+  ],
+};
+const TITLE_WORDS = {
+  love: { ru: ['Любовь', 'Сердце', 'Поцелуй', 'Свидание'], en: ['Love', 'Heart', 'Kiss', 'Date'] },
+  revenge: { ru: ['Месть', 'Расплата', 'Возмездие', 'Счёт'], en: ['Revenge', 'Payback', 'Vengeance', 'Reckoning'] },
+  family: { ru: ['Семейка', 'Дом', 'Наследство', 'Праздник'], en: ['Family', 'Home', 'Inheritance', 'Holiday'] },
+  heist: { ru: ['Ограбление', 'Сейф', 'Куш', 'План'], en: ['Heist', 'Vault', 'Jackpot', 'Blueprint'] },
+  war: { ru: ['Фронт', 'Окоп', 'Высота', 'Приказ'], en: ['Front', 'Trench', 'Ridge', 'Order'] },
+  zombies: { ru: ['Мертвецы', 'Заражение', 'Укус', 'Орда'], en: ['The Dead', 'Outbreak', 'Bite', 'Horde'] },
+  ghosts: { ru: ['Призрак', 'Шёпот', 'Особняк', 'Тень'], en: ['Ghost', 'Whisper', 'Manor', 'Shadow'] },
+  sports: { ru: ['Матч', 'Финал', 'Гол', 'Ринг'], en: ['Match', 'Final', 'Goal', 'Ring'] },
+  mafia: { ru: ['Семья', 'Синдикат', 'Омерта', 'Босс'], en: ['Syndicate', 'Omertà', 'Boss', 'Family Business'] },
+  survival: { ru: ['Выживший', 'Пустошь', 'Лес', 'Холод'], en: ['Survivor', 'Wasteland', 'Woods', 'Cold'] },
+  pirates: { ru: ['Флибустьер', 'Сокровище', 'Абордаж', 'Компас'], en: ['Buccaneer', 'Treasure', 'Boarding', 'Compass'] },
+  politics: { ru: ['Кандидат', 'Сенат', 'Выборы', 'Заговор'], en: ['Candidate', 'Senate', 'Election', 'Conspiracy'] },
+  timetravel: { ru: ['Петля', 'Вчера', 'Парадокс', 'Часы'], en: ['Loop', 'Yesterday', 'Paradox', 'Clockwork'] },
+  space: { ru: ['Орбита', 'Звезда', 'Галактика', 'Станция'], en: ['Orbit', 'Star', 'Galaxy', 'Station'] },
+  robots: { ru: ['Андроид', 'Код', 'Машина', 'Протокол'], en: ['Android', 'Code', 'Machine', 'Protocol'] },
+  superheroes: { ru: ['Защитник', 'Маска', 'Легион', 'Сила'], en: ['Guardian', 'Mask', 'Legion', 'Power'] },
+};
+const TITLE_TAILS = {
+  drama: { ru: ['без слов', 'на рассвете', 'навсегда', ''], en: ['Without Words', 'at Dawn', 'Forever', ''] },
+  comedy: { ru: ['по-крупному', 'на выходных', 'и все-все-все', 'наоборот'], en: ['Gone Wild', 'for Dummies', 'Weekend', 'in Reverse'] },
+  horror: { ru: ['во тьме', 'из подвала', 'без выхода', 'в полночь'], en: ['in the Dark', 'from the Basement', 'No Exit', 'at Midnight'] },
+  action: { ru: ['на пределе', 'в огне', 'без правил', 'Перезагрузка'], en: ['Maximum', 'on Fire', 'No Rules', 'Reloaded'] },
+  documentary: { ru: ['как есть', 'изнутри', 'правда', ''], en: ['Uncovered', 'Inside', 'The True Story', ''] },
+  romance: { ru: ['в Париже', 'под дождём', 'летом', 'с первого взгляда'], en: ['in Paris', 'in the Rain', 'One Summer', 'at First Sight'] },
+  thriller: { ru: ['под подозрением', 'вне закона', 'на грани', 'в тени'], en: ['Under Suspicion', 'Outlaw', 'on the Edge', 'in the Shadows'] },
+  western: { ru: ['у реки', 'на закате', 'в пыли', 'за горизонтом'], en: ['by the River', 'at Sundown', 'in the Dust', 'Beyond the Ridge'] },
+  musical: { ru: ['в ритме', 'под звёздами', 'на бис', ''], en: ['in Rhythm', 'Under the Stars', 'Encore', ''] },
+  scifi: { ru: ['2099', 'за гранью', 'Начало', 'Протокол Омега'], en: ['2099', 'Beyond', 'Origins', 'Omega Protocol'] },
+  animation: { ru: ['и друзья', 'спешит на помощь', 'Приключение', ''], en: ['and Friends', 'to the Rescue', 'Adventure', ''] },
+  fantasy: { ru: ['и последнее заклятие', 'Хроники', 'и древний меч', ''], en: ['and the Last Spell', 'Chronicles', 'and the Ancient Blade', ''] },
+};
+
+const GOALS = [
+  { id: 'first', ru: 'Выпустить первый фильм', en: 'Release your first film', reward: 20000, test: g => g.films.length >= 1 },
+  { id: 'crit70', ru: 'Получить 70+ от критиков', en: 'Score 70+ with critics', reward: 50000, test: g => g.films.some(f => f.critic >= 70) },
+  { id: 'profit500', ru: 'Заработать 500 тыс. $ прибыли на одном фильме', en: 'Make $500k profit on one film', reward: 100000, test: g => g.films.some(f => f.profit >= 500000) },
+  { id: 'award', ru: 'Выиграть «Золотую бобину»', en: 'Win a Golden Reel', reward: 200000, test: g => g.awards >= 1 },
+  { id: 'rep50', ru: 'Набрать 50 репутации', en: 'Reach 50 reputation', reward: 500000, test: g => g.rep >= 50 },
+  { id: 'gross100', ru: 'Собрать 100 млн $ за карьеру', en: 'Gross $100M over your career', reward: 2000000, test: g => g.totalGross >= 1e8 },
+  { id: 'crit95', ru: 'Снять шедевр на 95+', en: 'Make a 95+ masterpiece', reward: 5000000, test: g => g.films.some(f => f.critic >= 95) },
+];
+
+/* ---------- i18n ---------- */
+const STR = {
+  ru: {
+    tagline: 'Студия', newFilm: 'Снять новый фильм', money: 'Бюджет', rep: 'Репутация', fans: 'Фанаты', year: 'Год',
+    tabHome: 'Студия', tabUp: 'Развитие', tabDir: 'Режиссёр', tabFilms: 'Фильмы',
+    news: 'Новости индустрии', hot: 'В тренде', cold: 'Зрители устали от', hotTheme: 'Горячая тема',
+    lastFilm: 'Последняя премьера', noFilms: 'Пока ни одного фильма. Самое время начать.',
+    goal: 'Цель карьеры', reward: 'Награда', allGoals: 'Все цели выполнены. Легенда!',
+    gig: 'Снять рекламный ролик', gigD: 'Денег мало. Реклама йогурта принесёт 30 000 $ и немного опыта.',
+    step: 'Шаг', of: 'из', back: 'Назад', next: 'Далее', start: 'Мотор!',
+    s0: 'Выберите жанр', s1: 'О чём фильм?', s2: 'Эпоха и рейтинг', s3: 'Команда', s4: 'Бюджет и реклама', s5: 'Финальный монтаж',
+    era: 'Эпоха', rating: 'Возрастной рейтинг', writer: 'Сценарист', lead: 'Главная роль', co: 'Вторая роль',
+    budget: 'Производственный бюджет', marketing: 'Рекламная кампания', focus: 'Фокус съёмок', focusD: 'Распределите 10 очков внимания между аспектами фильма. Каждому жанру нужно своё.',
+    left: 'Осталось очков', title: 'Название', reroll: 'Другое', total: 'Итого', cost: 'Стоимость', notEnough: 'Не хватает денег',
+    skill: 'Мастерство', star: 'Звёздность', locked: 'Закрыто', needRep: 'реп.', needUp: 'нужно', costMult: 'стоимость ×',
+    hintIdeal: 'Пунктиром показан идеальный баланс для жанра — вы его уже изучили.',
+    combo2: 'отлично', combo1: 'хорошо', combo0: 'нейтрально', 'combo-1': 'слабо', 'combo-2': 'провал', comboU: '?',
+    prod: ['Препродакшн', 'Съёмки', 'Монтаж', 'Подготовка к премьере'], decision: 'Решение на площадке', premiere: 'Премьера!',
+    critics: 'Критики', audience: 'Зрители', boxoffice: 'Кассовые сборы по неделям', wk: 'н',
+    gross: 'Сборы в прокате', share: 'Доля студии', streaming: 'Стриминг', costs: 'Затраты', profit: 'Прибыль',
+    gains: 'Итоги для карьеры', xp: 'Опыт', discover: 'Открытия', toStudio: 'В студию',
+    lvl: 'Уровень', points: 'Очки навыков', skills: 'Навыки режиссёра', mastery: 'Мастерство в жанрах', films: 'фильмов',
+    upgrades: 'Развитие студии', buy: 'Купить', owned: 'Есть', filmography: 'Фильмография',
+    awardsTitle: 'Церемония «Золотая бобина»', nominated: 'Номинация', won: 'Победа!', lost: 'Не в этот раз',
+    noNoms: 'В этом году ваши фильмы не попали в номинации. Нужно 72+ от критиков.', awards: 'Награды',
+    settings: 'Настройки', lang: 'Язык', reset: 'Начать карьеру заново', resetSure: 'Точно? Нажмите ещё раз',
+    onbTitle: 'Добро пожаловать в Голливуд', onbText: 'У вас есть 120 000 $, старенькая камера и мечта. Снимайте фильмы, открывайте удачные сочетания жанров и тем, нанимайте звёзд и превращайте гараж в киноимперию.',
+    yourName: 'Имя режиссёра', studioName: 'Название студии', begin: 'Начать карьеру', defStudio: 'Гаражные фильмы',
+    fatigue: 'Похожий фильм уже был недавно: публика ждёт нового.', trendHit: 'Попали в тренд!',
+    newYear: 'Наступил', levelUp: 'Новый уровень режиссёра!', goalDone: 'Цель выполнена',
+    unlockedNew: 'Открыто', profitShort: 'приб.', gigDone: 'Ролик снят: +30 000 $',
+    ratingMiss: 'Рейтинг не подходит жанру.', saved: 'Прогресс сохраняется автоматически.',
+    playedIn: 'Telegram', browser: 'браузер', moreTalent: 'Ещё {n} — откроются с ростом репутации и студии.',
+  },
+  en: {
+    tagline: 'Studio', newFilm: 'Make a new film', money: 'Cash', rep: 'Reputation', fans: 'Fans', year: 'Year',
+    tabHome: 'Studio', tabUp: 'Upgrades', tabDir: 'Director', tabFilms: 'Films',
+    news: 'Industry news', hot: 'Trending', cold: 'Audiences are tired of', hotTheme: 'Hot topic',
+    lastFilm: 'Latest premiere', noFilms: 'No films yet. Time to start rolling.',
+    goal: 'Career goal', reward: 'Reward', allGoals: 'Every goal completed. A legend!',
+    gig: 'Shoot a commercial', gigD: 'Cash is tight. A yogurt ad pays $30,000 and a bit of experience.',
+    step: 'Step', of: 'of', back: 'Back', next: 'Next', start: 'Action!',
+    s0: 'Pick a genre', s1: 'What is it about?', s2: 'Era and rating', s3: 'Crew and cast', s4: 'Budget and marketing', s5: 'Final cut',
+    era: 'Era', rating: 'Age rating', writer: 'Screenwriter', lead: 'Lead role', co: 'Supporting role',
+    budget: 'Production budget', marketing: 'Marketing campaign', focus: 'Production focus', focusD: 'Split 10 points of attention across the film. Every genre needs a different balance.',
+    left: 'Points left', title: 'Title', reroll: 'Reroll', total: 'Total', cost: 'Cost', notEnough: 'Not enough cash',
+    skill: 'Skill', star: 'Star power', locked: 'Locked', needRep: 'rep', needUp: 'needs', costMult: 'cost ×',
+    hintIdeal: 'The dashed outline shows the ideal balance for this genre. You have learned it.',
+    combo2: 'great', combo1: 'good', combo0: 'neutral', 'combo-1': 'weak', 'combo-2': 'disaster', comboU: '?',
+    prod: ['Pre-production', 'Shooting', 'Editing', 'Premiere prep'], decision: 'On-set decision', premiere: 'Premiere!',
+    critics: 'Critics', audience: 'Audience', boxoffice: 'Weekly box office', wk: 'w',
+    gross: 'Box office gross', share: 'Studio share', streaming: 'Streaming', costs: 'Costs', profit: 'Profit',
+    gains: 'Career results', xp: 'XP', discover: 'Discoveries', toStudio: 'Back to studio',
+    lvl: 'Level', points: 'Skill points', skills: 'Director skills', mastery: 'Genre mastery', films: 'films',
+    upgrades: 'Studio upgrades', buy: 'Buy', owned: 'Owned', filmography: 'Filmography',
+    awardsTitle: 'The Golden Reel Awards', nominated: 'Nominated', won: 'Winner!', lost: 'Not this time',
+    noNoms: 'None of your films were nominated this year. You need 72+ from critics.', awards: 'Awards',
+    settings: 'Settings', lang: 'Language', reset: 'Restart career', resetSure: 'Sure? Tap again',
+    onbTitle: 'Welcome to Hollywood', onbText: 'You have $120,000, an old camera and a dream. Make films, discover which genres and themes click, hire stars and turn a garage into a film empire.',
+    yourName: 'Director name', studioName: 'Studio name', begin: 'Start career', defStudio: 'Garage Pictures',
+    fatigue: 'A similar film came out recently. Audiences want something new.', trendHit: 'Right on trend!',
+    newYear: 'Welcome to', levelUp: 'Director level up!', goalDone: 'Goal complete',
+    unlockedNew: 'Unlocked', profitShort: 'profit', gigDone: 'Commercial done: +$30,000',
+    ratingMiss: 'The rating does not suit the genre.', saved: 'Progress saves automatically.',
+    playedIn: 'Telegram', browser: 'browser', moreTalent: '{n} more unlock as your reputation and studio grow.',
+  },
+};
+
+/* ---------- State ---------- */
+const SAVE_KEY = 'directors_cut_v1';
+function detectLang() {
+  try { const c = inTG && TG.initDataUnsafe && TG.initDataUnsafe.user && TG.initDataUnsafe.user.language_code; if (c) return c.startsWith('ru') ? 'ru' : 'en'; } catch (e) {}
+  return (navigator.language || 'en').toLowerCase().startsWith('ru') ? 'ru' : 'en';
+}
+function newGame(lang) {
+  return { v: 1, lang: lang || detectLang(), director: '', studio: '', started: false,
+    money: 120000, rep: 0, fans: 0, month: 0, xp: 0, level: 1, points: 1,
+    skills: { story: 0, actors: 0, visual: 0, sound: 0, charisma: 0, showman: 0 },
+    upgrades: {}, films: [], know: { gt: {}, ge: {}, te: {}, focus: {} }, mastery: {}, cast: {},
+    trends: null, awards: 0, goals: {}, totalGross: 0, pendingAwards: null, nextId: 1 };
+}
+let G = load() || newGame();
+let screen = G.started ? 'home' : 'onboard';
+let W = null;      // wizard draft
+let P = null;      // production run
+let R = null;      // last result
+let resetArm = false;
+
+function load() {
+  try { const s = localStorage.getItem(SAVE_KEY); if (s) return Object.assign(newGame(), JSON.parse(s)); } catch (e) {}
+  return null;
+}
+function save() {
+  const json = JSON.stringify(G);
+  try { localStorage.setItem(SAVE_KEY, json); } catch (e) {}
+  try {
+    if (inTG && TG.CloudStorage && TG.isVersionAtLeast && TG.isVersionAtLeast('6.9')) {
+      // CloudStorage values are capped at 4096 chars: store the save in chunks.
+      const parts = json.match(/[\s\S]{1,4000}/g) || [];
+      TG.CloudStorage.setItem('dc_n', String(parts.length));
+      parts.forEach((p, i) => TG.CloudStorage.setItem('dc_' + i, p));
+    }
+  } catch (e) {}
+}
+function loadCloud(done) {
+  try {
+    if (!(inTG && TG.CloudStorage && TG.isVersionAtLeast && TG.isVersionAtLeast('6.9'))) return done();
+    TG.CloudStorage.getItem('dc_n', (err, n) => {
+      n = +n; if (err || !n) return done();
+      const keys = Array.from({ length: n }, (_, i) => 'dc_' + i);
+      TG.CloudStorage.getItems(keys, (err2, vals) => {
+        try {
+          if (!err2 && vals) {
+            const cloud = JSON.parse(keys.map(k => vals[k] || '').join(''));
+            if (cloud && (cloud.films || []).length > G.films.length) { G = Object.assign(newGame(), cloud); screen = G.started ? 'home' : 'onboard'; }
+          }
+        } catch (e) {}
+        done();
+      });
+    });
+  } catch (e) { done(); }
+}
+
+/* ---------- Helpers ---------- */
+const $ = s => document.querySelector(s);
+const L = o => (o && (o[G.lang] || o.en)) || '';
+const T = k => (STR[G.lang] && STR[G.lang][k] !== undefined ? STR[G.lang][k] : STR.en[k]);
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const byId = (list, id) => list.find(x => x.id === id);
+const year = () => 1990 + Math.floor(G.month / 12);
+function money(n) {
+  const neg = n < 0; n = Math.abs(n); let s;
+  if (G.lang === 'ru') {
+    if (n >= 1e9) s = (n / 1e9).toFixed(1).replace('.', ',') + ' млрд $';
+    else if (n >= 1e6) s = (n / 1e6).toFixed(n >= 1e7 ? 1 : 2).replace('.', ',') + ' млн $';
+    else if (n >= 1e3) s = Math.round(n / 1e3) + ' тыс. $';
+    else s = Math.round(n) + ' $';
+  } else {
+    if (n >= 1e9) s = '$' + (n / 1e9).toFixed(1) + 'B';
+    else if (n >= 1e6) s = '$' + (n / 1e6).toFixed(n >= 1e7 ? 1 : 2) + 'M';
+    else if (n >= 1e3) s = '$' + Math.round(n / 1e3) + 'k';
+    else s = '$' + Math.round(n);
+  }
+  return (neg ? '−' : '') + s;
+}
+function moneyShort(n) {
+  const a = Math.abs(n), sign = n < 0 ? '−' : '';
+  return sign + '$' + (a >= 1e9 ? (a / 1e9).toFixed(1) + 'B' : a >= 1e6 ? (a / 1e6).toFixed(a >= 1e7 ? 1 : 2) + 'M' : a >= 1e3 ? Math.round(a / 1e3) + 'K' : Math.round(a));
+}
+function count(n) { return n >= 1e6 ? (n / 1e6).toFixed(1) + (G.lang === 'ru' ? ' млн' : 'M') : n >= 1e3 ? Math.round(n / 1e3) + (G.lang === 'ru' ? ' тыс.' : 'k') : String(Math.round(n)); }
+function has(up) { return !!G.upgrades[up]; }
+function unlocked(req) { return (!req.rep || G.rep >= req.rep) && (!req.up || has(req.up)); }
+function reqText(req) {
+  const p = [];
+  if (req.up && !has(req.up)) p.push(T('needUp') + ' «' + L(byId(UPGRADES, req.up)) + '»');
+  if (req.rep && G.rep < req.rep) p.push(req.rep + ' ' + T('needRep'));
+  return p.join(', ');
+}
+let toastTimer;
+function toast(msg) {
+  let el = $('.toast'); if (el) el.remove();
+  el = document.createElement('div'); el.className = 'toast'; el.textContent = msg; document.body.appendChild(el);
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.remove(), 2600);
+}
+function scoreClass(s) { return s >= 70 ? 'hi' : s >= 45 ? 'mid' : 'lo'; }
+function actorState(a) {
+  const c = G.cast[a.id] || {};
+  const skill = clamp(a.skill + (c.skill || 0), 1, 10), star = clamp(a.star + (c.star || 0), 0, 10);
+  return { skill, star };
+}
+function feeOf(p, isActor) {
+  let fee = p.fee;
+  if (isActor) { const s = actorState(p); fee *= 1 + .18 * (s.star - p.star); }
+  fee *= 1 - .06 * G.skills.charisma;
+  if (has('casting')) fee *= .9;
+  return Math.round(fee / 500) * 500;
+}
+function xpNeed(l) { return 100 + 70 * (l - 1); }
+function mktCost(m) { return Math.round(m.cost * (has('marketing') ? .8 : 1)); }
+function genreLevel(g) { return Math.min(5, G.mastery[g] || 0); }
+function ensureTrends() {
+  if (G.trends && G.trends.year === year()) return;
+  const ids = GENRES.map(g => g.id).sort(() => Math.random() - .5);
+  G.trends = { year: year(), hot: [ids[0], ids[1]], cold: ids[2], theme: pick(THEMES).id };
+}
+function comboTag(v) {
+  if (v === undefined) return `<span class="tag g0">?</span>`;
+  const cls = v >= 2 ? 'g2' : v === 1 ? 'g1' : v === 0 ? 'g0' : 'gm';
+  return `<span class="tag ${cls}">${T('combo' + v)}</span>`;
+}
+function genTitle(genre, theme) {
+  const w = pick(TITLE_WORDS[theme][G.lang]), tail = pick(TITLE_TAILS[genre][G.lang]);
+  return tail ? (/^\d|^[A-ZА-Я]/.test(tail) && !/^(and|in|on|at|of|for|by|to|from|under|with|без|на|в|во|из|под|за|у|и|с|как)\b/i.test(tail) ? w + ': ' + tail : w + ' ' + tail) : w;
+}
+
+/* ---------- Icons ---------- */
+const ICON = {
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10h18v10H3z"/><path d="M3 10l3-6 4 6 4-6 4 6 3-6"/></svg>',
+  up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/></svg>',
+  dir: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9h16v11H4z"/><path d="M4 9l2-5 3 5M10 4l3 5M15 4l3 5"/></svg>',
+  films: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 3v18M16 3v18M4 8h4M4 13h4M4 18h4M16 8h4M16 13h4M16 18h4"/></svg>',
+};
+
+/* ---------- Rendering ---------- */
+function render() {
+  const app = $('#app');
+  let html = '', bar = '';
+  if (screen === 'onboard') html = vOnboard();
+  else if (screen === 'wizard') { html = vWizard(); bar = wizardBar(); }
+  else if (screen === 'production') html = vProduction();
+  else if (screen === 'results') { html = vResults(); bar = `<div class="inner"><button class="btn primary big" data-act="closeResults">${T('toStudio')}</button></div>`; }
+  else if (screen === 'awards') { html = vAwards(); bar = `<div class="inner"><button class="btn primary big" data-act="closeAwards">${T('toStudio')}</button></div>`; }
+  else {
+    html = header() + (screen === 'home' ? vHome() : screen === 'upgrades' ? vUpgrades() : screen === 'director' ? vDirector() : vFilms());
+    bar = `<div class="inner nav">${[['home', 'tabHome', 'home'], ['upgrades', 'tabUp', 'up'], ['director', 'tabDir', 'dir'], ['films', 'tabFilms', 'films']].map(([s, k, i]) =>
+      `<button class="${screen === s ? 'on' : ''}" data-act="tab" data-v="${s}">${ICON[i]}${T(k)}${s === 'director' && G.points > 0 ? ' •' : ''}</button>`).join('')}</div>`;
+  }
+  app.innerHTML = html;
+  let b = $('.bottombar');
+  if (bar) { if (!b) { b = document.createElement('div'); b.className = 'bottombar'; document.body.appendChild(b); } b.innerHTML = bar; }
+  else if (b) b.remove();
+  syncBackButton();
+}
+function syncBackButton() {
+  if (!inTG || !TG.BackButton) return;
+  try { if (screen === 'wizard') TG.BackButton.show(); else TG.BackButton.hide(); } catch (e) {}
+}
+
+function header() {
+  return `<div class="marquee">
+    <div class="row"><div class="sub">${esc(G.director)} · ${T('lvl')} ${G.level}</div><div class="spacer"></div><button class="langbtn" data-act="lang">${G.lang === 'ru' ? 'EN' : 'RU'}</button></div>
+    <div class="studio">${esc(G.studio)}</div>
+    <div class="stats">
+      <div class="stat"><span>${T('money')}</span><b>${moneyShort(G.money)}</b></div>
+      <div class="stat"><span>${T('rep')}</span><b>${Math.round(G.rep)}</b></div>
+      <div class="stat"><span>${T('fans')}</span><b>${count(G.fans)}</b></div>
+      <div class="stat"><span>${T('year')}</span><b>${year()}</b></div>
+    </div></div>`;
+}
+
+function vOnboard() {
+  const tgName = inTG && TG.initDataUnsafe && TG.initDataUnsafe.user ? [TG.initDataUnsafe.user.first_name, TG.initDataUnsafe.user.last_name].filter(Boolean).join(' ') : '';
+  return `<div class="stack" style="padding-top:8px">
+    <div class="marquee"><div class="row"><div class="sub">Director's Cut</div><div class="spacer"></div><button class="langbtn" data-act="lang">${G.lang === 'ru' ? 'EN' : 'RU'}</button></div>
+    <div class="studio" style="font-size:34px">${T('onbTitle')}</div></div>
+    <p>${T('onbText')}</p>
+    <div class="card stack">
+      <label class="stack" style="gap:6px"><span class="muted small">${T('yourName')}</span><input id="in-dir" type="text" maxlength="28" value="${esc(G.director || tgName)}" placeholder="Alex Smith"></label>
+      <label class="stack" style="gap:6px"><span class="muted small">${T('studioName')}</span><input id="in-studio" type="text" maxlength="28" value="${esc(G.studio || T('defStudio'))}"></label>
+    </div>
+    <button class="btn primary big" data-act="begin">${T('begin')}</button>
+  </div>`;
+}
+
+function vHome() {
+  ensureTrends();
+  const tr = G.trends, last = G.films[G.films.length - 1];
+  const goal = GOALS.find(g => !G.goals[g.id]);
+  const cheapest = BUDGETS[0].cost + 3500 * 3;
+  return `<div class="stack" style="margin-top:14px">
+    <button class="btn primary big" data-act="newFilm">${T('newFilm')}</button>
+    ${G.money < Math.max(60000, cheapest) ? `<div class="card row"><div style="flex:1;min-width:0"><b>${T('gig')}</b><div class="muted small">${T('gigD')}</div></div><button class="btn sm" data-act="gig">+$30k</button></div>` : ''}
+    <div class="card stack" style="gap:8px">
+      <h3>${T('news')} · ${year()}</h3>
+      <div>${T('hot')}: ${tr.hot.map(g => `<span class="pill" style="color:var(--bulb)">${L(byId(GENRES, g))}</span>`).join(' ')}</div>
+      <div>${T('hotTheme')}: <span class="pill" style="color:var(--bulb)">${L(byId(THEMES, tr.theme))}</span></div>
+      <div class="muted">${T('cold')}: <span class="pill">${L(byId(GENRES, tr.cold))}</span></div>
+    </div>
+    <div class="ticket">
+      <div class="muted small" style="text-transform:uppercase;letter-spacing:.08em">${T('goal')}</div>
+      ${goal ? `<div style="font-family:var(--display);font-size:20px;font-weight:600;text-transform:uppercase">${L(goal)}</div><div class="small">${T('reward')}: <b class="mono">${money(goal.reward)}</b></div>` : `<div style="font-family:var(--display);font-size:20px">${T('allGoals')}</div>`}
+    </div>
+    <div class="stack" style="gap:8px"><h3>${T('lastFilm')}</h3>
+      ${last ? filmRow(last) : `<p class="muted">${T('noFilms')}</p>`}
+    </div>
+  </div>`;
+}
+
+function poster(f) {
+  const g = byId(GENRES, f.genre);
+  const seed = f.id * 37 % 360;
+  return `<div class="poster" style="background:linear-gradient(${160 + seed % 40}deg, ${g.col} 0%, #12070a 85%)">
+    <div class="shape" style="background:radial-gradient(circle at ${30 + seed % 50}% ${25 + seed % 30}%, rgba(255,255,255,.35) 0 ${10 + seed % 14}%, transparent ${11 + seed % 14}%)"></div>
+    <span class="ps ${scoreClass(f.critic)}">${f.critic}</span>
+    <div class="pt">${esc(f.title)}</div><div class="py">${f.year} · ${L(g)}</div></div>`;
+}
+function filmRow(f) {
+  return `<div class="filmrow card">${poster(f)}<div style="min-width:0">
+    <div style="font-family:var(--display);font-size:18px;text-transform:uppercase;font-weight:600">${esc(f.title)}</div>
+    <div class="muted small">${L(byId(GENRES, f.genre))} · ${L(byId(THEMES, f.theme))} · ${L(byId(ERAS, f.era))}</div>
+    <div class="bars" style="margin-top:6px"><span>${T('critics')} <b class="${scoreClass(f.critic)}">${f.critic}</b></span><span>${T('audience')} <b class="${scoreClass(f.aud)}">${f.aud}</b></span></div>
+    <div class="bars"><span>${T('gross')} <b>${money(f.gross)}</b></span><span>${T('profitShort')} <b class="${f.profit >= 0 ? 'hi' : 'lo'}">${money(f.profit)}</b></span></div>
+    ${f.award ? `<div class="trophy small">★ ${T('awards')}: ${L({ ru: '«Золотая бобина»', en: 'Golden Reel' })}</div>` : ''}
+  </div></div>`;
+}
+
+function vFilms() {
+  const list = G.films.slice().reverse();
+  return `<div class="stack" style="margin-top:14px"><h2>${T('filmography')} <span class="muted mono" style="font-size:16px">${G.films.length}</span></h2>
+    ${list.length ? list.map(filmRow).join('') : `<p class="muted">${T('noFilms')}</p>`}</div>`;
+}
+
+function vUpgrades() {
+  return `<div class="stack" style="margin-top:14px"><h2>${T('upgrades')}</h2>
+    ${UPGRADES.map(u => {
+      const own = has(u.id), ok = unlocked(u.req), afford = G.money >= u.cost;
+      return `<div class="card row" style="align-items:flex-start;${own ? 'border-color:var(--bulb-dim)' : ''}${!ok && !own ? 'opacity:.55' : ''}">
+        <div style="flex:1;min-width:0"><div style="font-family:var(--display);font-size:18px;text-transform:uppercase;font-weight:500">${L(u)}</div>
+        <div class="muted small">${L(u.d)}</div>
+        ${!own && !ok ? `<div class="small" style="color:var(--bad);margin-top:4px">${T('locked')}: ${reqText(u.req)}</div>` : ''}</div>
+        ${own ? `<span class="pill" style="color:var(--good)">${T('owned')}</span>` : `<button class="btn sm ${ok && afford ? 'primary' : ''}" data-act="buy" data-v="${u.id}" ${ok && afford ? '' : 'disabled'}>${money(u.cost)}</button>`}
+      </div>`;
+    }).join('')}</div>`;
+}
+
+function vDirector() {
+  const need = xpNeed(G.level);
+  return `<div class="stack" style="margin-top:14px">
+    <div class="card"><div class="row"><h2>${esc(G.director)}</h2><div class="spacer"></div><span class="pill">${T('lvl')} ${G.level}</span></div>
+      <div class="muted small" style="margin-top:6px">${T('xp')} <span class="mono">${Math.floor(G.xp)} / ${need}</span></div><div class="xpbar"><i style="width:${clamp(G.xp / need * 100, 0, 100)}%"></i></div>
+      <div class="row" style="margin-top:10px"><span class="trophy">★ ${G.awards}</span><span class="muted small">${T('awards')}</span></div>
+    </div>
+    <div class="row"><h3>${T('skills')}</h3><div class="spacer"></div><span class="pill" style="${G.points ? 'color:var(--bulb);border-color:var(--bulb)' : ''}">${T('points')}: ${G.points}</span></div>
+    ${SKILLS.map(s => `<div class="card row"><div style="flex:1;min-width:0"><b>${L(s)}</b><div class="muted small">${L(s.d)}</div>
+      <div class="pips" style="margin-top:6px">${Array.from({ length: SKILL_MAX }, (_, i) => `<i class="${i < G.skills[s.id] ? 'on' : ''}"></i>`).join('')}</div></div>
+      <button class="btn sm ${G.points && G.skills[s.id] < SKILL_MAX ? 'primary' : ''}" data-act="skill" data-v="${s.id}" ${G.points && G.skills[s.id] < SKILL_MAX ? '' : 'disabled'}>+</button></div>`).join('')}
+    <h3>${T('mastery')}</h3>
+    <div class="card stack" style="gap:8px">${GENRES.filter(g => G.mastery[g.id]).map(g => `<div class="row"><span style="flex:1">${L(g)}</span><span class="muted small mono">${G.mastery[g.id]} ${T('films')}</span>
+      <div class="pips" style="width:110px">${Array.from({ length: 5 }, (_, i) => `<i class="${i < genreLevel(g.id) ? 'on' : ''}"></i>`).join('')}</div></div>`).join('') || `<span class="muted">${T('noFilms')}</span>`}</div>
+    <h3>${T('settings')}</h3>
+    <div class="card stack">
+      <div class="row"><span style="flex:1">${T('lang')}</span><button class="btn sm ${G.lang === 'ru' ? 'primary' : ''}" data-act="setlang" data-v="ru">RU</button><button class="btn sm ${G.lang === 'en' ? 'primary' : ''}" data-act="setlang" data-v="en">EN</button></div>
+      <div class="muted small">${T('saved')} (${inTG ? T('playedIn') : T('browser')})</div>
+      <button class="btn" data-act="reset" style="color:var(--bad)">${resetArm ? T('resetSure') : T('reset')}</button>
+    </div>
+  </div>`;
+}
+
+/* ---------- Wizard ---------- */
+const STEPS = 6;
+function startWizard() {
+  ensureTrends();
+  const last = G.films[G.films.length - 1];
+  W = { step: 0, genre: null, theme: null, era: 'modern', rating: null, writer: null, lead: null, co: null,
+    budget: last && unlocked(byId(BUDGETS, last.budget).req) ? last.budget : 'indie', mkt: 'small', focus: [3, 3, 2, 2], title: '', titleEdited: false };
+  screen = 'wizard'; render(); window.scrollTo(0, 0);
+}
+function wizardCost() {
+  if (!W) return 0;
+  const era = byId(ERAS, W.era), b = byId(BUDGETS, W.budget), m = byId(MARKETING, W.mkt);
+  let c = b.cost * era.mult + mktCost(m);
+  if (W.writer) c += feeOf(byId(WRITERS, W.writer));
+  if (W.lead) c += feeOf(byId(ACTORS, W.lead), true);
+  if (W.co) c += feeOf(byId(ACTORS, W.co), true);
+  return Math.round(c);
+}
+function stepValid(s) {
+  if (s === 0) return !!W.genre;
+  if (s === 1) return !!W.theme;
+  if (s === 2) return !!W.era && !!W.rating;
+  if (s === 3) return W.writer && W.lead && W.co && W.lead !== W.co;
+  if (s === 4) return wizardCost() <= G.money;
+  if (s === 5) return W.focus.reduce((a, b) => a + b, 0) === 10 && W.title.trim() && wizardCost() <= G.money;
+  return true;
+}
+function wizardBar() {
+  const c = wizardCost(), over = c > G.money;
+  const last = W.step === STEPS - 1;
+  return `<div class="inner">
+    <button class="btn" data-act="wback">${T('back')}</button>
+    <div style="flex:1;min-width:0;text-align:center"><div class="muted small">${T('total')}</div><div class="mono ${over ? 'lo' : ''}" style="font-weight:600">${money(c)}</div></div>
+    <button class="btn ${last ? 'primary' : 'primary'}" data-act="${last ? 'shoot' : 'wnext'}" ${stepValid(W.step) ? '' : 'disabled'}>${last ? T('start') : T('next')}</button>
+  </div>`;
+}
+function optBtn({ act, v, sel, locked, title, desc, tag, sw }) {
+  return `<button class="opt ${sel ? 'sel' : ''} ${locked ? 'locked' : ''}" data-act="${act}" data-v="${v}" ${locked ? 'data-locked="1"' : ''}>
+    ${sw ? `<div class="swatch" style="background:${sw}"></div>` : ''}${tag || ''}<span class="t">${title}</span>${desc ? `<span class="d">${desc}</span>` : ''}</button>`;
+}
+function personBtn(p, act, sel, isActor, disabled) {
+  const st = isActor ? actorState(p) : { skill: p.skill };
+  const req = TIER_REQ[p.tier], ok = unlocked(req);
+  const aff = W.genre && p.aff.includes(W.genre);
+  const initials = L(p).split(' ').map(x => x[0]).join('').slice(0, 2);
+  return `<button class="opt person ${sel ? 'sel' : ''} ${!ok || disabled ? 'locked' : ''}" data-act="${act}" data-v="${p.id}" ${!ok || disabled ? 'data-locked="1"' : ''} ${!ok ? `data-why="${esc(reqText(req))}"` : ''}>
+    <span class="avatar" style="background:${p.col}">${initials}</span>
+    <span class="info"><span class="name">${L(p)}</span>
+      <span class="bars"><span>${T('skill')} <b>${st.skill.toFixed(1).replace('.0', '')}</b></span>${isActor ? `<span>${T('star')} <b>${st.star.toFixed(1).replace('.0', '')}</b></span>` : ''}</span>
+      <span class="d" style="${aff ? 'color:var(--good)' : ''}">${p.aff.map(a => L(byId(GENRES, a))).join(', ')}${!ok ? ' · ' + reqText(req) : ''}</span></span>
+    <span class="fee">${money(feeOf(p, isActor))}</span></button>`;
+}
+function vWizard() {
+  const s = W.step;
+  let body = '';
+  if (s === 0) {
+    body = `<div class="grid">${GENRES.map(g => {
+      const ok = unlocked(g.req), lvl = genreLevel(g.id);
+      const hot = G.trends.hot.includes(g.id), cold = G.trends.cold === g.id;
+      const tag = hot ? `<span class="tag hot">${T('hot')}</span>` : cold ? `<span class="tag gm">↓</span>` : '';
+      return optBtn({ act: 'genre', v: g.id, sel: W.genre === g.id, locked: !ok, title: L(g), sw: g.col, tag,
+        desc: ok ? (lvl ? `${T('mastery').split(' ')[0]} ${'●'.repeat(lvl)}${'○'.repeat(5 - lvl)}` : '&nbsp;') : reqText(g.req) });
+    }).join('')}</div>`;
+  } else if (s === 1) {
+    body = `<div class="grid">${THEMES.map(t => {
+      const ok = unlocked(t.req), k = G.know.gt[W.genre + '|' + t.id];
+      const hot = G.trends.theme === t.id;
+      return optBtn({ act: 'theme', v: t.id, sel: W.theme === t.id, locked: !ok, title: L(t),
+        tag: ok ? comboTag(k) : '', desc: ok ? (hot ? `<span style="color:var(--bulb)">${T('hotTheme')}</span>` : '&nbsp;') : reqText(t.req) });
+    }).join('')}</div>`;
+  } else if (s === 2) {
+    const g = byId(GENRES, W.genre);
+    body = `<h3>${T('era')}</h3><div class="grid">${ERAS.map(e => {
+      const ok = unlocked(e.req), k1 = G.know.ge[W.genre + '|' + e.id], k2 = G.know.te[W.theme + '|' + e.id];
+      const known = k1 !== undefined && k2 !== undefined ? Math.round((k1 + k2) / 2) : k1 !== undefined ? k1 : k2;
+      return optBtn({ act: 'era', v: e.id, sel: W.era === e.id, locked: !ok, title: L(e), tag: ok ? comboTag(known) : '',
+        desc: ok ? `${T('costMult')}${e.mult}` : reqText(e.req) });
+    }).join('')}</div>
+    <h3 style="margin-top:16px">${T('rating')}</h3><div class="grid" style="grid-template-columns:repeat(4,1fr)">${RATINGS.map(r => {
+      const fit = g.rat.includes(r.id) && G.know.focus[W.genre];
+      return optBtn({ act: 'rating', v: r.id, sel: W.rating === r.id, title: r.label, desc: fit ? `<span style="color:var(--good)">✓</span>` : '&nbsp;' });
+    }).join('')}</div>`;
+  } else if (s === 3) {
+    // Show everyone available plus a two-person teaser of the next locked tier.
+    const roster = (list, fn) => {
+      const open = list.filter(x => unlocked(TIER_REQ[x.tier])), locked = list.filter(x => !unlocked(TIER_REQ[x.tier]));
+      const tease = locked.slice(0, 2), more = locked.length - tease.length;
+      return `<div class="stack" style="gap:8px">${open.concat(tease).map(fn).join('')}${more > 0 ? `<div class="muted small">${T('moreTalent').replace('{n}', more)}</div>` : ''}</div>`;
+    };
+    body = `<h3>${T('writer')}</h3>${roster(WRITERS, w => personBtn(w, 'writer', W.writer === w.id, false))}
+      <h3 style="margin-top:16px">${T('lead')}</h3>${roster(ACTORS, a => personBtn(a, 'lead', W.lead === a.id, true, W.co === a.id))}
+      <h3 style="margin-top:16px">${T('co')}</h3>${roster(ACTORS, a => personBtn(a, 'co', W.co === a.id, true, W.lead === a.id))}`;
+  } else if (s === 4) {
+    const era = byId(ERAS, W.era);
+    body = `<h3>${T('budget')}</h3><div class="grid">${BUDGETS.map(b => optBtn({ act: 'budget', v: b.id, sel: W.budget === b.id, locked: !unlocked(b.req), title: L(b),
+      desc: unlocked(b.req) ? money(b.cost * era.mult) : reqText(b.req) })).join('')}</div>
+      <h3 style="margin-top:16px">${T('marketing')}</h3><div class="grid">${MARKETING.map(m => optBtn({ act: 'mkt', v: m.id, sel: W.mkt === m.id, locked: !unlocked(m.req), title: L(m),
+      desc: unlocked(m.req) ? money(mktCost(m)) : reqText(m.req) })).join('')}</div>
+      ${wizardCost() > G.money ? `<p class="lo">${T('notEnough')}: ${money(wizardCost() - G.money)}</p>` : ''}`;
+  } else if (s === 5) {
+    const g = byId(GENRES, W.genre), used = W.focus.reduce((a, b) => a + b, 0), knows = G.know.focus[W.genre];
+    body = `<div class="card stack" style="gap:6px"><h3>${T('title')}</h3>
+      <div class="row"><input id="in-title" type="text" maxlength="40" value="${esc(W.title)}"><button class="btn sm" data-act="reroll">${T('reroll')}</button></div></div>
+      <div class="card"><div class="row"><h3>${T('focus')}</h3><div class="spacer"></div><span class="pill mono">${T('left')}: ${10 - used}</span></div>
+      <p class="muted small" style="margin:6px 0 4px">${T('focusD')}${knows ? ' ' + T('hintIdeal') : ''}</p>
+      ${AREAS.map((a, i) => {
+        const ideal = Math.round(g.focus[i] / 10);
+        return `<div class="focusrow"><span>${L(a)}</span><div class="pm"><button data-act="fminus" data-v="${i}" aria-label="−">−</button><button data-act="fplus" data-v="${i}" aria-label="+">+</button></div>
+        <div class="pips">${Array.from({ length: 10 }, (_, k) => `<i class="${k < W.focus[i] ? 'on' : ''} ${knows && k < ideal ? 'ideal' : ''}"></i>`).join('')}</div></div>`;
+      }).join('')}</div>
+      <div class="ticket stack" style="gap:4px">
+        <div style="font-family:var(--display);font-size:22px;font-weight:700;text-transform:uppercase">${esc(W.title || '…')}</div>
+        <div class="small">${L(g)} · ${L(byId(THEMES, W.theme))} · ${L(byId(ERAS, W.era))} · ${byId(RATINGS, W.rating).label}</div>
+        <div class="small muted">${L(byId(WRITERS, W.writer))} / ${L(byId(ACTORS, W.lead))}, ${L(byId(ACTORS, W.co))}</div>
+        <div class="small">${L(byId(BUDGETS, W.budget))} · ${L(byId(MARKETING, W.mkt))} · <b class="mono">${money(wizardCost())}</b></div>
+      </div>`;
+  }
+  return `<div class="row" style="margin-top:4px"><span class="muted small">${T('step')} ${s + 1} ${T('of')} ${STEPS}</span><div class="spacer"></div><span class="mono small">${money(G.money)}</span></div>
+    <div class="steps">${Array.from({ length: STEPS }, (_, i) => `<i class="${i <= s ? 'on' : ''}"></i>`).join('')}</div>
+    <h2 style="margin-bottom:12px">${T('s' + s)}</h2><div class="stack">${body}</div>`;
+}
+
+/* ---------- Production ---------- */
+function startProduction() {
+  const cost = wizardCost();
+  if (cost > G.money) { toast(T('notEnough')); haptic('err'); return; }
+  G.money -= cost;
+  P = { draft: Object.assign({}, W), cost, progress: 0, stage: 0, event: pick(EVENTS), eventDone: false, fx: {}, choice: null, extra: 0 };
+  G.prod = P; W = null; screen = 'production'; save(); render(); haptic('medium');
+  tickProduction();
+}
+let prodTimer;
+function tickProduction() {
+  clearInterval(prodTimer);
+  prodTimer = setInterval(() => {
+    if (!P || screen !== 'production') return clearInterval(prodTimer);
+    if (!P.eventDone && P.progress >= 50) { clearInterval(prodTimer); render(); haptic('warn'); return; }
+    P.progress = Math.min(100, P.progress + 2.5);
+    P.stage = Math.min(3, Math.floor(P.progress / 25));
+    if (P.progress >= 100) { clearInterval(prodTimer); render(); haptic('ok'); return; }
+    const bar = $('.progress i'), st = $('#stage');
+    if (bar) bar.style.width = P.progress + '%';
+    if (st) st.textContent = T('prod')[P.stage];
+  }, 70);
+}
+function vProduction() {
+  const d = P.draft, waiting = !P.eventDone && P.progress >= 50, done = P.progress >= 100;
+  return `<div class="stack" style="padding-top:12px;text-align:center">
+    <div class="muted small">${L(byId(GENRES, d.genre))} · ${L(byId(THEMES, d.theme))}</div>
+    <h2 style="font-size:28px;color:var(--bulb)">${esc(d.title)}</h2>
+    <div class="reel ${waiting || done ? 'stop' : ''}"></div>
+    <div id="stage" style="font-family:var(--display);text-transform:uppercase;letter-spacing:.08em">${done ? T('premiere') : T('prod')[P.stage]}</div>
+    <div class="progress"><i style="width:${P.progress}%"></i></div>
+    ${waiting ? `<div class="ticket stack" style="text-align:left;gap:10px"><div class="muted small" style="text-transform:uppercase;letter-spacing:.08em">${T('decision')}</div>
+      <div style="font-size:17px;font-weight:500">${L(P.event)}</div>
+      <button class="btn primary" data-act="evt" data-v="a">${L(P.event.a)}</button>
+      <button class="btn" style="background:#2a1218;color:var(--cream)" data-act="evt" data-v="b">${L(P.event.b)}</button></div>` : ''}
+    ${done ? `<button class="btn primary big" data-act="release">${T('premiere')}</button>` : ''}
+  </div>`;
+}
+function chooseEvent(v) {
+  const opt = P.event[v], fx = Object.assign({}, opt.fx);
+  const d = P.draft, base = byId(BUDGETS, d.budget).cost * byId(ERAS, d.era).mult;
+  let extra = (fx.cost || 0) + (fx.costPct ? Math.round(base * fx.costPct) : 0);
+  if (extra > G.money) { // cannot pay: take the other option
+    toast(T('notEnough')); haptic('err');
+    if (v === 'a') return chooseEvent('b');
+    extra = 0;
+  }
+  G.money -= extra; P.extra += extra; P.fx = fx; P.eventDone = true; P.choice = v;
+  save(); render(); haptic('light'); tickProduction();
+}
+
+/* ---------- Simulation ---------- */
+function simulate(d, fx, spent) {
+  const g = byId(GENRES, d.genre), era = byId(ERAS, d.era), b = byId(BUDGETS, d.budget), m = byId(MARKETING, d.mkt);
+  const w = byId(WRITERS, d.writer), lead = byId(ACTORS, d.lead), co = byId(ACTORS, d.co);
+  const ls = actorState(lead), cs = actorState(co), sk = G.skills;
+
+  const area = [
+    w.skill + (w.aff.includes(d.genre) ? 1 : 0) + sk.story * .5 + (has('office') ? .5 : 0) + (has('school') ? 1 : 0),
+    ls.skill * .6 + cs.skill * .4 + (lead.aff.includes(d.genre) ? .6 : 0) + (co.aff.includes(d.genre) ? .4 : 0) + sk.actors * .5 + (fx.improv ? ((ls.skill + cs.skill) / 2 >= 6 ? 1 : -.8) : 0),
+    b.vis + sk.visual * .5 + (has('vfx') ? 1 : 0) + (era.period && has('costume') ? .5 : 0),
+    b.snd + 1.5 + sk.sound * .5 + (has('sound') ? 1.5 : 0) + (fx.sndOnly ? 1.2 : 0),
+  ];
+  const craft = area.reduce((s, a, i) => s + a * g.focus[i] / 100, 0);
+  const focusMatch = 1 - d.focus.reduce((s, f, i) => s + Math.abs(f / 10 - g.focus[i] / 100), 0) / 2;
+  const gt = gtVal(d.genre, d.theme), ge = geVal(d.genre, d.era), te = teVal(d.theme, d.era);
+  const fit = clamp(.55 + .15 * gt + .1 * ge + .07 * te, .05, 1);
+  const recent = G.films.slice(-3);
+  const repeat = recent.some(f => f.genre === d.genre && f.theme === d.theme);
+  const sameGenre = recent.length && recent[recent.length - 1].genre === d.genre;
+  const ratingOk = g.rat.includes(d.rating);
+
+  let raw = craft * (.5 + .5 * focusMatch) * (.45 + .55 * fit) + 1.6 + genreLevel(d.genre) * .3
+    + (fx.q && !fx.sndOnly ? fx.q : 0) + (fx.risk ? rand(-fx.risk, fx.risk * 1.15) : 0)
+    - (ratingOk ? 0 : .6) - (repeat ? 1 : 0) + rand(-.6, .6);
+  const q = 10 * (1 - Math.exp(-Math.max(.2, raw) / 6.5));
+
+  const hot = G.trends.hot.includes(d.genre), cold = G.trends.cold === d.genre, hotTheme = G.trends.theme === d.theme;
+  const critic = Math.round(clamp(q * 10 + rand(-4, 4) + (fx.crit || 0) + (d.genre === 'documentary' ? 4 : 0), 3, 99));
+  const aud = Math.round(clamp(q * 8.5 + (ls.star + cs.star) * .8 + 5 + (hot ? 4 : 0) + (hotTheme ? 3 : 0) - (cold ? 4 : 0) + rand(-5, 5), 3, 99));
+
+  const hype = 1 + m.hype * (has('marketing') ? 1.2 : 1) + b.hype + (ls.star + cs.star * .5) / 10 + G.rep / 120
+    + Math.log10(1 + G.fans) / 10 + sk.showman * .1 + (fx.hype || 0);
+  const qMult = .15 + 1.35 * Math.pow(q / 10, 1.6);
+  const trend = (hot ? 1.35 : 1) * (cold ? .75 : 1) * (hotTheme ? 1.15 : 1);
+  const reach = byId(RATINGS, d.rating).reach * (fx.reach || 1);
+  const fatigue = (repeat ? .7 : 1) * (sameGenre ? .85 : 1);
+  const opening = 25000 * Math.pow(m.screens, .85) * Math.pow(hype, 1.2) * qMult * g.aud * trend * reach * fatigue * rand(.9, 1.1);
+  const legs = clamp(.42 + aud / 100 * .43, .4, .88);
+  const weeks = []; let wk = opening;
+  for (let i = 0; i < 8; i++) { weeks.push(Math.round(wk)); wk *= legs * rand(.95, 1.03); }
+  const gross = weeks.reduce((a, b) => a + b, 0);
+  const shareRate = .55 + (has('cinemas') ? .1 : 0);
+  const share = Math.round(gross * shareRate);
+  const stream = has('streaming') ? Math.round(gross * .2) : 0;
+  const profit = share + stream - spent;
+
+  return { q, critic, aud, weeks, gross, share, stream, profit, gt, ge, te, repeat, sameGenre, hot, hotTheme, ratingOk };
+}
+
+function release() {
+  const d = P.draft, fx = P.fx, spent = P.cost + P.extra;
+  const s = simulate(d, fx, spent);
+  const prevYear = year();
+  const film = { id: G.nextId++, title: d.title.trim(), genre: d.genre, theme: d.theme, era: d.era, rating: d.rating, budget: d.budget,
+    writer: d.writer, lead: d.lead, co: d.co, critic: s.critic, aud: s.aud, gross: s.gross, profit: s.profit, cost: spent, year: prevYear, award: false };
+  G.films.push(film);
+  G.money += s.share + s.stream;
+  G.totalGross += s.gross;
+
+  // Discoveries
+  const disc = [];
+  const k = G.know;
+  const reveal = (tbl, key, val, a, b) => { if (tbl[key] === undefined) { tbl[key] = val; disc.push(`${a} + ${b}: <b class="${val > 0 ? 'hi' : val < 0 ? 'lo' : 'mid'}">${T('combo' + val)}</b>`); } };
+  const gn = L(byId(GENRES, d.genre)), tn = L(byId(THEMES, d.theme)), en = L(byId(ERAS, d.era));
+  reveal(k.gt, d.genre + '|' + d.theme, s.gt, gn, tn);
+  reveal(k.ge, d.genre + '|' + d.era, s.ge, gn, en);
+  reveal(k.te, d.theme + '|' + d.era, s.te, tn, en);
+  if (!k.focus[d.genre]) { k.focus[d.genre] = true; disc.push(G.lang === 'ru' ? `Вы поняли, какой баланс нужен жанру «${gn}». Подсказка появится в фокусе съёмок.` : `You learned the ideal balance for ${gn}. It now shows in production focus.`); }
+  if (!s.ratingOk) disc.push(T('ratingMiss'));
+
+  // Career
+  const repDelta = Math.round(clamp((s.critic - 48) / 3 + (s.profit > 0 ? 1 : -1) + (fx.rep || 0), -8, 15));
+  G.rep = clamp(G.rep + repDelta, 0, 100);
+  const fansDelta = Math.round(s.gross / 40 * s.aud / 100);
+  G.fans += fansDelta;
+  const xpGain = Math.round((40 + s.critic * .8 + Math.min(80, s.gross / 60000)) * (has('school') ? 1.3 : 1));
+  G.xp += xpGain;
+  let leveled = 0;
+  while (G.xp >= xpNeed(G.level)) { G.xp -= xpNeed(G.level); G.level++; G.points++; leveled++; }
+  G.mastery[d.genre] = (G.mastery[d.genre] || 0) + 1;
+  for (const id of [d.lead, d.co]) {
+    const c = G.cast[id] || (G.cast[id] = { skill: 0, star: 0 });
+    c.skill = Math.min(c.skill + .2, 3);
+    c.star = clamp(c.star + (s.critic >= 75 ? .5 : s.critic < 35 ? -.3 : .1), -2, 3);
+  }
+
+  // Time & goals
+  G.month += 4;
+  const newYear = year() !== prevYear;
+  if (newYear) { G.pendingAwards = runAwards(prevYear); G.trends = null; ensureTrends(); }
+  const goalsDone = checkGoals();
+  R = { film, s, repDelta, fansDelta, xpGain, leveled, disc, goalsDone, newYear, prevYear };
+  P = null; G.prod = null; screen = 'results'; save(); render(); window.scrollTo(0, 0);
+  haptic(s.critic >= 70 ? 'ok' : s.critic < 40 ? 'err' : 'light');
+  requestAnimationFrame(() => setTimeout(() => {
+    const max = Math.max(...s.weeks);
+    document.querySelectorAll('.chart .bar').forEach((el, i) => { el.style.height = (s.weeks[i] / max * 100) + '%'; });
+  }, 60));
+}
+function checkGoals() {
+  const done = [];
+  for (const g of GOALS) if (!G.goals[g.id] && g.test(G)) { G.goals[g.id] = true; G.money += g.reward; done.push(g); }
+  return done;
+}
+function runAwards(y) {
+  const films = G.films.filter(f => f.year === y);
+  const noms = films.filter(f => f.critic >= 72).map(f => {
+    const win = Math.random() < (f.critic - 60) / 38;
+    if (win) { f.award = true; G.awards++; G.rep = clamp(G.rep + 6, 0, 100); G.fans = Math.round(G.fans * 1.15); }
+    return { id: f.id, title: f.title, critic: f.critic, win };
+  });
+  return { year: y, noms, any: films.length > 0 };
+}
+
+function vResults() {
+  const { film: f, s } = R;
+  const tier = f.critic >= 80 ? 3 : f.critic >= 60 ? 2 : f.critic >= 40 ? 1 : 0;
+  const quote = pick(QUOTES[G.lang][tier]), outlet = pick(OUTLETS[G.lang]);
+  const notes = [];
+  if (s.hot || s.hotTheme) notes.push(`<span class="hi">${T('trendHit')}</span>`);
+  if (s.repeat || s.sameGenre) notes.push(`<span class="lo">${T('fatigue')}</span>`);
+  return `<div class="stack" style="padding-top:8px">
+    <div class="row" style="align-items:flex-end;gap:14px"><div style="width:110px;flex:none">${poster(f)}</div>
+      <div style="min-width:0"><div class="muted small">${T('premiere')} · ${f.year}</div><h2 style="font-size:26px">${esc(f.title)}</h2>
+      <div class="muted small">${L(byId(GENRES, f.genre))} · ${L(byId(THEMES, f.theme))} · ${L(byId(ERAS, f.era))}</div></div></div>
+    <div class="row"><div class="scorebox"><span>${T('critics')}</span><div class="score ${scoreClass(f.critic)}">${f.critic}</div></div>
+      <div class="scorebox"><span>${T('audience')}</span><div class="score ${scoreClass(f.aud)}">${f.aud}</div></div></div>
+    <div class="ticket"><div style="font-size:17px;font-style:italic">«${quote}»</div><div class="muted small" style="margin-top:4px">— ${outlet}</div></div>
+    ${notes.length ? `<div class="small stack" style="gap:4px">${notes.join('')}</div>` : ''}
+    <div class="card"><h3>${T('boxoffice')}</h3>
+      <div class="chart">${s.weeks.map((w, i) => `<div class="col"><div class="bar" style="height:0"></div><div class="lbl">${i + 1}${T('wk')}</div></div>`).join('')}</div></div>
+    <div class="card ledger">
+      <span>${T('gross')}</span><span class="v">${money(s.gross)}</span>
+      <span>${T('share')} (${Math.round((.55 + (has('cinemas') ? .1 : 0)) * 100)}%)</span><span class="v">${money(s.share)}</span>
+      ${s.stream ? `<span>${T('streaming')}</span><span class="v">${money(s.stream)}</span>` : ''}
+      <span>${T('costs')}</span><span class="v">${money(-f.cost)}</span>
+      <span class="total">${T('profit')}</span><span class="v total ${s.profit >= 0 ? 'hi' : 'lo'}">${money(s.profit)}</span>
+    </div>
+    <div class="card stack" style="gap:6px"><h3>${T('gains')}</h3>
+      <div class="bars" style="font-size:14px"><span>${T('rep')} <b class="${R.repDelta >= 0 ? 'hi' : 'lo'}">${R.repDelta >= 0 ? '+' : ''}${R.repDelta}</b></span>
+      <span>${T('fans')} <b>+${count(R.fansDelta)}</b></span><span>${T('xp')} <b>+${R.xpGain}</b></span></div>
+      ${R.leveled ? `<div class="trophy">${T('levelUp')} ${T('lvl')} ${G.level}</div>` : ''}
+      ${R.goalsDone.map(g => `<div class="trophy">${T('goalDone')}: ${L(g)} · +${money(g.reward)}</div>`).join('')}
+    </div>
+    ${R.disc.length ? `<div class="card"><h3>${T('discover')}</h3><ul class="discover" style="margin-top:8px">${R.disc.map(x => `<li>${x}</li>`).join('')}</ul></div>` : ''}
+  </div>`;
+}
+function vAwards() {
+  const a = G.pendingAwards;
+  return `<div class="stack" style="padding-top:12px">
+    <div class="marquee"><div class="sub">${a.year}</div><div class="studio">${T('awardsTitle')}</div></div>
+    ${a.noms.length ? a.noms.map(n => `<div class="ticket row"><div style="flex:1;min-width:0"><div class="muted small">${T('nominated')}</div>
+      <div style="font-family:var(--display);font-size:20px;font-weight:700;text-transform:uppercase">${esc(n.title)}</div></div>
+      <div style="text-align:right"><div class="mono">${n.critic}</div><b style="color:${n.win ? '#2f7a3a' : '#8a3a30'}">${n.win ? '★ ' + T('won') : T('lost')}</b></div></div>`).join('')
+      : `<p class="muted">${T('noNoms')}</p>`}
+    <p class="muted">${T('newYear')} ${a.year + 1}. ${T('hot')}: ${G.trends.hot.map(g => L(byId(GENRES, g))).join(', ')}.</p>
+  </div>`;
+}
+
+/* ---------- Events ---------- */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const act = el.dataset.act, v = el.dataset.v;
+  if (el.dataset.locked) { toast(el.dataset.why || T('locked')); haptic('warn'); return; }
+  switch (act) {
+    case 'lang': G.lang = G.lang === 'ru' ? 'en' : 'ru'; save(); render(); break;
+    case 'setlang': G.lang = v; save(); render(); break;
+    case 'begin': {
+      G.director = ($('#in-dir').value || '').trim() || (G.lang === 'ru' ? 'Режиссёр' : 'Director');
+      G.studio = ($('#in-studio').value || '').trim() || T('defStudio');
+      G.started = true; ensureTrends(); save(); screen = 'home'; render(); haptic('ok'); break;
+    }
+    case 'tab': screen = v; resetArm = false; render(); window.scrollTo(0, 0); haptic('light'); break;
+    case 'newFilm': startWizard(); haptic('medium'); break;
+    case 'gig': G.money += 30000; G.xp += 20; G.month += 2; while (G.xp >= xpNeed(G.level)) { G.xp -= xpNeed(G.level); G.level++; G.points++; }
+      ensureTrends(); save(); render(); toast(T('gigDone')); haptic('ok'); break;
+    case 'genre': W.genre = v; if (!W.titleEdited) W.title = ''; render(); haptic('light'); break;
+    case 'theme': W.theme = v; if (!W.titleEdited) W.title = ''; render(); haptic('light'); break;
+    case 'era': W.era = v; render(); haptic('light'); break;
+    case 'rating': W.rating = v; render(); haptic('light'); break;
+    case 'writer': W.writer = v; render(); haptic('light'); break;
+    case 'lead': W.lead = v; render(); haptic('light'); break;
+    case 'co': W.co = v; render(); haptic('light'); break;
+    case 'budget': W.budget = v; render(); haptic('light'); break;
+    case 'mkt': W.mkt = v; render(); haptic('light'); break;
+    case 'fplus': { const i = +v, used = W.focus.reduce((a, b) => a + b, 0); if (used < 10 && W.focus[i] < 10) { W.focus[i]++; render(); haptic('light'); } break; }
+    case 'fminus': { const i = +v; if (W.focus[i] > 0) { W.focus[i]--; render(); haptic('light'); } break; }
+    case 'reroll': W.title = genTitle(W.genre, W.theme); W.titleEdited = false; render(); haptic('light'); break;
+    case 'wnext': if (stepValid(W.step)) { W.step++; if (W.step === 5 && !W.title) W.title = genTitle(W.genre, W.theme); render(); window.scrollTo(0, 0); haptic('light'); } break;
+    case 'wback': wizardBack(); break;
+    case 'shoot': startProduction(); break;
+    case 'evt': chooseEvent(v); break;
+    case 'release': release(); break;
+    case 'closeResults': screen = G.pendingAwards && G.pendingAwards.any ? 'awards' : 'home'; if (screen === 'home') G.pendingAwards = null; R = null; save(); render(); window.scrollTo(0, 0); break;
+    case 'closeAwards': G.pendingAwards = null; screen = 'home'; save(); render(); window.scrollTo(0, 0); break;
+    case 'buy': { const u = byId(UPGRADES, v); if (!has(v) && unlocked(u.req) && G.money >= u.cost) { G.money -= u.cost; G.upgrades[v] = true; checkGoals(); save(); render(); toast(`${T('unlockedNew')}: ${L(u)}`); haptic('ok'); } break; }
+    case 'skill': if (G.points > 0 && G.skills[v] < SKILL_MAX) { G.skills[v]++; G.points--; save(); render(); haptic('medium'); } break;
+    case 'reset': if (!resetArm) { resetArm = true; render(); } else { const lang = G.lang; G = newGame(lang); resetArm = false; screen = 'onboard'; save(); render(); } break;
+  }
+});
+document.addEventListener('input', e => {
+  if (e.target.id === 'in-title' && W) {
+    W.title = e.target.value; W.titleEdited = true;
+    const tk = document.querySelector('.ticket div'); if (tk) tk.textContent = W.title || '…';
+    const btn = document.querySelector('[data-act="shoot"]'); if (btn) btn.disabled = !stepValid(W.step);
+  }
+});
+function wizardBack() {
+  if (!W) return;
+  if (W.step === 0) { W = null; screen = 'home'; } else W.step--;
+  render(); window.scrollTo(0, 0); haptic('light');
+}
+if (inTG && TG.BackButton) { try { TG.BackButton.onClick(wizardBack); } catch (e) {} }
+
+// Resume a production that was interrupted (the app was closed mid-shoot).
+function boot() {
+  if (G.prod) { P = G.prod; screen = 'production'; }
+  render();
+  if (P && screen === 'production') tickProduction();
+}
+boot();
+loadCloud(() => { if (screen !== 'production') boot(); });
+})();
+</script>
