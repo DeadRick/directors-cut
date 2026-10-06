@@ -185,8 +185,13 @@ input[type=text] { width: 100%; background: var(--velvet-2); border: 1px solid v
 .discover { padding-left: 18px; margin: 0; }
 .row.mine { background: rgba(242,180,65,.14); border-radius: 6px; color: var(--bulb); }
 .chartrow { padding: 4px 6px; font-size: 14px; }
-.reallink { display: flex; justify-content: space-between; gap: 6px 10px; align-items: center; flex-wrap: wrap; color: var(--cream); text-decoration: none; padding: 8px 10px; border-radius: 8px; background: rgba(0,0,0,.22); }
+.reallink { display: flex; gap: 10px; align-items: center; color: var(--cream); text-decoration: none; padding: 8px 10px; border-radius: 8px; background: rgba(0,0,0,.22); }
 .reallink .chips { display: flex; gap: 4px; flex-wrap: wrap; }
+.reallink .rinfo { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.reallink .rposter:empty { display: none; }
+.reallink .rposter img { display: block; width: 36px; height: 54px; object-fit: cover; border-radius: 4px; background: rgba(0,0,0,.3); }
+.pill.tm { color: var(--bulb); font-family: var(--mono); font-size: 11px; }
+.tmdb-note { font-size: 10px; color: var(--muted); margin-top: 6px; }
 .chip { font-size: 10px; font-family: var(--mono); color: var(--muted); text-decoration: none; padding: 2px 5px; white-space: nowrap; border-radius: 6px; border: 1px solid var(--line); }
 .chip:hover, .chip:focus-visible { color: var(--bulb); border-color: var(--bulb); }
 .pop { animation: popin .35s ease-out; }
@@ -501,7 +506,7 @@ const STR = {
     newYear: 'Наступил', levelUp: 'Новый уровень режиссёра!', goalDone: 'Цель выполнена',
     unlockedNew: 'Открыто', profitShort: 'приб.', gigDone: 'Ролик снят: +30 000 $',
     ratingMiss: 'Рейтинг не подходит жанру.', saved: 'Прогресс сохраняется автоматически.',
-    playedIn: 'Telegram', browser: 'браузер', backfire: 'Всё пошло не по плану!', sequels: 'Продолжить успех', sequelNote: 'Сиквел: жанр, тема и эпоха как в оригинале.', refuse: 'Не хочет с вами работать', loyal: 'свой', chart: 'Чарт проката', rank: 'Ваше место', studioYear: 'Студия года', contract: 'Заказ продюсера', contractDone: 'Заказ выполнен', contractFail: 'Заказ сорвался: время вышло.', filmsLeft: 'Осталось фильмов', reviews: 'Рецензии', sequelBetter: 'Сиквел превзошёл оригинал!', sequelTired: 'Публика начинает уставать от франшизы.', pairStory: 'Дуэт снова зажёг экран: химия между актёрами налицо.', loyalStory: '«{a}» теперь в вашей постоянной команде.', refuseStory: '«{a}» больше не хочет с вами работать.', studioWin: 'Вы — студия года! +5 репутации и бонус', similar: 'Похоже на реальные фильмы', shareTg: 'Поделиться', nowShowing: 'Сейчас в кино', nowShowingD: 'Настоящие фильмы этого года: ваши соперники за зрителя.', skip: 'Пропустить', jackpot: 'Сработало лучше, чем мечтали!', chaos: 'Тем временем на площадке', okay: 'Ну что ж…', story: 'Как это было', wildCult: 'Фильм настолько плох, что стал культовым! Залы забиты.', wildIgnored: 'Шедевр не поняли: зрители прошли мимо.', luckyWeek: 'Звёзды сошлись: прокат сложился удачно.', unluckyWeek: 'Прокату просто не повезло.', fakeTrend: 'Слух о тренде оказался уткой.', rumors: 'Слухи', rumorHot: 'Говорят, в тренде', rumorTheme: 'Шепчутся про тему', rumorCold: 'Говорят, надоело', busy: 'Занят на другом проекте', breaking: 'Срочные новости', dismiss: 'Понятно', moreTalent: 'Ещё {n} — откроются с ростом репутации и студии.',
+    playedIn: 'Telegram', browser: 'браузер', backfire: 'Всё пошло не по плану!', sequels: 'Продолжить успех', sequelNote: 'Сиквел: жанр, тема и эпоха как в оригинале.', refuse: 'Не хочет с вами работать', loyal: 'свой', chart: 'Чарт проката', rank: 'Ваше место', studioYear: 'Студия года', contract: 'Заказ продюсера', contractDone: 'Заказ выполнен', contractFail: 'Заказ сорвался: время вышло.', filmsLeft: 'Осталось фильмов', reviews: 'Рецензии', sequelBetter: 'Сиквел превзошёл оригинал!', sequelTired: 'Публика начинает уставать от франшизы.', pairStory: 'Дуэт снова зажёг экран: химия между актёрами налицо.', loyalStory: '«{a}» теперь в вашей постоянной команде.', refuseStory: '«{a}» больше не хочет с вами работать.', studioWin: 'Вы — студия года! +5 репутации и бонус', similar: 'Похоже на реальные фильмы', shareTg: 'Поделиться', tmdbNote: 'Постеры и рейтинги: TMDB. Игра использует TMDB API, но не одобрена и не сертифицирована TMDB.', nowShowing: 'Сейчас в кино', nowShowingD: 'Настоящие фильмы этого года: ваши соперники за зрителя.', skip: 'Пропустить', jackpot: 'Сработало лучше, чем мечтали!', chaos: 'Тем временем на площадке', okay: 'Ну что ж…', story: 'Как это было', wildCult: 'Фильм настолько плох, что стал культовым! Залы забиты.', wildIgnored: 'Шедевр не поняли: зрители прошли мимо.', luckyWeek: 'Звёзды сошлись: прокат сложился удачно.', unluckyWeek: 'Прокату просто не повезло.', fakeTrend: 'Слух о тренде оказался уткой.', rumors: 'Слухи', rumorHot: 'Говорят, в тренде', rumorTheme: 'Шепчутся про тему', rumorCold: 'Говорят, надоело', busy: 'Занят на другом проекте', breaking: 'Срочные новости', dismiss: 'Понятно', moreTalent: 'Ещё {n} — откроются с ростом репутации и студии.',
   },
   en: {
     tagline: 'Studio', newFilm: 'Make a new film', money: 'Cash', rep: 'Reputation', fans: 'Fans', year: 'Year',
@@ -533,7 +538,7 @@ const STR = {
     newYear: 'Welcome to', levelUp: 'Director level up!', goalDone: 'Goal complete',
     unlockedNew: 'Unlocked', profitShort: 'profit', gigDone: 'Commercial done: +$30,000',
     ratingMiss: 'The rating does not suit the genre.', saved: 'Progress saves automatically.',
-    playedIn: 'Telegram', browser: 'browser', backfire: 'It all went wrong!', sequels: 'Build on a hit', sequelNote: 'Sequel: same genre, theme and era as the original.', refuse: 'Refuses to work with you', loyal: 'regular', chart: 'Box office chart', rank: 'Your rank', studioYear: 'Studio of the year', contract: 'Producer request', contractDone: 'Request fulfilled', contractFail: 'Request expired.', filmsLeft: 'Films left', reviews: 'Reviews', sequelBetter: 'The sequel beat the original!', sequelTired: 'Audiences are starting to tire of the franchise.', pairStory: 'The duo lit up the screen again: real chemistry.', loyalStory: '{a} is now one of your regulars.', refuseStory: '{a} no longer wants to work with you.', studioWin: 'You are studio of the year! +5 reputation and a bonus', similar: 'Real films like yours', shareTg: 'Share', nowShowing: 'Now showing', nowShowingD: 'Real films released this year, competing for your audience.', skip: 'Skip', jackpot: 'It worked better than you dreamed!', chaos: 'Meanwhile, on set', okay: 'Oh well…', story: 'How it went', wildCult: 'So bad it is good: the film became a cult hit!', wildIgnored: 'A misunderstood masterpiece: audiences walked past it.', luckyWeek: 'The stars aligned for this release.', unluckyWeek: 'The release was simply unlucky.', fakeTrend: 'The trend rumour turned out to be fake.', rumors: 'Rumours', rumorHot: 'Word is, trending', rumorTheme: 'People whisper about', rumorCold: 'Word is, people are tired of', busy: 'Busy on another project', breaking: 'Breaking news', dismiss: 'Got it', moreTalent: '{n} more unlock as your reputation and studio grow.',
+    playedIn: 'Telegram', browser: 'browser', backfire: 'It all went wrong!', sequels: 'Build on a hit', sequelNote: 'Sequel: same genre, theme and era as the original.', refuse: 'Refuses to work with you', loyal: 'regular', chart: 'Box office chart', rank: 'Your rank', studioYear: 'Studio of the year', contract: 'Producer request', contractDone: 'Request fulfilled', contractFail: 'Request expired.', filmsLeft: 'Films left', reviews: 'Reviews', sequelBetter: 'The sequel beat the original!', sequelTired: 'Audiences are starting to tire of the franchise.', pairStory: 'The duo lit up the screen again: real chemistry.', loyalStory: '{a} is now one of your regulars.', refuseStory: '{a} no longer wants to work with you.', studioWin: 'You are studio of the year! +5 reputation and a bonus', similar: 'Real films like yours', shareTg: 'Share', tmdbNote: 'Posters and ratings: TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.', nowShowing: 'Now showing', nowShowingD: 'Real films released this year, competing for your audience.', skip: 'Skip', jackpot: 'It worked better than you dreamed!', chaos: 'Meanwhile, on set', okay: 'Oh well…', story: 'How it went', wildCult: 'So bad it is good: the film became a cult hit!', wildIgnored: 'A misunderstood masterpiece: audiences walked past it.', luckyWeek: 'The stars aligned for this release.', unluckyWeek: 'The release was simply unlucky.', fakeTrend: 'The trend rumour turned out to be fake.', rumors: 'Rumours', rumorHot: 'Word is, trending', rumorTheme: 'People whisper about', rumorCold: 'Word is, people are tired of', busy: 'Busy on another project', breaking: 'Breaking news', dismiss: 'Got it', moreTalent: '{n} more unlock as your reputation and studio grow.',
   },
 };
 
@@ -1091,6 +1096,7 @@ function render() {
   if (screen === 'production') animateSet();
   if (screen === 'home') animateLot();
   syncBackButton();
+  enrichReal(app);
 }
 let lotTimer;
 function animateLot() {
@@ -1153,7 +1159,7 @@ function vHome() {
       <div class="muted small" style="text-transform:uppercase;letter-spacing:.08em">${T('goal')}</div>
       ${goal ? `<div style="font-family:var(--display);font-size:20px;font-weight:600;text-transform:uppercase">${L(goal)}</div><div class="small">${T('reward')}: <b class="mono">${money(goal.reward)}</b></div>` : `<div style="font-family:var(--display);font-size:20px">${T('allGoals')}</div>`}
     </div>
-    ${(() => { const now = nowShowing(); return now.length ? `<div class="card stack" style="gap:6px"><h3>${T('nowShowing')} · ${year()}</h3><div class="muted small">${T('nowShowingD')}</div>${now.map(realRow).join('')}</div>` : ''; })()}
+    ${(() => { const now = nowShowing(); return now.length ? `<div class="card stack" style="gap:6px"><h3>${T('nowShowing')} · ${year()}</h3><div class="muted small">${T('nowShowingD')}</div>${now.map(realRow).join('')}<div class="tmdb-note">${T('tmdbNote')}</div></div>` : ''; })()}
     <div class="stack" style="gap:8px"><h3>${T('lastFilm')}</h3>
       ${last ? filmRow(last) : `<p class="muted">${T('noFilms')}</p>`}
     </div>
@@ -1811,7 +1817,45 @@ function extLinks(r) {
   return links.map(([n, u]) => `<a class="chip" href="${u}" target="_blank" rel="noopener" data-ext="1">${n} ↗</a>`).join('');
 }
 function realRow(r) {
-  return `<div class="reallink"><span>${esc(G.lang === 'ru' ? r.ru : r.en)} <span class="muted">(${r.year})</span></span><span class="chips">${extLinks(r)}</span></div>`;
+  return `<div class="reallink" data-t="${esc(r.en)}" data-y="${r.year}"><div class="rposter"></div><div class="rinfo">
+    <span><span class="rt">${esc(G.lang === 'ru' ? r.ru : r.en)}</span> <span class="muted">(${r.year})</span> <span class="rr"></span></span>
+    <span class="chips">${extLinks(r)}</span></div></div>`;
+}
+
+// TMDB: real posters, ratings and local titles for the real films on screen. Read-only v3 key, public by design.
+// This product uses the TMDB API but is not endorsed or certified by TMDB.
+const TMDB_KEY = '4a51dfe0805c49e30bc63e62411ae68f';
+const tmdbMem = {}, TMDB_STORE = 'directors_cut_tmdb';
+let tmdbCache = null;
+function tmdbLoad() { if (!tmdbCache) { try { tmdbCache = JSON.parse(localStorage.getItem(TMDB_STORE)) || {}; } catch (e) { tmdbCache = {}; } } return tmdbCache; }
+function tmdbSave() { try { const k = Object.keys(tmdbCache); if (k.length > 600) for (const x of k.slice(0, k.length - 500)) delete tmdbCache[x]; localStorage.setItem(TMDB_STORE, JSON.stringify(tmdbCache)); } catch (e) {} }
+function tmdbFind(title, yr) {
+  const lang = G.lang === 'ru' ? 'ru-RU' : 'en-US', key = lang + '|' + title + '|' + yr, cache = tmdbLoad();
+  if (key in cache) return Promise.resolve(cache[key]);
+  if (tmdbMem[key]) return tmdbMem[key];
+  const url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&language=${lang}&include_adult=false&query=${enc(title)}&year=${yr}`;
+  return (tmdbMem[key] = fetch(url).then(r => r.ok ? r.json() : Promise.reject(r.status)).then(j => {
+    const m = (j.results || [])[0];
+    const v = m ? { id: m.id, t: m.title, p: m.poster_path || '', v: Math.round((m.vote_average || 0) * 10) / 10, n: m.vote_count || 0 } : null;
+    cache[key] = v; tmdbSave(); return v;
+  }).catch(() => null));
+}
+function enrichReal(root) {
+  for (const el of (root || document).querySelectorAll('.reallink[data-t]:not([data-done])')) {
+    el.dataset.done = '1';
+    tmdbFind(el.dataset.t, el.dataset.y).then(m => {
+      if (!m || !el.isConnected) return;
+      if (m.p) el.querySelector('.rposter').innerHTML = `<img src="https://image.tmdb.org/t/p/w92${m.p}" alt="" loading="lazy" width="36" height="54">`;
+      if (G.lang === 'ru' && m.t) {
+        el.querySelector('.rt').textContent = m.t;
+        for (const c of el.querySelectorAll('.chip')) if (/kinopoisk|wikipedia/.test(c.href)) c.href = c.href.replace(/(kp_query|search)=[^&]*/, (_, k) => k + '=' + enc(m.t + (k === 'search' ? ' ' + el.dataset.y : '')));
+      }
+      for (const c of el.querySelectorAll('.chip')) if (/justwatch/.test(c.href)) c.remove();
+      if (m.n >= 5) el.querySelector('.rr').innerHTML = `<span class="pill tm">★ ${m.v.toFixed(1)}</span>`;
+      el.querySelector('.chips').insertAdjacentHTML('afterbegin', `<a class="chip" href="https://www.themoviedb.org/movie/${m.id}${G.lang === 'ru' ? '?language=ru-RU' : ''}" target="_blank" rel="noopener" data-ext="1">TMDB ↗</a>`);
+      el.classList.add('has-tmdb');
+    });
+  }
 }
 // Share a premiere: Telegram's share sheet inside Telegram, the system sheet elsewhere.
 function shareFilm(f) {
@@ -1853,7 +1897,7 @@ function vResults() {
       <span class="total">${T('profit')}</span><span class="v total ${s.profit >= 0 ? 'hi' : 'lo'}" id="r-profit">${R.revealed ? money(s.profit) : money(0)}</span>
     </div>
     ${R.story.length ? `<div class="card reveal" id="r-story" ${hide}><h3>${T('story')}</h3><ul class="discover" style="margin-top:8px">${R.story.map(x => `<li class="reveal" ${hide}>${x}</li>`).join('')}</ul></div>` : ''}
-    ${R.similar && R.similar.length ? `<div class="card reveal" id="r-similar" ${hide}><h3>${T('similar')}</h3><div class="stack" style="gap:6px;margin-top:8px">${R.similar.map(realRow).join('')}</div></div>` : ''}
+    ${R.similar && R.similar.length ? `<div class="card reveal" id="r-similar" ${hide}><h3>${T('similar')}</h3><div class="stack" style="gap:6px;margin-top:8px">${R.similar.map(realRow).join('')}</div><div class="tmdb-note">${T('tmdbNote')}</div></div>` : ''}
     <div class="card stack reveal" style="gap:6px" id="r-gains" ${hide}><h3>${T('gains')}</h3>
       <div class="bars" style="font-size:14px"><span>${T('rep')} <b class="${R.repDelta >= 0 ? 'hi' : 'lo'}">${R.repDelta >= 0 ? '+' : ''}${R.repDelta}</b></span>
       <span>${T('fans')} <b>+${count(R.fansDelta)}</b></span><span>${T('xp')} <b>+${R.xpGain}</b></span></div>
