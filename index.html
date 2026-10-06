@@ -144,10 +144,23 @@ h3 { font-size: 16px; text-transform: uppercase; letter-spacing: .06em; color: v
 .scorebox span { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
 .hi { color: var(--good); } .mid { color: var(--bulb); } .lo { color: var(--bad); }
 
-.chart { display: flex; align-items: flex-end; gap: 6px; height: 120px; padding-top: 10px; }
-.chart .col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; min-width: 0; }
-.chart .bar { width: 100%; background: linear-gradient(180deg, var(--bulb), var(--bulb-dim)); border-radius: 4px 4px 0 0; transition: height .5s ease-out; min-height: 2px; }
-.chart .lbl { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.linechart { width: 100%; height: auto; display: block; margin-top: 8px; }
+.linechart .grid { stroke: var(--line); stroke-dasharray: 2 3; }
+.linechart .area { fill: rgba(242,180,65,.18); }
+.linechart .ln { fill: none; stroke: var(--bulb); stroke-width: 2; stroke-linejoin: round; }
+.linechart .dot { fill: var(--bulb); }
+.linechart .dot.last { fill: var(--cream); animation: blink .6s steps(2) infinite; }
+.linechart .lbl { fill: var(--muted); font: 10px var(--mono); }
+.poster.top { justify-content: flex-start; }
+.poster.top .ps { top: auto; bottom: 6px; }
+.confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; image-rendering: pixelated; z-index: 30; }
+.shake { animation: shake .18s steps(2) infinite; }
+@keyframes shake { 0% { transform: translate(1px, -1px); } 50% { transform: translate(-2px, 1px); } 100% { transform: translate(1px, 1px); } }
+@keyframes blink { 50% { opacity: .35; } }
+#app.enter { animation: enter .28s steps(4) both; }
+@keyframes enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.enter .poster { animation: develop .6s steps(6) both; }
+@keyframes develop { from { filter: brightness(2.2) saturate(0); } to { filter: none; } }
 .ledger { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; font-size: 14px; }
 .ledger .v { font-family: var(--mono); text-align: right; }
 .ledger .total { border-top: 1px dashed var(--line); padding-top: 6px; font-weight: 600; }
@@ -175,7 +188,6 @@ input[type=text] { width: 100%; background: var(--velvet-2); border: 1px solid v
 .reallink:hover, .reallink:focus-visible { background: rgba(242,180,65,.12); }
 .pop { animation: popin .35s ease-out; }
 @keyframes popin { from { opacity: 0; transform: translateY(6px); } }
-.chart .bar { transition: height .45s ease-out; }
 .px { image-rendering: pixelated; image-rendering: crisp-edges; }
 .scene { width: 100%; height: auto; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 8px; border: 2px solid var(--line); background: #1a0c10; }
 .lot { width: 100%; height: auto; aspect-ratio: 3 / 1; display: block; border-radius: 8px; margin-top: 10px; border: 1px solid #5d2a35; }
@@ -186,7 +198,7 @@ input[type=text] { width: 100%; background: var(--velvet-2); border: 1px solid v
 .avatar.px { border-radius: 6px; border: 2px solid rgba(0,0,0,.35); }
 .poster { background-size: cover; background-position: center; }
 .newsflash { display: flex; gap: 12px; align-items: flex-start; }
-@media (prefers-reduced-motion: reduce) { .marquee::before, .reel { animation: none; } .chart .bar { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .marquee::before, .reel { animation: none; } .linechart .dot.last, .shake, #app.enter, .enter .poster { animation: none; } }
 </style>
 
 <div id="app"></div>
@@ -472,7 +484,7 @@ const STR = {
     hintIdeal: 'Пунктиром показан идеальный баланс для жанра — вы его уже изучили.',
     combo2: 'отлично', combo1: 'хорошо', combo0: 'нейтрально', 'combo-1': 'слабо', 'combo-2': 'провал', comboU: '?',
     prod: ['Препродакшн', 'Съёмки', 'Монтаж', 'Подготовка к премьере'], decision: 'Решение на площадке', premiere: 'Премьера!',
-    critics: 'Критики', audience: 'Зрители', boxoffice: 'Кассовые сборы по неделям', wk: 'н',
+    critics: 'Критики', audience: 'Зрители', boxoffice: 'Кассовые сборы по неделям', peak: 'пик', wk: 'н',
     gross: 'Сборы в прокате', share: 'Доля студии', streaming: 'Стриминг', costs: 'Затраты', profit: 'Прибыль',
     gains: 'Итоги для карьеры', xp: 'Опыт', discover: 'Открытия', toStudio: 'В студию',
     lvl: 'Уровень', points: 'Очки навыков', skills: 'Навыки режиссёра', mastery: 'Мастерство в жанрах', films: 'фильмов',
@@ -504,7 +516,7 @@ const STR = {
     hintIdeal: 'The dashed outline shows the ideal balance for this genre. You have learned it.',
     combo2: 'great', combo1: 'good', combo0: 'neutral', 'combo-1': 'weak', 'combo-2': 'disaster', comboU: '?',
     prod: ['Pre-production', 'Shooting', 'Editing', 'Premiere prep'], decision: 'On-set decision', premiere: 'Premiere!',
-    critics: 'Critics', audience: 'Audience', boxoffice: 'Weekly box office', wk: 'w',
+    critics: 'Critics', audience: 'Audience', boxoffice: 'Weekly box office', peak: 'peak', wk: 'w',
     gross: 'Box office gross', share: 'Studio share', streaming: 'Streaming', costs: 'Costs', profit: 'Profit',
     gains: 'Career results', xp: 'XP', discover: 'Discoveries', toStudio: 'Back to studio',
     lvl: 'Level', points: 'Skill points', skills: 'Director skills', mastery: 'Genre mastery', films: 'films',
@@ -696,40 +708,6 @@ function ditherSky(x, w, h, top, bottom, bands) {
   }
 }
 
-// Actor and writer portraits: a 12x12 face generated from the person's id.
-function faceURL(id, bg) {
-  const key = 'f' + id + bg; if (pxCache[key]) return pxCache[key];
-  const R = rng(id), c = mkCanvas(12, 12), x = c.getContext('2d');
-  const P = (col, a, b, w, h) => { x.fillStyle = col; x.fillRect(a, b, w || 1, h || 1); };
-  const skin = rpick(R, ['#f3cfa8', '#e2ae80', '#c68642', '#8d5524', '#f9dcbc']);
-  const hair = rpick(R, ['#2b1b12', '#5a3825', '#d9b45a', '#a33b20', '#d8d8d8', '#141414', '#7a3fa0']);
-  const shirt = rpick(R, ['#2f7fa0', '#c4452f', '#3d9a6c', '#f4e7d2', '#7b4b8e', '#222222']);
-  P(bg, 0, 0, 12, 12);
-  P(shirt, 2, 10, 8, 2); P(skin, 5, 9, 2, 1);
-  P(skin, 3, 3, 6, 6);
-  const style = Math.floor(R() * 4);
-  if (style === 2) { P(skin, 3, 2, 6, 1); P(hair, 2, 4, 1, 2); P(hair, 9, 4, 1, 2); }
-  else {
-    P(hair, 3, 2, 6, 1); P(hair, 2, 3, 8, 1);
-    if (style === 0) { P(hair, 2, 4, 1, 2); P(hair, 9, 4, 1, 2); }
-    if (style === 1) { P(hair, 2, 4, 1, 6); P(hair, 9, 4, 1, 6); }
-    if (style === 3) { P(hair, 4, 0, 4, 2); P(hair, 2, 4, 1, 1); P(hair, 9, 4, 1, 1); }
-  }
-  if (R() < .2) { P('#140a0c', 3, 5, 6, 1); P('#8fd8f0', 4, 5); P('#8fd8f0', 7, 5); }
-  else { P('#140a0c', 4, 5); P('#140a0c', 7, 5); }
-  if (R() < .2) P(hair, 3, 7, 6, 2);
-  P('#8a3a30', 5, 7, 2, 1);
-  if (R() < .3) { P('#e98a8a', 3, 6); P('#e98a8a', 8, 6); }
-  return (pxCache[key] = c.toDataURL());
-}
-
-// Posters: 32x48 dithered sky, era skyline, the lead's silhouette.
-const POSTER_PAL = {
-  drama: ['#2a1640', '#7b4b8e', '#e8a0c8'], comedy: ['#e8743a', '#f7d98a', '#fff3c4'], horror: ['#050203', '#5a0f14', '#d8e0c8'],
-  action: ['#2a0a06', '#e0602a', '#ffd36a'], documentary: ['#1d2a24', '#6f8f7a', '#e8e4d0'], romance: ['#3a1030', '#e07090', '#ffe0ea'],
-  thriller: ['#08101a', '#3d5a73', '#c8d8e8'], western: ['#6a2a10', '#f0a050', '#fff0b0'], musical: ['#2a0a3a', '#b8489b', '#ffe080'],
-  scifi: ['#020814', '#1f5a80', '#8fd8f0'], animation: ['#1a5a8a', '#8fd8f0', '#ffe080'], fantasy: ['#10103a', '#5a5fb0', '#d0c0ff'],
-};
 function drawSkyline(x, R, era, W, base, sil, win) {
   const P = (a, b, w, h, col) => { x.fillStyle = col || sil; x.fillRect(a, b, w, h); };
   if (era === 'medieval') {
@@ -760,28 +738,6 @@ function drawSkyline(x, R, era, W, base, sil, win) {
     }
   }
 }
-function posterURL(f) {
-  const key = 'p' + f.id + f.title; if (pxCache[key]) return pxCache[key];
-  const W = 32, H = 48, R = rng(f.title + f.id), c = mkCanvas(W, H), x = c.getContext('2d');
-  const [top, bottom, acc] = POSTER_PAL[f.genre] || POSTER_PAL.drama;
-  ditherSky(x, W, H, top, bottom, 5);
-  if (['horror', 'scifi', 'fantasy', 'thriller', 'drama'].includes(f.genre)) for (let i = 0; i < 14; i++) { x.fillStyle = acc; x.fillRect(Math.floor(R() * W), Math.floor(R() * 26), 1, 1); }
-  const mx = 6 + Math.floor(R() * 20), my = 6 + Math.floor(R() * 10), mr = 3 + Math.floor(R() * 4);
-  x.fillStyle = acc; for (let dy = -mr; dy <= mr; dy++) { const w = Math.round(Math.sqrt(mr * mr - dy * dy)); x.fillRect(mx - w, my + dy, w * 2 + 1, 1); }
-  const sil = '#0c0507', base = 40;
-  drawSkyline(x, R, f.era, W, base, sil, acc);
-  x.fillStyle = sil; x.fillRect(0, base, W, H - base);
-  // the lead, with a rim light from the moon's side
-  const cx = 16 + (R() < .5 ? -2 : 2), side = mx < cx ? -1 : 1;
-  const fig = [[2, 4, 22], [1, 6, 23], [1, 6, 24], [1, 6, 25], [2, 4, 26], [3, 2, 27], [-2, 12, 28], [-3, 14, 29]];
-  for (const [dx, w, y] of fig) x.fillRect(cx - 4 + dx, y, w, 1);
-  x.fillRect(cx - 7, 30, 14, H - 30);
-  x.fillStyle = acc;
-  for (let y = 22; y < H; y++) { const edge = side < 0 ? (y < 28 ? cx - 3 : y < 30 ? cx - 7 : cx - 7) : (y < 28 ? cx + 2 : cx + 6); if (y % 3 !== 0 || y < 30) x.fillRect(edge, y, 1, 1); }
-  if (R() < .6) { const sx = cx + (R() < .5 ? -12 : 9); x.fillStyle = sil; x.fillRect(sx, 31, 3, 3); x.fillRect(sx - 1, 34, 5, H - 34); }
-  return (pxCache[key] = c.toDataURL());
-}
-
 // The studio lot on the home screen grows a building for every upgrade.
 const LOT = {
   office: { w: 9, h: 13, col: '#6a4a5a' }, costume: { w: 9, h: 9, col: '#8a4a3a', awning: true }, casting: { w: 8, h: 15, col: '#4a5a7a', em: 'y' },
@@ -839,7 +795,7 @@ function lotThumb(id) {
 }
 
 // The film set during production: camera, crew light and the two leads, animated at 6 fps.
-function drawSet(cv, frame, d) {
+function drawSet(cv, frame, d, anim) {
   const x = cv.getContext('2d'), W = cv.width, H = cv.height;
   const P = (a, b, w, h, col) => { x.fillStyle = col; x.fillRect(a, b, w, h); };
   P(0, 0, W, H, '#1a0c10');
@@ -853,12 +809,9 @@ function drawSet(cv, frame, d) {
   if (frame % 9 !== 0) { x.fillStyle = 'rgba(242,180,65,.13)'; for (let j = 0; j < 28; j++) x.fillRect(40 - j / 2, 4 + j, 14 + j, 1); }
   P(44, 0, 6, 4, '#555'); P(45, 3, 4, 1, '#f2b441');
   // actors
-  const faceA = faceURL(d.lead, '#00000000'), faceB = faceURL(d.co, '#00000000');
   const bob = frame % 4 < 2 ? 0 : 1;
-  const imgs = drawSet.imgs || (drawSet.imgs = {});
-  for (const [src, ax, off] of [[faceA, 38, bob], [faceB, 50, 1 - bob]]) {
-    let im = imgs[src]; if (!im) { im = imgs[src] = new Image(); im.src = src; }
-    if (im.complete) x.drawImage(im, ax, 14 + off);
+  for (const [id, ax, off] of [[d.lead, 38, bob], [d.co, 50, 1 - bob]]) {
+    if (id) drawFaceTo(x, id, null, ax, 14 + off, 1);
     P(ax + 2, 26 + off, 8, 5 - off, '#3a3a5a');
   }
   // camera on tripod
@@ -867,6 +820,237 @@ function drawSet(cv, frame, d) {
   P(11, 19, 2, 6, '#55556a'); P(8, 25, 2, 6, '#55556a'); P(14, 25, 2, 6, '#55556a'); P(10, 24, 4, 1, '#55556a');
   // the clapper snaps every few seconds
   if (frame % 24 < 4) { P(22, 6, 6, 4, '#f4e7d2'); P(22, 6, 6, 1, frame % 24 < 2 ? '#140a0c' : '#f4e7d2'); P(22, frame % 24 < 2 ? 5 : 4, 6, 1, '#140a0c'); }
+  if (anim) drawEffect(x, anim, frame, W, H);
+  cv.classList.toggle('shake', !!SHAKY[anim]);
+}
+
+// Actor and writer portraits: a 12x12 face generated from the person's id.
+// Draws a 12x12 face onto any canvas at (ox, oy), scaled by s. Same face for the same id everywhere.
+function drawFaceTo(x, id, bg, ox, oy, s) {
+  const R = rng(id);
+  const P = (col, a, b, w, h) => { x.fillStyle = col; x.fillRect(ox + a * s, oy + b * s, (w || 1) * s, (h || 1) * s); };
+  const skin = rpick(R, ['#f3cfa8', '#e2ae80', '#c68642', '#8d5524', '#f9dcbc']);
+  const hair = rpick(R, ['#2b1b12', '#5a3825', '#d9b45a', '#a33b20', '#d8d8d8', '#141414', '#7a3fa0']);
+  const shirt = rpick(R, ['#2f7fa0', '#c4452f', '#3d9a6c', '#f4e7d2', '#7b4b8e', '#222222']);
+  if (bg) P(bg, 0, 0, 12, 12);
+  P(shirt, 2, 10, 8, 2); P(skin, 5, 9, 2, 1);
+  P(skin, 3, 3, 6, 6);
+  const style = Math.floor(R() * 4);
+  if (style === 2) { P(skin, 3, 2, 6, 1); P(hair, 2, 4, 1, 2); P(hair, 9, 4, 1, 2); }
+  else {
+    P(hair, 3, 2, 6, 1); P(hair, 2, 3, 8, 1);
+    if (style === 0) { P(hair, 2, 4, 1, 2); P(hair, 9, 4, 1, 2); }
+    if (style === 1) { P(hair, 2, 4, 1, 6); P(hair, 9, 4, 1, 6); }
+    if (style === 3) { P(hair, 4, 0, 4, 2); P(hair, 2, 4, 1, 1); P(hair, 9, 4, 1, 1); }
+  }
+  if (R() < .2) { P('#140a0c', 3, 5, 6, 1); P('#8fd8f0', 4, 5); P('#8fd8f0', 7, 5); }
+  else { P('#140a0c', 4, 5); P('#140a0c', 7, 5); }
+  if (R() < .2) P(hair, 3, 7, 6, 2);
+  P('#8a3a30', 5, 7, 2, 1);
+  if (R() < .3) { P('#e98a8a', 3, 6); P('#e98a8a', 8, 6); }
+}
+function faceURL(id, bg) {
+  const key = 'f' + id + bg; if (pxCache[key]) return pxCache[key];
+  const c = mkCanvas(12, 12);
+  drawFaceTo(c.getContext('2d'), id, bg, 0, 0, 1);
+  return (pxCache[key] = c.toDataURL());
+}
+function drawRows(x, rows, ox, oy, s, pal) {
+  s = s || 1;
+  rows.forEach((row, j) => [...row].forEach((ch, i) => { const col = (pal && pal[ch]) || PX[ch]; if (col) { x.fillStyle = col; x.fillRect(ox + i * s, oy + j * s, s, s); } }));
+}
+
+// Posters: seven compositions, plus frames and title placement, all picked from the film's own seed.
+const POSTER_PAL = {
+  drama: ['#2a1640', '#7b4b8e', '#e8a0c8'], comedy: ['#e8743a', '#f7d98a', '#fff3c4'], horror: ['#050203', '#5a0f14', '#d8e0c8'],
+  action: ['#2a0a06', '#e0602a', '#ffd36a'], documentary: ['#1d2a24', '#6f8f7a', '#e8e4d0'], romance: ['#3a1030', '#e07090', '#ffe0ea'],
+  thriller: ['#08101a', '#3d5a73', '#c8d8e8'], western: ['#6a2a10', '#f0a050', '#fff0b0'], musical: ['#2a0a3a', '#b8489b', '#ffe080'],
+  scifi: ['#020814', '#1f5a80', '#8fd8f0'], animation: ['#1a5a8a', '#8fd8f0', '#ffe080'], fantasy: ['#10103a', '#5a5fb0', '#d0c0ff'],
+};
+const POSTER_LAYOUTS = 7;
+function posterStyle(f) { const R = rng('L' + f.title + f.id); const layout = Math.floor(R() * POSTER_LAYOUTS), frame = Math.floor(R() * 4); return { layout, frame, top: [0, 4, 5].includes(layout) && R() < .5 }; }
+function disc(x, cx, cy, r, col) { x.fillStyle = col; for (let dy = -r; dy <= r; dy++) { const w = Math.round(Math.sqrt(r * r - dy * dy)); x.fillRect(cx - w, cy + dy, w * 2 + 1, 1); } }
+function posterURL(f) {
+  const key = 'p' + f.id + f.title; if (pxCache[key]) return pxCache[key];
+  const W = 32, H = 48, R = rng(f.title + f.id), c = mkCanvas(W, H), x = c.getContext('2d');
+  const [top, bottom, acc] = POSTER_PAL[f.genre] || POSTER_PAL.drama;
+  const sil = '#0c0507', st = posterStyle(f);
+  const P = (a, b, w, h, col) => { x.fillStyle = col; x.fillRect(a, b, w, h); };
+  const figure = (cx, base, col, rim, side) => {
+    x.fillStyle = col;
+    for (const [dx, w, y] of [[2, 4, 0], [1, 6, 1], [1, 6, 2], [1, 6, 3], [2, 4, 4], [3, 2, 5], [-2, 12, 6], [-3, 14, 7]]) x.fillRect(cx - 4 + dx, base + y, w, 1);
+    x.fillRect(cx - 7, base + 8, 14, H - base - 8);
+    if (rim) { x.fillStyle = rim; for (let y = base; y < H; y++) { const edge = side < 0 ? (y < base + 6 ? cx - 3 : cx - 7) : (y < base + 6 ? cx + 2 : cx + 6); if (y % 3 !== 0 || y < base + 8) x.fillRect(edge, y, 1, 1); } }
+  };
+  switch (st.layout) {
+    case 1: { // portrait: the lead's face, huge, in duotone light
+      ditherSky(x, W, H, bottom, top, 4);
+      for (let i = 0; i < 6; i++) P(0, 6 + i * 7, W, 1, 'rgba(255,255,255,.08)');
+      drawFaceTo(x, f.lead, null, 4, 6, 2);
+      x.globalAlpha = .28; P(0, 0, W, H, acc); x.globalAlpha = 1;
+      P(0, 32, W, H - 32, sil);
+      break;
+    }
+    case 2: { // versus: two faces split by a diagonal slash
+      ditherSky(x, W, H, top, bottom, 4);
+      x.fillStyle = acc; for (let i = 0; i < H; i++) x.fillRect(Math.round(W - i * .75) - 2, i, 2, 1);
+      drawFaceTo(x, f.lead, null, -3, 2, 2);
+      drawFaceTo(x, f.co, null, 11, 20, 2);
+      P(0, 44, W, 4, sil);
+      break;
+    }
+    case 3: { // icon: the genre's emblem on a sunburst
+      P(0, 0, W, H, top);
+      for (let k = 0; k < 16; k += 2) { x.fillStyle = bottom; x.beginPath(); x.moveTo(16, 20); const a1 = k / 16 * Math.PI * 2, a2 = (k + 1) / 16 * Math.PI * 2; x.lineTo(16 + Math.cos(a1) * 60, 20 + Math.sin(a1) * 60); x.lineTo(16 + Math.cos(a2) * 60, 20 + Math.sin(a2) * 60); x.fill(); }
+      disc(x, 16, 20, 13, acc);
+      drawRows(x, SPRITES[f.genre] || SPRITES.drama, 4, 8, 2);
+      P(0, 38, W, H - 38, sil);
+      break;
+    }
+    case 4: { // the road: flat bands, a vanishing point and a lone walker
+      P(0, 0, W, 18, bottom); P(0, 18, W, 6, top); P(0, 24, W, H - 24, sil);
+      disc(x, 22, 12, 5, acc);
+      x.fillStyle = acc; for (let y = 24; y < H; y++) { const half = Math.round((y - 24) * .55); x.fillRect(16 - half, y, 1, 1); x.fillRect(16 + half, y, 1, 1); if (y % 4 < 2) x.fillRect(16, y, 1, 1); }
+      P(15, 33, 2, 6, top); P(15, 31, 2, 2, top); P(14, 39, 1, 2, top); P(17, 39, 1, 2, top);
+      x.globalAlpha = .5; for (let i = 0; i < 9; i++) P(18 + i, 41 + Math.floor(i / 3), 1, 1, top); x.globalAlpha = 1;
+      break;
+    }
+    case 5: { // halftone: a giant moon of dots over the skyline
+      P(0, 0, W, H, sil);
+      for (let j = 0; j < 40; j += 2) for (let i = 0; i < W; i += 2) { const d = Math.hypot(i - 16, j - 16); if (d < 15 && R() < 1.05 - d / 15) P(i + (j % 4 ? 1 : 0), j, 1, 1, acc); }
+      drawSkyline(x, R, f.era, W, 40, '#1a0c10', bottom);
+      P(0, 40, W, H - 40, '#1a0c10');
+      break;
+    }
+    case 6: { // ensemble: three silhouettes against stripes
+      for (let i = 0; i < W; i += 4) P(i, 0, 2, H, bottom);
+      P(0, 0, W, H, 'rgba(0,0,0,.25)'); ditherSky(x, W, 14, top, bottom, 3);
+      disc(x, 16, 9, 6, acc);
+      figure(16, 22, sil, acc, 1); figure(6, 28, '#1a0c10', null, 1); figure(26, 28, '#1a0c10', null, 1);
+      break;
+    }
+    default: { // classic: dithered sky, moon, era skyline, the lead with a rim light
+      ditherSky(x, W, H, top, bottom, 5);
+      if (['horror', 'scifi', 'fantasy', 'thriller', 'drama'].includes(f.genre)) for (let i = 0; i < 14; i++) P(Math.floor(R() * W), Math.floor(R() * 26), 1, 1, acc);
+      const mx = 6 + Math.floor(R() * 20), my = 6 + Math.floor(R() * 10);
+      disc(x, mx, my, 3 + Math.floor(R() * 4), acc);
+      drawSkyline(x, R, f.era, W, 40, sil, acc);
+      P(0, 40, W, H - 40, sil);
+      const cx = 16 + (R() < .5 ? -2 : 2);
+      figure(cx, 22, sil, acc, mx < cx ? -1 : 1);
+      if (R() < .6) { const sx = cx + (R() < .5 ? -12 : 9); P(sx, 31, 3, 3, sil); P(sx - 1, 34, 5, H - 34, sil); }
+    }
+  }
+  // frames
+  if (st.frame === 1) { x.strokeStyle = acc; x.lineWidth = 1; x.strokeRect(1.5, 1.5, W - 3, H - 3); }
+  if (st.frame === 2) { for (let y = 1; y < H; y += 3) { P(0, y, 2, 2, '#000'); P(W - 2, y, 2, 2, '#000'); } }
+  if (st.frame === 3) { P(0, 0, W, 2, acc); P(0, H - 2, W, 2, acc); }
+  return (pxCache[key] = c.toDataURL());
+}
+
+// On-set animations for every event, drawn over the film set.
+const MINI = {
+  cat: ['k...k.', 'kkkkk.', 'kykyk.', '.kkkkk', '.k..k.'],
+  dog: ['ss.....', 'sks....', '.sssss.', '.sssss.', '.s...s.'],
+  ghost: ['.www.', 'wkwkw', 'wwwww', 'wwwww', 'w.w.w'],
+  heart: ['r.r', 'rrr', '.r.'],
+  coin: ['.y.', 'yoy', '.y.'],
+  note: ['.mm', '.m.', 'mm.', 'mm.'],
+  z: ['www', '.w.', 'www'],
+  reel: ['.eee.', 'ekeke', 'eeeee', 'ekeke', '.eee.'],
+  sign: ['wwwww', 'wrrrw', 'wwwww', '..s..', '..s..', '..s..'],
+  scis: ['e...e', '.e.e.', '..e..', '.r.r.', 'r...r'],
+  q: ['yy.', '..y', '.y.', '...', '.y.'],
+  bubble: ['wwwww', 'wkwkw', 'wwwww', '.w...'],
+  cross: ['.r.', 'rrr', '.r.'],
+  star: ['..y..', '.yyy.', 'yyyyy', '.yyy.', '.y.y.'],
+  bolt: ['.y', 'y.', 'yy', '.y', 'y.'],
+};
+const SHAKY = { meteor: 1, explosion: 1, storm: 1, fight: 1 };
+function drawEffect(x, anim, t, W, H) {
+  const P = (a, b, w, h, col) => { x.fillStyle = col; x.fillRect(Math.round(a), Math.round(b), w, h); };
+  const R = rng(anim + Math.floor(t / 3));
+  switch (anim) {
+    case 'storm':
+      P(0, 0, W, H, 'rgba(10,10,30,.45)');
+      for (let i = 0; i < 26; i++) { const rx = (i * 7 + t * 3) % (W + 10) - 5, ry = (i * 13 + t * 5) % H; P(rx, ry, 1, 3, '#8fd8f0'); }
+      if (t % 11 < 2) { P(0, 0, W, H, 'rgba(255,255,255,.55)'); drawRows(x, MINI.bolt, 34, 2, 3); }
+      break;
+    case 'cat': drawRows(x, MINI.cat, (t * 2) % (W + 12) - 6, 26 + (t % 2)); break;
+    case 'dog': drawRows(x, MINI.dog, W - (t * 3) % (W + 14), 26 + (t % 2)); break;
+    case 'meteor': {
+      const k = t % 18;
+      if (k < 9) { const mx = 60 - k * 5, my = k * 3; P(mx, my, 3, 3, '#f2b441'); for (let i = 1; i < 6; i++) P(mx + i * 2, my - i, 2, 1, i < 3 ? '#d68a2e' : '#7a1f24'); }
+      else { const r = (k - 9) * 3; disc(x, 18, 30, Math.min(r, 14), k % 2 ? '#f2b441' : '#d0412e'); if (k < 12) P(0, 0, W, H, 'rgba(255,240,200,.5)'); }
+      break;
+    }
+    case 'explosion': {
+      const k = t % 14, r = k * 2;
+      if (k < 8) { disc(x, 24, 22, r, '#d0412e'); disc(x, 24, 22, Math.max(0, r - 3), '#f2b441'); disc(x, 24, 22, Math.max(0, r - 6), '#fff3c4'); }
+      else for (let i = 0; i < 10; i++) P(18 + R() * 14, 22 - (k - 8) * 2 - R() * 6, 3, 2, 'rgba(90,90,100,.7)');
+      break;
+    }
+    case 'eclipse': { const k = Math.min(10, t % 24); P(0, 0, W, H, `rgba(0,0,10,${k * .05})`); disc(x, 48, 10, 6, '#ffd36a'); disc(x, 38 + k, 10, 6, '#140a0c'); break; }
+    case 'ghost': { x.globalAlpha = .75; drawRows(x, MINI.ghost, 20 + Math.sin(t / 3) * 14, 6 + Math.sin(t / 2) * 3, 2); x.globalAlpha = 1; if (t % 7 === 0) P(0, 0, W, H, 'rgba(120,255,180,.12)'); break; }
+    case 'hearts': for (let i = 0; i < 6; i++) drawRows(x, MINI.heart, 40 + ((i * 7) % 18) + Math.sin(t / 2 + i) * 2, 22 - ((t * 2 + i * 6) % 22)); break;
+    case 'fight': {
+      drawRows(x, MINI.bolt, 46 + (t % 2), 6, 2);
+      if (t % 4 < 2) { P(44, 8, 2, 2, '#d0412e'); P(54, 6, 2, 2, '#d0412e'); }
+      for (let i = 0; i < 4; i++) P(42 + R() * 18, 8 + R() * 6, 1, 1, '#f4e7d2');
+      break;
+    }
+    case 'money': for (let i = 0; i < 12; i++) drawRows(x, MINI.coin, (i * 11 + 3) % W, ((t * 3 + i * 9) % (H + 6)) - 6); break;
+    case 'glitch':
+      for (let i = 0; i < 6; i++) { const gy = Math.floor(R() * H), gh = 1 + Math.floor(R() * 3); x.drawImage(x.canvas, 0, gy, W, gh, Math.round(R() * 8 - 4), gy, W, gh); }
+      for (let i = 0; i < 5; i++) P(R() * W, R() * H, 4 + R() * 6, 1, rpick(R, ['#d0412e', '#8fd8f0', '#3d9a6c']));
+      break;
+    case 'reel': drawRows(x, MINI.reel, (t * 3) % (W + 10) - 5, 26 - Math.abs(Math.sin(t / 2)) * 3); P(0, 30, ((t * 3) % (W + 10)) - 3, 1, '#2a1a14'); break;
+    case 'strike': for (let i = 0; i < 3; i++) drawRows(x, MINI.sign, 8 + i * 18, 20 + ((t + i) % 2) * 2, 1); break;
+    case 'flash': if (t % 3 === 0) { P(0, 0, W, H, 'rgba(255,255,255,.35)'); } for (let i = 0; i < 3; i++) if ((t + i) % 4 === 0) disc(x, 8 + i * 22, 6 + (i % 2) * 6, 3, '#ffffff'); break;
+    case 'star': drawRows(x, MINI.star, 42 + Math.sin(t / 2) * 6, 4 + Math.abs(Math.sin(t / 3)) * 3, 2); for (let i = 0; i < 5; i++) if ((t + i) % 3 === 0) P(36 + i * 5, 2 + (i * 7) % 10, 1, 1, '#fff3c4'); break;
+    case 'notes': for (let i = 0; i < 5; i++) drawRows(x, MINI.note, 34 + i * 6 + Math.sin(t / 2 + i) * 2, 24 - ((t * 2 + i * 5) % 24)); break;
+    case 'zzz': for (let i = 0; i < 3; i++) drawRows(x, MINI.z, 44 + i * 4, 12 - ((t + i * 4) % 12), 1); P(0, 0, W, H, 'rgba(0,0,20,.25)'); break;
+    case 'scissors': { const sx = (t * 2) % (W + 6) - 3; P(0, 18, W, 3, '#2a2a33'); for (let i = 0; i < W; i += 3) P(i, 19, 1, 1, '#f4e7d2'); P(sx - 1, 17, 2, 5, '#1a0c10'); drawRows(x, MINI.scis, sx, 12 + (t % 2), 1); break; }
+    case 'question': for (let i = 0; i < 4; i++) drawRows(x, MINI.q, 36 + i * 7, 6 + Math.sin(t / 2 + i * 1.5) * 3, 2); break;
+    case 'speech': for (let i = 0; i < 2; i++) if ((t + i * 3) % 6 < 4) drawRows(x, MINI.bubble, 36 + i * 12, 6 + (t % 2), 2); break;
+    case 'cross': if (t % 4 < 2) { P(0, 0, W, H, 'rgba(208,65,46,.18)'); } drawRows(x, MINI.cross, 26, 4, 3); break;
+    case 'dream': for (let i = 0; i < 14; i++) { const a = t / 4 + i * .45, r = 6 + (i % 4) * 4; P(48 + Math.cos(a) * r, 14 + Math.sin(a) * r * .6, 1, 1, i % 3 ? '#d0c0ff' : '#ffd36a'); } P(0, 0, W, H, 'rgba(60,40,120,.18)'); break;
+    case 'aura': for (let k = 0; k < 3; k++) { const r = 4 + ((t + k * 3) % 9); x.strokeStyle = `rgba(200,160,255,${.7 - r / 15})`; x.beginPath(); x.arc(44, 20, r, 0, Math.PI * 2); x.stroke(); } break;
+  }
+}
+// Which animation goes with which event (indexes match the CHAOS and EVENTS lists).
+const CHAOS_ANIM = ['cross', 'cat', 'meteor', 'glitch', 'dream', 'money', 'aura', 'reel', 'eclipse', 'strike', 'ghost', 'dog', 'explosion', 'hearts', 'fight'];
+const EVENT_ANIM = { trailer: 'flash', storm: 'storm', twist: 'question', gossip: 'flash', improv: 'speech', cut: 'scissors', score: 'notes', test: 'zzz', cameo: 'star' };
+
+// Box office as a line chart: weekly takings with an area fill, drawn point by point.
+function lineChartSVG(weeks, n) {
+  const Wd = 300, Ht = 130, pl = 6, pr = 6, pt = 14, pb = 18, max = Math.max(...weeks) || 1;
+  const X = i => pl + i * (Wd - pl - pr) / (weeks.length - 1), Y = v => pt + (1 - v / max) * (Ht - pt - pb);
+  const pts = weeks.slice(0, n).map((v, i) => [X(i), Y(v)]);
+  const grid = [0, .5, 1].map(k => `<line x1="${pl}" x2="${Wd - pr}" y1="${Y(max * k)}" y2="${Y(max * k)}" class="grid"/>`).join('');
+  const labels = weeks.map((_, i) => `<text x="${X(i)}" y="${Ht - 4}" text-anchor="middle" class="lbl">${i + 1}${T('wk')}</text>`).join('');
+  const area = pts.length > 1 ? `<path class="area" d="M${pts[0][0]},${Y(0)} ${pts.map(p => 'L' + p[0] + ',' + p[1]).join(' ')} L${pts[pts.length - 1][0]},${Y(0)} Z"/>` : '';
+  const line = pts.length > 1 ? `<polyline class="ln" points="${pts.map(p => p.join(',')).join(' ')}"/>` : '';
+  const dots = pts.map((p, i) => `<rect x="${p[0] - 3}" y="${p[1] - 3}" width="6" height="6" class="${i === pts.length - 1 ? 'dot last' : 'dot'}"/>`).join('');
+  const peak = n ? `<text x="${Wd - pr}" y="10" text-anchor="end" class="lbl">${T('peak')}: ${money(max)}</text>` : '';
+  return `<svg viewBox="0 0 ${Wd} ${Ht}" class="linechart" role="img" aria-label="${T('boxoffice')}">${grid}${area}${line}${dots}${labels}${peak}</svg>`;
+}
+
+// Pixel confetti for big moments.
+function confetti() {
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cv = document.createElement('canvas'); cv.className = 'confetti';
+  cv.width = Math.round(innerWidth / 4); cv.height = Math.round(innerHeight / 4);
+  document.body.appendChild(cv);
+  const x = cv.getContext('2d'), cols = ['#f2b441', '#d0412e', '#8fd8f0', '#f4e7d2', '#c04aa0', '#3d9a6c'];
+  const parts = Array.from({ length: 90 }, () => ({ x: cv.width / 2 + rand(-20, 20), y: cv.height * .45, vx: rand(-2.2, 2.2), vy: rand(-3.6, -1), c: pick(cols), s: Math.random() < .3 ? 2 : 1 }));
+  let t = 0;
+  const step = () => {
+    x.clearRect(0, 0, cv.width, cv.height);
+    for (const p of parts) { p.x += p.vx; p.y += p.vy; p.vy += .09; p.vx *= .99; x.fillStyle = p.c; x.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s); }
+    if (++t < 90) requestAnimationFrame(step); else cv.remove();
+  };
+  requestAnimationFrame(step);
 }
 
 /* ---------- Icons ---------- */
@@ -893,6 +1077,11 @@ function render() {
       `<button class="${screen === s ? 'on' : ''}" data-act="tab" data-v="${s}">${ICON[i]}${T(k)}${s === 'director' && G.points > 0 ? ' •' : ''}</button>`).join('')}</div>`;
   }
   app.innerHTML = html;
+  if (screen !== render.last) {
+    app.classList.remove('enter'); void app.offsetWidth; app.classList.add('enter'); clearTimeout(render.t); render.t = setTimeout(() => app.classList.remove('enter'), 700);
+    if (screen === 'awards' && G.pendingAwards && (G.pendingAwards.noms.some(n => n.win) || G.pendingAwards.studioWin)) setTimeout(confetti, 400);
+    render.last = screen;
+  }
   let b = $('.bottombar');
   if (bar) { if (!b) { b = document.createElement('div'); b.className = 'bottombar'; document.body.appendChild(b); } b.innerHTML = bar; }
   else if (b) b.remove();
@@ -969,7 +1158,7 @@ function vHome() {
 
 function poster(f, noScore) {
   const g = byId(GENRES, f.genre);
-  return `<div class="poster px" style="background-image:url(${posterURL(f)})">
+  return `<div class="poster px${posterStyle(f).top ? ' top' : ''}" style="background-image:url(${posterURL(f)})">
     ${noScore ? '' : `<span class="ps ${scoreClass(f.critic)}">${f.critic}</span>`}
     <div class="pt">${esc(f.title)}</div><div class="py">${f.year} · ${L(g)}</div></div>`;
 }
@@ -1351,6 +1540,7 @@ function openEvent() {
     P.pending = { kind: 'chaos', text: L(ev), extra };
     P.log.push(L(ev));
   } else P.pending = { kind: 'choice', idx: e.idx };
+  P.anim = e.kind === 'chaos' ? CHAOS_ANIM[e.idx] : EVENT_ANIM[EVENTS[e.idx].id];
   save(); render(); haptic('warn');
 }
 function chooseEvent(v) {
@@ -1365,10 +1555,12 @@ function chooseEvent(v) {
   payExtra(fx); mergeFx(fx);
   P.log.push(L(ev) + ' → ' + L(opt) + (note ? ' ' + note : ''));
   P.pending = null; P.evIdx++;
+  if (roll < .18) P.anim = 'glitch'; else if (roll > .88) P.anim = 'money';
+  P.animUntil = Date.now() + 2200;
   if (note) toast(note);
   save(); render(); haptic(note ? 'warn' : 'light'); tickProduction();
 }
-function closeChaos() { P.pending = null; P.evIdx++; save(); render(); tickProduction(); }
+function closeChaos() { P.animUntil = Date.now() + 2200; P.pending = null; P.evIdx++; save(); render(); tickProduction(); }
 function vProduction() {
   const d = P.draft, done = P.progress >= 100, pend = P.pending;
   let card = '';
@@ -1397,8 +1589,8 @@ function vProduction() {
 function animateSet() {
   clearInterval(setTimer);
   let frame = 0;
-  const tick = () => { const cv = $('#set'); if (!cv || !P) return clearInterval(setTimer); drawSet(cv, P.pending || P.progress >= 100 ? 0 : frame++, P.draft); };
-  tick(); setTimer = setInterval(tick, 160);
+  const tick = () => { const cv = $('#set'); if (!cv || !P) return clearInterval(setTimer); drawSet(cv, frame++, P.draft, P.pending || Date.now() < (P.animUntil || 0) ? P.anim : null); };
+  tick(); setTimer = setInterval(tick, 130);
 }
 
 /* ---------- Simulation ---------- */
@@ -1587,7 +1779,7 @@ function vResults() {
       <div style="flex:1;min-width:0"><div style="font-style:italic">«${QUOTES[G.lang][c.tier][c.q]}»</div><div class="muted small">${L(k)}, ${L(k.outlet)}</div></div>
       <div class="pixel" style="font-size:26px;flex:none" id="r-k${i}">${R.revealed ? c.score : '··'}</div></div>`; }).join('')}</div>
     <div class="card"><div class="row"><h3>${T('boxoffice')}</h3><div class="spacer"></div><b class="mono" id="r-gross">${R.revealed ? money(s.gross) : money(0)}</b></div>
-      <div class="chart">${s.weeks.map((w, i) => `<div class="col"><div class="bar" style="height:${R.revealed ? w / Math.max(...s.weeks) * 100 : 0}%"></div><div class="lbl">${i + 1}${T('wk')}</div></div>`).join('')}</div>
+      <div id="r-line">${lineChartSVG(s.weeks, R.revealed ? s.weeks.length : 0)}</div>
       <div class="muted small" id="r-week" style="min-height:1.4em"></div></div>
     <div class="card reveal" id="r-chart" ${hide}><div class="row"><h3>${T('chart')}</h3><div class="spacer"></div><span class="pill" style="color:var(--bulb)">${T('rank')}: #${R.chart.findIndex(x => x.mine) + 1}</span></div>
       <div class="stack" style="gap:4px;margin-top:8px">${R.chart.map((x, i) => `<div class="row chartrow ${x.mine ? 'mine' : ''}"><span class="mono" style="width:20px">${i + 1}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.title)} <span class="muted small">· ${esc(studioName(x.studio))}</span></span><span class="mono small">${money(x.gross)}</span></div>`).join('')}</div></div>
@@ -1637,17 +1829,18 @@ async function revealResults() {
   showEl($('#r-critics'));
   for (let i = 0; i < R.critics.length; i++) { if (!R || R.skip) return; await countUp($('#r-k' + i), R.critics[i].score, 800, v => v, scoreClass); haptic('light'); await sleep(250); }
   await countUp($('#r-critic'), f.critic, 900, v => v, scoreClass); haptic(f.critic >= 70 ? 'ok' : f.critic < 40 ? 'err' : 'light');
+  if (f.critic >= 75 && R && !R.skip) confetti();
   if (!R || R.skip) return;
   await sleep(400);
   if (!R || R.skip) return;
   await countUp($('#r-aud'), f.aud, 1500, v => v, scoreClass); haptic('light');
   if (!R || R.skip) return;
   await sleep(500);
-  const bars = document.querySelectorAll('.chart .bar'), max = Math.max(...s.weeks), weekEl = $('#r-week'), grossEl = $('#r-gross');
+  const line = $('#r-line'), weekEl = $('#r-week'), grossEl = $('#r-gross');
   let total = 0;
   for (let i = 0; i < s.weeks.length; i++) {
     if (!R || R.skip) return;
-    if (bars[i]) bars[i].style.height = (s.weeks[i] / max * 100) + '%';
+    if (line) line.innerHTML = lineChartSVG(s.weeks, i + 1);
     if (weekEl) weekEl.textContent = `${i + 1}${T('wk')}: +${money(s.weeks[i])}`;
     const prev = total; total += s.weeks[i];
     await countUp({ set textContent(v) { if (grossEl) grossEl.textContent = v; } }, total, 550, money, null, prev);
@@ -1677,6 +1870,7 @@ async function revealResults() {
   await sleep(300);
   if (!R || R.skip) return;
   showEl($('#r-gains'));
+  if (R.leveled) confetti();
   if (R) R.revealed = true;
   if (barBtn) barBtn.textContent = T('toStudio');
 }
