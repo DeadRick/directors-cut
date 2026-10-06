@@ -28,6 +28,7 @@
 /* Pixelify's Cyrillic glyphs read oddly (Y-shaped У, hooked К), so Russian uses Tiny5. */
 html[lang="ru"] { --display: "Tiny5", "Pixelify Sans", "Courier New", monospace; }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { height: 100%; }
 body {
   margin: 0; background: var(--velvet); color: var(--cream);
@@ -168,6 +169,9 @@ input[type=text] { width: 100%; background: var(--velvet-2); border: 1px solid v
 .trophy { font-family: var(--display); color: var(--bulb); }
 .discover li { margin-bottom: 4px; }
 .discover { padding-left: 18px; margin: 0; }
+.pop { animation: popin .35s ease-out; }
+@keyframes popin { from { opacity: 0; transform: translateY(6px); } }
+.chart .bar { transition: height .45s ease-out; }
 .px { image-rendering: pixelated; image-rendering: crisp-edges; }
 .scene { width: 100%; height: auto; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 8px; border: 2px solid var(--line); background: #1a0c10; }
 .lot { width: 100%; height: auto; aspect-ratio: 3 / 1; display: block; border-radius: 8px; margin-top: 10px; border: 1px solid #5d2a35; }
@@ -475,7 +479,7 @@ const STR = {
     newYear: 'Наступил', levelUp: 'Новый уровень режиссёра!', goalDone: 'Цель выполнена',
     unlockedNew: 'Открыто', profitShort: 'приб.', gigDone: 'Ролик снят: +30 000 $',
     ratingMiss: 'Рейтинг не подходит жанру.', saved: 'Прогресс сохраняется автоматически.',
-    playedIn: 'Telegram', browser: 'браузер', backfire: 'Всё пошло не по плану!', jackpot: 'Сработало лучше, чем мечтали!', chaos: 'Тем временем на площадке', okay: 'Ну что ж…', story: 'Как это было', wildCult: 'Фильм настолько плох, что стал культовым! Залы забиты.', wildIgnored: 'Шедевр не поняли: зрители прошли мимо.', luckyWeek: 'Звёзды сошлись: прокат сложился удачно.', unluckyWeek: 'Прокату просто не повезло.', fakeTrend: 'Слух о тренде оказался уткой.', rumors: 'Слухи', rumorHot: 'Говорят, в тренде', rumorTheme: 'Шепчутся про тему', rumorCold: 'Говорят, надоело', busy: 'Занят на другом проекте', breaking: 'Срочные новости', dismiss: 'Понятно', moreTalent: 'Ещё {n} — откроются с ростом репутации и студии.',
+    playedIn: 'Telegram', browser: 'браузер', backfire: 'Всё пошло не по плану!', skip: 'Пропустить', jackpot: 'Сработало лучше, чем мечтали!', chaos: 'Тем временем на площадке', okay: 'Ну что ж…', story: 'Как это было', wildCult: 'Фильм настолько плох, что стал культовым! Залы забиты.', wildIgnored: 'Шедевр не поняли: зрители прошли мимо.', luckyWeek: 'Звёзды сошлись: прокат сложился удачно.', unluckyWeek: 'Прокату просто не повезло.', fakeTrend: 'Слух о тренде оказался уткой.', rumors: 'Слухи', rumorHot: 'Говорят, в тренде', rumorTheme: 'Шепчутся про тему', rumorCold: 'Говорят, надоело', busy: 'Занят на другом проекте', breaking: 'Срочные новости', dismiss: 'Понятно', moreTalent: 'Ещё {n} — откроются с ростом репутации и студии.',
   },
   en: {
     tagline: 'Studio', newFilm: 'Make a new film', money: 'Cash', rep: 'Reputation', fans: 'Fans', year: 'Year',
@@ -507,7 +511,7 @@ const STR = {
     newYear: 'Welcome to', levelUp: 'Director level up!', goalDone: 'Goal complete',
     unlockedNew: 'Unlocked', profitShort: 'profit', gigDone: 'Commercial done: +$30,000',
     ratingMiss: 'The rating does not suit the genre.', saved: 'Progress saves automatically.',
-    playedIn: 'Telegram', browser: 'browser', backfire: 'It all went wrong!', jackpot: 'It worked better than you dreamed!', chaos: 'Meanwhile, on set', okay: 'Oh well…', story: 'How it went', wildCult: 'So bad it is good: the film became a cult hit!', wildIgnored: 'A misunderstood masterpiece: audiences walked past it.', luckyWeek: 'The stars aligned for this release.', unluckyWeek: 'The release was simply unlucky.', fakeTrend: 'The trend rumour turned out to be fake.', rumors: 'Rumours', rumorHot: 'Word is, trending', rumorTheme: 'People whisper about', rumorCold: 'Word is, people are tired of', busy: 'Busy on another project', breaking: 'Breaking news', dismiss: 'Got it', moreTalent: '{n} more unlock as your reputation and studio grow.',
+    playedIn: 'Telegram', browser: 'browser', backfire: 'It all went wrong!', skip: 'Skip', jackpot: 'It worked better than you dreamed!', chaos: 'Meanwhile, on set', okay: 'Oh well…', story: 'How it went', wildCult: 'So bad it is good: the film became a cult hit!', wildIgnored: 'A misunderstood masterpiece: audiences walked past it.', luckyWeek: 'The stars aligned for this release.', unluckyWeek: 'The release was simply unlucky.', fakeTrend: 'The trend rumour turned out to be fake.', rumors: 'Rumours', rumorHot: 'Word is, trending', rumorTheme: 'People whisper about', rumorCold: 'Word is, people are tired of', busy: 'Busy on another project', breaking: 'Breaking news', dismiss: 'Got it', moreTalent: '{n} more unlock as your reputation and studio grow.',
   },
 };
 
@@ -873,7 +877,7 @@ function render() {
   if (screen === 'onboard') html = vOnboard();
   else if (screen === 'wizard') { html = vWizard(); bar = wizardBar(); }
   else if (screen === 'production') html = vProduction();
-  else if (screen === 'results') { html = vResults(); bar = `<div class="inner"><button class="btn primary big" data-act="closeResults">${T('toStudio')}</button></div>`; }
+  else if (screen === 'results') { html = vResults(); bar = `<div class="inner"><button class="btn primary big" data-act="closeResults">${R.revealed ? T('toStudio') : T('skip')}</button></div>`; }
   else if (screen === 'awards') { html = vAwards(); bar = `<div class="inner"><button class="btn primary big" data-act="closeAwards">${T('toStudio')}</button></div>`; }
   else {
     html = header() + (screen === 'home' ? vHome() : screen === 'upgrades' ? vUpgrades() : screen === 'director' ? vDirector() : vFilms());
@@ -951,10 +955,10 @@ function vHome() {
   </div>`;
 }
 
-function poster(f) {
+function poster(f, noScore) {
   const g = byId(GENRES, f.genre);
   return `<div class="poster px" style="background-image:url(${posterURL(f)})">
-    <span class="ps ${scoreClass(f.critic)}">${f.critic}</span>
+    ${noScore ? '' : `<span class="ps ${scoreClass(f.critic)}">${f.critic}</span>`}
     <div class="pt">${esc(f.title)}</div><div class="py">${f.year} · ${L(g)}</div></div>`;
 }
 function filmRow(f) {
@@ -1397,11 +1401,7 @@ function release() {
   const goalsDone = checkGoals();
   R = { film, s, repDelta, fansDelta, xpGain, leveled, story, goalsDone, newYear, prevYear };
   P = null; G.prod = null; screen = 'results'; save(); render(); window.scrollTo(0, 0);
-  haptic(s.critic >= 70 ? 'ok' : s.critic < 40 ? 'err' : 'light');
-  requestAnimationFrame(() => setTimeout(() => {
-    const max = Math.max(...s.weeks);
-    document.querySelectorAll('.chart .bar').forEach((el, i) => { el.style.height = (s.weeks[i] / max * 100) + '%'; });
-  }, 60));
+  revealResults();
 }
 function checkGoals() {
   const done = [];
@@ -1421,31 +1421,86 @@ function runAwards(y) {
 function vResults() {
   const { film: f, s } = R;
   const tier = f.critic >= 80 ? 3 : f.critic >= 60 ? 2 : f.critic >= 40 ? 1 : 0;
-  const quote = pick(QUOTES[G.lang][tier]), outlet = pick(OUTLETS[G.lang]);
-  return `<div class="stack" style="padding-top:8px">
-    <div class="row" style="align-items:flex-end;gap:14px"><div style="width:120px;flex:none">${poster(f)}</div>
+  R.quote = R.quote || pick(QUOTES[G.lang][tier]); R.outlet = R.outlet || pick(OUTLETS[G.lang]);
+  const hide = R.revealed ? '' : 'hidden';
+  return `<div class="stack" style="padding-top:8px" id="results">
+    <div class="row" style="align-items:flex-end;gap:14px"><div style="width:120px;flex:none">${poster(f, !R.revealed)}</div>
       <div style="min-width:0"><div class="muted small">${T('premiere')} · ${f.year}</div><h2 style="font-size:26px">${esc(f.title)}</h2>
       <div class="muted small">${L(byId(GENRES, f.genre))} · ${L(byId(THEMES, f.theme))} · ${L(byId(ERAS, f.era))}</div></div></div>
-    <div class="row"><div class="scorebox"><span>${T('critics')}</span><div class="score ${scoreClass(f.critic)}">${f.critic}</div></div>
-      <div class="scorebox"><span>${T('audience')}</span><div class="score ${scoreClass(f.aud)}">${f.aud}</div></div></div>
-    <div class="ticket"><div style="font-size:17px;font-style:italic">«${quote}»</div><div class="muted small" style="margin-top:4px">— ${outlet}</div></div>
-    <div class="card"><h3>${T('boxoffice')}</h3>
-      <div class="chart">${s.weeks.map((w, i) => `<div class="col"><div class="bar" style="height:0"></div><div class="lbl">${i + 1}${T('wk')}</div></div>`).join('')}</div></div>
-    <div class="card ledger">
+    <div class="row"><div class="scorebox"><span>${T('critics')}</span><div class="score" id="r-critic">${R.revealed ? f.critic : '··'}</div></div>
+      <div class="scorebox"><span>${T('audience')}</span><div class="score" id="r-aud">${R.revealed ? f.aud : '··'}</div></div></div>
+    <div class="ticket reveal" id="r-quote" ${hide}><div style="font-size:17px;font-style:italic">«${R.quote}»</div><div class="muted small" style="margin-top:4px">— ${R.outlet}</div></div>
+    <div class="card"><div class="row"><h3>${T('boxoffice')}</h3><div class="spacer"></div><b class="mono" id="r-gross">${R.revealed ? money(s.gross) : money(0)}</b></div>
+      <div class="chart">${s.weeks.map((w, i) => `<div class="col"><div class="bar" style="height:0"></div><div class="lbl">${i + 1}${T('wk')}</div></div>`).join('')}</div>
+      <div class="muted small" id="r-week" style="min-height:1.4em"></div></div>
+    <div class="card ledger reveal" id="r-ledger" ${hide}>
       <span>${T('gross')}</span><span class="v">${money(s.gross)}</span>
       <span>${T('share')} (${Math.round((.55 + (has('cinemas') ? .1 : 0)) * 100)}%)</span><span class="v">${money(s.share)}</span>
       ${s.stream ? `<span>${T('streaming')}</span><span class="v">${money(s.stream)}</span>` : ''}
       <span>${T('costs')}</span><span class="v">${money(-f.cost)}</span>
-      <span class="total">${T('profit')}</span><span class="v total ${s.profit >= 0 ? 'hi' : 'lo'}">${money(s.profit)}</span>
+      <span class="total">${T('profit')}</span><span class="v total ${s.profit >= 0 ? 'hi' : 'lo'}" id="r-profit">${R.revealed ? money(s.profit) : money(0)}</span>
     </div>
-    ${R.story.length ? `<div class="card"><h3>${T('story')}</h3><ul class="discover" style="margin-top:8px">${R.story.map(x => `<li>${x}</li>`).join('')}</ul></div>` : ''}
-    <div class="card stack" style="gap:6px"><h3>${T('gains')}</h3>
+    ${R.story.length ? `<div class="card reveal" id="r-story" ${hide}><h3>${T('story')}</h3><ul class="discover" style="margin-top:8px">${R.story.map(x => `<li class="reveal" ${hide}>${x}</li>`).join('')}</ul></div>` : ''}
+    <div class="card stack reveal" style="gap:6px" id="r-gains" ${hide}><h3>${T('gains')}</h3>
       <div class="bars" style="font-size:14px"><span>${T('rep')} <b class="${R.repDelta >= 0 ? 'hi' : 'lo'}">${R.repDelta >= 0 ? '+' : ''}${R.repDelta}</b></span>
       <span>${T('fans')} <b>+${count(R.fansDelta)}</b></span><span>${T('xp')} <b>+${R.xpGain}</b></span></div>
       ${R.leveled ? `<div class="trophy">${T('levelUp')} ${T('lvl')} ${G.level}</div>` : ''}
       ${R.goalsDone.map(g => `<div class="trophy">${T('goalDone')}: ${L(g)} · +${money(g.reward)}</div>`).join('')}
     </div>
   </div>`;
+}
+// Tycoon-style premiere: numbers tick up one after another so the outcome stays a mystery.
+const sleep = ms => new Promise(r => setTimeout(r, R && R.skip ? 0 : ms));
+function countUp(el, to, ms, fmt, cls, from = 0) {
+  return new Promise(done => {
+    if (!el) return done();
+    const t0 = performance.now();
+    const step = now => {
+      if (!R || (el.nodeType && !document.body.contains(el))) return done();
+      const k = R.skip ? 1 : Math.min(1, (now - t0) / ms);
+      // ease-out with a nervous wobble near the end
+      const e = 1 - Math.pow(1 - k, 3), wob = k < 1 ? Math.sin(now / 45) * (1 - k) * .08 * (to - from) : 0;
+      const v = from + (to - from) * e + wob;
+      el.textContent = fmt(Math.round(v));
+      if (cls) el.className = el.className.replace(/\b(hi|mid|lo)\b/g, '').trim() + ' ' + cls(Math.round(v));
+      if (k < 1) requestAnimationFrame(step); else { el.textContent = fmt(to); done(); }
+    };
+    requestAnimationFrame(step);
+  });
+}
+const showEl = el => { if (el) { el.hidden = false; el.classList.add('pop'); } };
+async function revealResults() {
+  const { film: f, s } = R;
+  const barBtn = $('.bottombar [data-act="closeResults"]');
+  await sleep(600);
+  await countUp($('#r-critic'), f.critic, 1700, v => v, scoreClass); haptic(f.critic >= 70 ? 'ok' : f.critic < 40 ? 'err' : 'light');
+  await sleep(400);
+  await countUp($('#r-aud'), f.aud, 1500, v => v, scoreClass); haptic('light');
+  await sleep(300);
+  showEl($('#r-quote'));
+  await sleep(900);
+  const bars = document.querySelectorAll('.chart .bar'), max = Math.max(...s.weeks), weekEl = $('#r-week'), grossEl = $('#r-gross');
+  let total = 0;
+  for (let i = 0; i < s.weeks.length; i++) {
+    if (!R) return;
+    if (bars[i]) bars[i].style.height = (s.weeks[i] / max * 100) + '%';
+    if (weekEl) weekEl.textContent = `${i + 1}${T('wk')}: +${money(s.weeks[i])}`;
+    const prev = total; total += s.weeks[i];
+    await countUp({ set textContent(v) { if (grossEl) grossEl.textContent = v; } }, total, 550, money, null, prev);
+    if (grossEl) grossEl.textContent = money(total);
+    haptic('light');
+    await sleep(150);
+  }
+  if (weekEl) weekEl.textContent = '';
+  await sleep(300);
+  showEl($('#r-ledger'));
+  await countUp($('#r-profit'), s.profit, 1100, money); haptic(s.profit >= 0 ? 'ok' : 'err');
+  await sleep(400);
+  showEl($('#r-story'));
+  for (const li of document.querySelectorAll('#r-story li')) { showEl(li); await sleep(650); }
+  showEl($('#r-gains'));
+  if (R) R.revealed = true;
+  if (barBtn) barBtn.textContent = T('toStudio');
 }
 function vAwards() {
   const a = G.pendingAwards;
@@ -1495,7 +1550,7 @@ document.addEventListener('click', e => {
     case 'chaosOk': closeChaos(); break;
     case 'dismissNews': G.news = null; save(); render(); break;
     case 'release': release(); break;
-    case 'closeResults': screen = G.pendingAwards && G.pendingAwards.any ? 'awards' : 'home'; if (screen === 'home') { G.pendingAwards = null; rollWorldEvent(); } R = null; save(); render(); window.scrollTo(0, 0); break;
+    case 'closeResults': if (R && !R.revealed) { R.skip = true; break; } screen = G.pendingAwards && G.pendingAwards.any ? 'awards' : 'home'; if (screen === 'home') { G.pendingAwards = null; rollWorldEvent(); } R = null; save(); render(); window.scrollTo(0, 0); break;
     case 'closeAwards': G.pendingAwards = null; rollWorldEvent(); screen = 'home'; save(); render(); window.scrollTo(0, 0); break;
     case 'buy': { const u = byId(UPGRADES, v); if (!has(v) && unlocked(u.req) && G.money >= u.cost) { G.money -= u.cost; G.upgrades[v] = true; checkGoals(); save(); render(); toast(`${T('unlockedNew')}: ${L(u)}`); haptic('ok'); } break; }
     case 'skill': if (G.points > 0 && G.skills[v] < SKILL_MAX) { G.skills[v]++; G.points--; save(); render(); haptic('medium'); } break;
