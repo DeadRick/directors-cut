@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 /* Layout: one-column mobile app (max 560px) — marquee header, scrolling screen, fixed bottom nav / wizard bar.
@@ -20,7 +20,7 @@
   --good: #8fcf8f;
   --bad: #ec7a68;
   --info: #8fb8d8;
-  --display: "Oswald", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --display: "Pixelify Sans", "Courier New", monospace;
   --body: "IBM Plex Sans", "Segoe UI", Roboto, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
   color-scheme: dark;
@@ -132,7 +132,6 @@ h3 { font-size: 16px; text-transform: uppercase; letter-spacing: .06em; color: v
 .poster .pt { font-family: var(--display); font-weight: 700; text-transform: uppercase; line-height: 1; font-size: 15px; text-shadow: 0 2px 8px rgba(0,0,0,.6); overflow-wrap: anywhere; }
 .poster .py { font-family: var(--mono); font-size: 10px; opacity: .8; margin-top: 4px; }
 .poster .ps { position: absolute; top: 6px; right: 6px; font-family: var(--mono); font-size: 12px; font-weight: 600; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,.55); }
-.poster .shape { position: absolute; inset: 0; opacity: .55; }
 .filmlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; }
 .filmrow { display: grid; grid-template-columns: 74px 1fr; gap: 12px; align-items: start; }
 .filmrow .poster .pt { font-size: 11px; }
@@ -167,6 +166,16 @@ input[type=text] { width: 100%; background: var(--velvet-2); border: 1px solid v
 .trophy { font-family: var(--display); color: var(--bulb); }
 .discover li { margin-bottom: 4px; }
 .discover { padding-left: 18px; margin: 0; }
+.px { image-rendering: pixelated; image-rendering: crisp-edges; }
+.scene { width: 100%; height: auto; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 8px; border: 2px solid var(--line); background: #1a0c10; }
+.lot { width: 100%; height: auto; aspect-ratio: 3 / 1; display: block; border-radius: 8px; margin-top: 10px; border: 1px solid #5d2a35; }
+.caps { text-transform: uppercase; letter-spacing: .08em; }
+.pixel { font-family: var(--display); }
+.btn.dark { background: #2a1218; color: var(--cream); border-color: #2a1218; }
+.opt .gicon { width: 36px; height: 36px; margin-bottom: 4px; }
+.avatar.px { border-radius: 6px; border: 2px solid rgba(0,0,0,.35); }
+.poster { background-size: cover; background-position: center; }
+.newsflash { display: flex; gap: 12px; align-items: flex-start; }
 @media (prefers-reduced-motion: reduce) { .marquee::before, .reel { animation: none; } .chart .bar { transition: none; } }
 </style>
 
@@ -364,7 +373,7 @@ const EVENTS = [
     a: { ru: 'Сократить', en: 'Cut it', fx: { reach: 1.1, crit: -5 } },
     b: { ru: 'Отстоять режиссёрскую версию (10 000 $)', en: "Fight for the director's cut ($10,000)", fx: { cost: 10000, crit: 3 } } },
   { id: 'score', ru: 'Известный композитор готов написать музыку.', en: 'A famous composer offers to write the score.',
-    a: { ru: 'Нанять (20 000 $)', en: 'Hire ($20,000)', fx: { cost: 20000, q: .6, sndOnly: true } },
+    a: { ru: 'Нанять (20 000 $)', en: 'Hire ($20,000)', fx: { cost: 20000, snd: 1.2 } },
     b: { ru: 'Обойтись библиотекой звуков', en: 'Use library music', fx: {} } },
   { id: 'test', ru: 'Тестовый показ прошёл плохо: зрители скучали.', en: 'The test screening went badly. The audience was bored.',
     a: { ru: 'Доснять сцены (+20% бюджета)', en: 'Reshoot scenes (+20% of budget)', fx: { costPct: .2, q: .8 } },
@@ -456,7 +465,7 @@ const STR = {
     lvl: 'Уровень', points: 'Очки навыков', skills: 'Навыки режиссёра', mastery: 'Мастерство в жанрах', films: 'фильмов',
     upgrades: 'Развитие студии', buy: 'Купить', owned: 'Есть', filmography: 'Фильмография',
     awardsTitle: 'Церемония «Золотая бобина»', nominated: 'Номинация', won: 'Победа!', lost: 'Не в этот раз',
-    noNoms: 'В этом году ваши фильмы не попали в номинации. Нужно 72+ от критиков.', awards: 'Награды',
+    noNoms: 'В этом году ваши фильмы не попали в номинации.', awards: 'Награды',
     settings: 'Настройки', lang: 'Язык', reset: 'Начать карьеру заново', resetSure: 'Точно? Нажмите ещё раз',
     onbTitle: 'Добро пожаловать в Голливуд', onbText: 'У вас есть 120 000 $, старенькая камера и мечта. Снимайте фильмы, открывайте удачные сочетания жанров и тем, нанимайте звёзд и превращайте гараж в киноимперию.',
     yourName: 'Имя режиссёра', studioName: 'Название студии', begin: 'Начать карьеру', defStudio: 'Гаражные фильмы',
@@ -464,7 +473,7 @@ const STR = {
     newYear: 'Наступил', levelUp: 'Новый уровень режиссёра!', goalDone: 'Цель выполнена',
     unlockedNew: 'Открыто', profitShort: 'приб.', gigDone: 'Ролик снят: +30 000 $',
     ratingMiss: 'Рейтинг не подходит жанру.', saved: 'Прогресс сохраняется автоматически.',
-    playedIn: 'Telegram', browser: 'браузер', moreTalent: 'Ещё {n} — откроются с ростом репутации и студии.',
+    playedIn: 'Telegram', browser: 'браузер', backfire: 'Всё пошло не по плану!', jackpot: 'Сработало лучше, чем мечтали!', chaos: 'Тем временем на площадке', okay: 'Ну что ж…', story: 'Как это было', wildCult: 'Фильм настолько плох, что стал культовым! Залы забиты.', wildIgnored: 'Шедевр не поняли: зрители прошли мимо.', luckyWeek: 'Звёзды сошлись: прокат сложился удачно.', unluckyWeek: 'Прокату просто не повезло.', fakeTrend: 'Слух о тренде оказался уткой.', rumors: 'Слухи', rumorHot: 'Говорят, в тренде', rumorTheme: 'Шепчутся про тему', rumorCold: 'Говорят, надоело', busy: 'Занят на другом проекте', breaking: 'Срочные новости', dismiss: 'Понятно', moreTalent: 'Ещё {n} — откроются с ростом репутации и студии.',
   },
   en: {
     tagline: 'Studio', newFilm: 'Make a new film', money: 'Cash', rep: 'Reputation', fans: 'Fans', year: 'Year',
@@ -488,7 +497,7 @@ const STR = {
     lvl: 'Level', points: 'Skill points', skills: 'Director skills', mastery: 'Genre mastery', films: 'films',
     upgrades: 'Studio upgrades', buy: 'Buy', owned: 'Owned', filmography: 'Filmography',
     awardsTitle: 'The Golden Reel Awards', nominated: 'Nominated', won: 'Winner!', lost: 'Not this time',
-    noNoms: 'None of your films were nominated this year. You need 72+ from critics.', awards: 'Awards',
+    noNoms: 'None of your films were nominated this year.', awards: 'Awards',
     settings: 'Settings', lang: 'Language', reset: 'Restart career', resetSure: 'Sure? Tap again',
     onbTitle: 'Welcome to Hollywood', onbText: 'You have $120,000, an old camera and a dream. Make films, discover which genres and themes click, hire stars and turn a garage into a film empire.',
     yourName: 'Director name', studioName: 'Studio name', begin: 'Start career', defStudio: 'Garage Pictures',
@@ -496,7 +505,7 @@ const STR = {
     newYear: 'Welcome to', levelUp: 'Director level up!', goalDone: 'Goal complete',
     unlockedNew: 'Unlocked', profitShort: 'profit', gigDone: 'Commercial done: +$30,000',
     ratingMiss: 'The rating does not suit the genre.', saved: 'Progress saves automatically.',
-    playedIn: 'Telegram', browser: 'browser', moreTalent: '{n} more unlock as your reputation and studio grow.',
+    playedIn: 'Telegram', browser: 'browser', backfire: 'It all went wrong!', jackpot: 'It worked better than you dreamed!', chaos: 'Meanwhile, on set', okay: 'Oh well…', story: 'How it went', wildCult: 'So bad it is good: the film became a cult hit!', wildIgnored: 'A misunderstood masterpiece: audiences walked past it.', luckyWeek: 'The stars aligned for this release.', unluckyWeek: 'The release was simply unlucky.', fakeTrend: 'The trend rumour turned out to be fake.', rumors: 'Rumours', rumorHot: 'Word is, trending', rumorTheme: 'People whisper about', rumorCold: 'Word is, people are tired of', busy: 'Busy on another project', breaking: 'Breaking news', dismiss: 'Got it', moreTalent: '{n} more unlock as your reputation and studio grow.',
   },
 };
 
@@ -608,6 +617,7 @@ function actorState(a) {
 function feeOf(p, isActor) {
   let fee = p.fee;
   if (isActor) { const s = actorState(p); fee *= 1 + .18 * (s.star - p.star); }
+  if (W && W.feeMult && W.feeMult[p.id]) fee *= W.feeMult[p.id];
   fee *= 1 - .06 * G.skills.charisma;
   if (has('casting')) fee *= .9;
   return Math.round(fee / 500) * 500;
@@ -616,18 +626,233 @@ function xpNeed(l) { return 100 + 70 * (l - 1); }
 function mktCost(m) { return Math.round(m.cost * (has('marketing') ? .8 : 1)); }
 function genreLevel(g) { return Math.min(5, G.mastery[g] || 0); }
 function ensureTrends() {
-  if (G.trends && G.trends.year === year()) return;
+  if (G.trends && G.trends.year === year() && G.trends.real) return;
   const ids = GENRES.map(g => g.id).sort(() => Math.random() - .5);
-  G.trends = { year: year(), hot: [ids[0], ids[1]], cold: ids[2], theme: pick(THEMES).id };
-}
-function comboTag(v) {
-  if (v === undefined) return `<span class="tag g0">?</span>`;
-  const cls = v >= 2 ? 'g2' : v === 1 ? 'g1' : v === 0 ? 'g0' : 'gm';
-  return `<span class="tag ${cls}">${T('combo' + v)}</span>`;
+  const real = { hot: [ids[0], ids[1]], cold: ids[2], theme: pick(THEMES).id };
+  // The news only reports rumours, and rumours are wrong a third of the time.
+  const lie = (truth, alt) => Math.random() < .35 ? alt : truth;
+  G.trends = { year: year(), real, hot: real.hot.map((h, i) => lie(h, ids[3 + i])), cold: lie(real.cold, ids[5]), theme: lie(real.theme, pick(THEMES).id) };
 }
 function genTitle(genre, theme) {
   const w = pick(TITLE_WORDS[theme][G.lang]), tail = pick(TITLE_TAILS[genre][G.lang]);
   return tail ? (/^\d|^[A-ZА-Я]/.test(tail) && !/^(and|in|on|at|of|for|by|to|from|under|with|без|на|в|во|из|под|за|у|и|с|как)\b/i.test(tail) ? w + ': ' + tail : w + ' ' + tail) : w;
+}
+
+/* ---------- Pixel art ---------- */
+// Every sprite is drawn here in code: tiny canvases scaled up with image-rendering: pixelated.
+const PX = { k: '#140a0c', w: '#f4e7d2', y: '#f2b441', o: '#d68a2e', r: '#d0412e', R: '#7a1f24', p: '#f08aa8', m: '#c04aa0', v: '#7b4b8e', b: '#2f7fa0', B: '#3d5a73', c: '#8fd8f0', g: '#3d9a6c', G: '#8fcf8f', s: '#b0703a', S: '#5c3a1e', e: '#9a9aa8', E: '#55556a' };
+const SPRITES = {
+  drama: ['....wwww....', '..wwwwwwww..', '.wwwwwwwwww.', '.wkkwwwwkkw.', '.wkkwwwwkkw.', '.wwwwwwwwww.', '.wwwwwwwwww.', '..wwkkkkww..', '..wkwwwwkw..', '...wwwwww...', '....wwww....', '............'],
+  comedy: ['....yyyy....', '..yyyyyyyy..', '.yyyyyyyyyy.', '.ykkyyyykky.', '.ykkyyyykky.', '.yyyyyyyyyy.', '.ykyyyyyyky.', '.yykkkkkkyy.', '..yykrrkyy..', '...yyyyyy...', '....yyyy....', '............'],
+  horror: ['...wwwwww...', '..wwwwwwww..', '.wwwwwwwwww.', '.wkkkwwkkkw.', '.wkkkwwkkkw.', '.wwwwkkwwww.', '..wwwwwwww..', '...wkwkwkw..', '...wwwwww...', '....kwkw....', '............', '............'],
+  action: ['.....y......', '..y..yy..y..', '...yyoyy.y..', '..yyoorooy..', '.yyoorrrooyy', '..yoorrroyy.', '.yyoorrooyy.', '..yyooooyy..', '...yy.yy.y..', '..y...y.....', '............', '............'],
+  documentary: ['..kkk.kkk...', '.keeekeeek..', '.keEekeEek..', '..kkk.kkk...', '.eeeeeeeek..', '.eEEEEEEekkk', '.eEccEEEekyk', '.eEccEEEekkk', '.eEEEEEEek..', '.eeeeeeeek..', '..k....k....', '.k......k...'],
+  romance: ['............', '..rr....rr..', '.rprr..rrrr.', '.rpwrrrrrrr.', '.rprrrrrrrr.', '.rrrrrrrrrr.', '..rrrrrrrr..', '...rrrrrr...', '....rrrr....', '.....rr.....', '............', '............'],
+  thriller: ['............', '............', '....kkkk....', '..kkwwwwkk..', '.kwwwBBwwwk.', 'kwwwBkkBwwwk', 'kwwwBkkBwwwk', '.kwwwBBwwwk.', '..kkwwwwkk..', '....kkkk....', '............', '............'],
+  western: ['............', '....ssss....', '...sSSSSs...', '...ssssss...', '...ssssss...', '...SSSSSS...', '.ssssssssss.', 'ssssssssssss', '.SSSSSSSSSS.', '............', '............', '............'],
+  musical: ['.....mmmmmm.', '.....mmmmmm.', '.....m....m.', '.....m....m.', '.....m....m.', '.....m....m.', '..mmmm..mmmm', '.mmmmm.mmmmm', '.mmmmm.mmmmm', '..mmm...mmm.', '............', '............'],
+  scifi: ['.....ww.....', '....wwww....', '....wbbw....', '...wwccww...', '...wwbbww...', '...wwwwww...', '...wwwwww...', '..rwwwwwwr..', '.rrw.ww.wrr.', '.r..yooy..r.', '.....yy.....', '......y.....'],
+  animation: ['.....yy.....', '.....yy.....', '....yyyy....', 'yyyyyyyyyyyy', '.yyykyykyyy.', '..yyyyyyyy..', '...yykkyy...', '..yyyyyyyy..', '..yyy..yyy..', '.yy......yy.', '............', '............'],
+  fantasy: ['..........ww', '.........wcw', '........wcw.', '.......wcw..', '......wcw...', '..y..wcw....', '...yywcw....', '....yyw.....', '...Syyy.....', '..SS..y.....', '.SS.........', '............'],
+  trophy: ['..yyyyyyyy..', 'yyywyyyyyyyy', 'y.ywyyyyyy.y', 'y.ywyyyyyy.y', '.yywyyyyyyy.', '...yyyyyy...', '....yyyy....', '.....yy.....', '.....yy.....', '....oooo....', '...oooooo...', '...SSSSSS...'],
+  clapper: ['kwkwkwkwkwkw', 'wkwkwkwkwkwk', 'kkkkkkkkkkkk', '............', 'kkkkkkkkkkkk', 'keeeeeeeeeek', 'kewwwewwwwek', 'keeeeeeeeeek', 'kewwweewwwek', 'keeeeeeeeeek', 'kkkkkkkkkkkk', '............'],
+  news: ['wwwwwwwwww..', 'wkkkkkkkkw..', 'wwwwwwwwwwww', 'wkkkw.kkkwew', 'wkkkw.wwwwew', 'wkkkw.kkkwew', 'wwwwwwwwwwew', 'wkkkkkkkkwew', 'wwwwwwwwwwew', 'wkkkkkkkkwew', 'wwwwwwwwwwww', '............'],
+  bolt: ['......yyy...', '.....yyy....', '....yyy.....', '...yyy......', '..yyyyyyy...', '.....yyy....', '....yyy.....', '...yy.......', '..yy........', '.y..........', '............', '............'],
+};
+const pxCache = {};
+function mkCanvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+function hashStr(s) { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+function rng(seed) { let s = hashStr(seed) || 1; return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; }; }
+const rpick = (R, a) => a[Math.floor(R() * a.length)];
+function spriteURL(name) {
+  if (pxCache['s' + name]) return pxCache['s' + name];
+  const rows = SPRITES[name], c = mkCanvas(rows[0].length, rows.length), x = c.getContext('2d');
+  rows.forEach((row, j) => [...row].forEach((ch, i) => { if (PX[ch]) { x.fillStyle = PX[ch]; x.fillRect(i, j, 1, 1); } }));
+  return (pxCache['s' + name] = c.toDataURL());
+}
+function pxImg(url, w, h, cls) { return `<img class="px ${cls || ''}" src="${url}" width="${w}" height="${h || w}" alt="">`; }
+function hex2rgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+function mix(a, b, t) { const A = hex2rgb(a), B = hex2rgb(b); return 'rgb(' + A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',') + ')'; }
+const BAYER = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]];
+function ditherSky(x, w, h, top, bottom, bands) {
+  const cols = Array.from({ length: bands }, (_, i) => mix(top, bottom, i / (bands - 1)));
+  for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
+    const v = j / h * (bands - 1) + BAYER[j % 4][i % 4] / 16 - .5;
+    x.fillStyle = cols[clamp(Math.round(v), 0, bands - 1)]; x.fillRect(i, j, 1, 1);
+  }
+}
+
+// Actor and writer portraits: a 12x12 face generated from the person's id.
+function faceURL(id, bg) {
+  const key = 'f' + id + bg; if (pxCache[key]) return pxCache[key];
+  const R = rng(id), c = mkCanvas(12, 12), x = c.getContext('2d');
+  const P = (col, a, b, w, h) => { x.fillStyle = col; x.fillRect(a, b, w || 1, h || 1); };
+  const skin = rpick(R, ['#f3cfa8', '#e2ae80', '#c68642', '#8d5524', '#f9dcbc']);
+  const hair = rpick(R, ['#2b1b12', '#5a3825', '#d9b45a', '#a33b20', '#d8d8d8', '#141414', '#7a3fa0']);
+  const shirt = rpick(R, ['#2f7fa0', '#c4452f', '#3d9a6c', '#f4e7d2', '#7b4b8e', '#222222']);
+  P(bg, 0, 0, 12, 12);
+  P(shirt, 2, 10, 8, 2); P(skin, 5, 9, 2, 1);
+  P(skin, 3, 3, 6, 6);
+  const style = Math.floor(R() * 4);
+  if (style === 2) { P(skin, 3, 2, 6, 1); P(hair, 2, 4, 1, 2); P(hair, 9, 4, 1, 2); }
+  else {
+    P(hair, 3, 2, 6, 1); P(hair, 2, 3, 8, 1);
+    if (style === 0) { P(hair, 2, 4, 1, 2); P(hair, 9, 4, 1, 2); }
+    if (style === 1) { P(hair, 2, 4, 1, 6); P(hair, 9, 4, 1, 6); }
+    if (style === 3) { P(hair, 4, 0, 4, 2); P(hair, 2, 4, 1, 1); P(hair, 9, 4, 1, 1); }
+  }
+  if (R() < .2) { P('#140a0c', 3, 5, 6, 1); P('#8fd8f0', 4, 5); P('#8fd8f0', 7, 5); }
+  else { P('#140a0c', 4, 5); P('#140a0c', 7, 5); }
+  if (R() < .2) P(hair, 3, 7, 6, 2);
+  P('#8a3a30', 5, 7, 2, 1);
+  if (R() < .3) { P('#e98a8a', 3, 6); P('#e98a8a', 8, 6); }
+  return (pxCache[key] = c.toDataURL());
+}
+
+// Posters: 32x48 dithered sky, era skyline, the lead's silhouette.
+const POSTER_PAL = {
+  drama: ['#2a1640', '#7b4b8e', '#e8a0c8'], comedy: ['#e8743a', '#f7d98a', '#fff3c4'], horror: ['#050203', '#5a0f14', '#d8e0c8'],
+  action: ['#2a0a06', '#e0602a', '#ffd36a'], documentary: ['#1d2a24', '#6f8f7a', '#e8e4d0'], romance: ['#3a1030', '#e07090', '#ffe0ea'],
+  thriller: ['#08101a', '#3d5a73', '#c8d8e8'], western: ['#6a2a10', '#f0a050', '#fff0b0'], musical: ['#2a0a3a', '#b8489b', '#ffe080'],
+  scifi: ['#020814', '#1f5a80', '#8fd8f0'], animation: ['#1a5a8a', '#8fd8f0', '#ffe080'], fantasy: ['#10103a', '#5a5fb0', '#d0c0ff'],
+};
+function drawSkyline(x, R, era, W, base, sil, win) {
+  const P = (a, b, w, h, col) => { x.fillStyle = col || sil; x.fillRect(a, b, w, h); };
+  if (era === 'medieval') {
+    P(0, base - 7, W, 7);
+    for (const tx of [3, 13, 24]) { const h = 11 + Math.floor(R() * 6); P(tx, base - h, 5, h); P(tx, base - h - 1, 1, 1); P(tx + 2, base - h - 1, 1, 1); P(tx + 4, base - h - 1, 1, 1); P(tx + 2, base - h + 3, 1, 2, win); }
+  } else if (era === 'ancient') {
+    for (let i = 0; i < 12; i++) P(4 + i, base - 12 + i, 24 - 2 * i, 1);
+    for (const cx of [1, 29]) P(cx, base - 9, 2, 9);
+  } else if (era === 'wildwest') {
+    P(0, base - 6, 11, 6); P(20, base - 9, 12, 9);
+    P(14, base - 8, 2, 8); P(12, base - 6, 1, 3); P(12, base - 4, 2, 1); P(17, base - 7, 1, 3); P(16, base - 5, 2, 1);
+  } else if (era === 'victorian') {
+    for (let hx = 0; hx < W; hx += 8) { const h = 7 + Math.floor(R() * 4); P(hx, base - h, 7, h); for (let k = 0; k < 4; k++) P(hx + k, base - h - 1 - (k < 2 ? k : 3 - k), 7 - 2 * k > 0 ? 1 : 0, 1); P(hx + 5, base - h - 3, 1, 3); if (R() < .6) P(hx + 2, base - h + 2, 1, 1, win); }
+  } else if (era === 'nearfuture' || era === 'farfuture') {
+    for (const [cx, r] of [[6, 5], [20, 7]]) for (let dy = 0; dy <= r; dy++) { const w = Math.round(Math.sqrt(r * r - dy * dy)); P(cx - w, base - dy, w * 2 + 1, 1); }
+    P(27, base - 16, 1, 16); P(26, base - 16, 3, 1); P(27, base - 18, 1, 1, win);
+    if (era === 'farfuture') { x.fillStyle = win; x.fillRect(22, 6, 6, 1); x.fillRect(23, 5, 4, 3); }
+  } else if (era === 'ww2') {
+    for (let bx = 0; bx < W; bx += 5) { const h = 3 + Math.floor(R() * 9); for (let i = 0; i < 4; i++) P(bx + i, base - h + Math.floor(R() * 3), 1, h); }
+    for (let i = 0; i < 6; i++) P(Math.floor(R() * W), Math.floor(R() * 12) + 8, 2, 1, 'rgba(0,0,0,.35)');
+  } else {
+    let bx = 0;
+    while (bx < W) {
+      const w = 3 + Math.floor(R() * 4), h = (era === 'twenties' ? 8 : 6) + Math.floor(R() * 12);
+      P(bx, base - h, w, h);
+      for (let wy = base - h + 2; wy < base - 1; wy += 2) for (let wx = bx + 1; wx < bx + w - 1; wx += 2) if (R() < (era === 'eighties' ? .55 : .35)) P(wx, wy, 1, 1, era === 'eighties' ? '#f08aa8' : win);
+      bx += w + (R() < .3 ? 1 : 0);
+    }
+  }
+}
+function posterURL(f) {
+  const key = 'p' + f.id + f.title; if (pxCache[key]) return pxCache[key];
+  const W = 32, H = 48, R = rng(f.title + f.id), c = mkCanvas(W, H), x = c.getContext('2d');
+  const [top, bottom, acc] = POSTER_PAL[f.genre] || POSTER_PAL.drama;
+  ditherSky(x, W, H, top, bottom, 5);
+  if (['horror', 'scifi', 'fantasy', 'thriller', 'drama'].includes(f.genre)) for (let i = 0; i < 14; i++) { x.fillStyle = acc; x.fillRect(Math.floor(R() * W), Math.floor(R() * 26), 1, 1); }
+  const mx = 6 + Math.floor(R() * 20), my = 6 + Math.floor(R() * 10), mr = 3 + Math.floor(R() * 4);
+  x.fillStyle = acc; for (let dy = -mr; dy <= mr; dy++) { const w = Math.round(Math.sqrt(mr * mr - dy * dy)); x.fillRect(mx - w, my + dy, w * 2 + 1, 1); }
+  const sil = '#0c0507', base = 40;
+  drawSkyline(x, R, f.era, W, base, sil, acc);
+  x.fillStyle = sil; x.fillRect(0, base, W, H - base);
+  // the lead, with a rim light from the moon's side
+  const cx = 16 + (R() < .5 ? -2 : 2), side = mx < cx ? -1 : 1;
+  const fig = [[2, 4, 22], [1, 6, 23], [1, 6, 24], [1, 6, 25], [2, 4, 26], [3, 2, 27], [-2, 12, 28], [-3, 14, 29]];
+  for (const [dx, w, y] of fig) x.fillRect(cx - 4 + dx, y, w, 1);
+  x.fillRect(cx - 7, 30, 14, H - 30);
+  x.fillStyle = acc;
+  for (let y = 22; y < H; y++) { const edge = side < 0 ? (y < 28 ? cx - 3 : y < 30 ? cx - 7 : cx - 7) : (y < 28 ? cx + 2 : cx + 6); if (y % 3 !== 0 || y < 30) x.fillRect(edge, y, 1, 1); }
+  if (R() < .6) { const sx = cx + (R() < .5 ? -12 : 9); x.fillStyle = sil; x.fillRect(sx, 31, 3, 3); x.fillRect(sx - 1, 34, 5, H - 34); }
+  return (pxCache[key] = c.toDataURL());
+}
+
+// The studio lot on the home screen grows a building for every upgrade.
+const LOT = {
+  office: { w: 9, h: 13, col: '#6a4a5a' }, costume: { w: 9, h: 9, col: '#8a4a3a', awning: true }, casting: { w: 8, h: 15, col: '#4a5a7a', em: 'y' },
+  sound: { w: 8, h: 11, col: '#3a3a5a', em: 'm' }, stage: { w: 14, h: 13, col: '#5a4a3a', hangar: true }, vfx: { w: 11, h: 10, col: '#3a5a6a', dome: true },
+  marketing: { w: 9, h: 16, col: '#2a2a2a', board: true }, animation: { w: 9, h: 12, col: '#3d7a5c', em: 'G' }, school: { w: 10, h: 12, col: '#7a6a4a', flag: true },
+  megalot: { w: 8, h: 18, col: '#5a5a6a', tower: true }, cinemas: { w: 13, h: 14, col: '#7a1f24', marquee: true }, streaming: { w: 8, h: 19, col: '#2f3f5f', dish: true },
+};
+function drawBuilding(x, bx, base, id, t) {
+  const b = LOT[id], P = (a, y, w, h, col) => { x.fillStyle = col; x.fillRect(a, y, w, h); };
+  const top = base - b.h;
+  if (b.hangar) { for (let i = 0; i < b.w; i++) { const d = Math.abs(i - (b.w - 1) / 2), r = b.w / 2; P(bx + i, top + Math.round(r - Math.sqrt(Math.max(0, r * r - d * d)) * .8), 1, base, b.col); } P(bx + 4, base - 6, 6, 6, '#2a1a14'); return; }
+  if (b.dome) { for (let i = 0; i < b.w; i++) { const d = Math.abs(i - (b.w - 1) / 2), r = b.w / 2; const hh = Math.round(Math.sqrt(Math.max(0, r * r - d * d)) * 1.6); P(bx + i, base - hh, 1, hh, b.col); } P(bx + 5, top - 4, 1, 5, '#9a9aa8'); P(bx + 5, top - 5, 1, 1, t % 2 ? '#d0412e' : '#f2b441'); return; }
+  if (b.board) { P(bx + 1, base - 8, 1, 8, '#555'); P(bx + 7, base - 8, 1, 8, '#555'); P(bx, top, 9, 7, '#f4e7d2'); P(bx + 1, top + 1, 7, 5, ['#c4452f', '#2f7fa0', '#b8489b'][t % 3]); P(bx + 2, top + 2, 3, 1, '#f4e7d2'); return; }
+  if (b.tower) { P(bx + 1, base - 10, 1, 10, '#777'); P(bx + 6, base - 10, 1, 10, '#777'); P(bx, top, 8, 8, b.col); P(bx + 1, top + 2, 6, 1, '#9a9aa8'); P(bx + 3, top - 2, 2, 2, b.col); return; }
+  if (b.dish) { P(bx + 3, top + 4, 2, b.h - 4, b.col); P(bx, top, 8, 2, '#d8d8e0'); P(bx + 1, top + 2, 6, 1, '#d8d8e0'); P(bx + 3, top - 2, 1, 2, '#9a9aa8'); P(bx + 4, top + 7, 1, 1, t % 2 ? '#8fd8f0' : '#2f7fa0'); return; }
+  P(bx, top, b.w, b.h, b.col);
+  P(bx, top, b.w, 1, 'rgba(255,255,255,.18)');
+  for (let wy = top + 2; wy < base - 4; wy += 3) for (let wx = bx + 1; wx < bx + b.w - 1; wx += 2) P(wx, wy, 1, 1, ((wx + wy + t) % 5) ? '#f2d58a' : '#3a2a2a');
+  P(bx + Math.floor(b.w / 2) - 1, base - 3, 2, 3, '#2a1a14');
+  if (b.awning) for (let i = 0; i < b.w; i++) P(bx + i, base - 5, 1, 1, i % 2 ? '#f4e7d2' : '#c4452f');
+  if (b.em) P(bx + Math.floor(b.w / 2) - 1, top - 3, 3, 3, PX[b.em]);
+  if (b.flag) { P(bx + 1, top - 5, 1, 5, '#ddd'); P(bx + 2, top - 5, 3, 2, '#2f7fa0'); }
+  if (b.marquee) { P(bx - 1, base - 7, b.w + 2, 3, '#f4e7d2'); for (let i = 0; i < b.w + 2; i += 2) P(bx - 1 + i + (t % 2), base - 8, 1, 1, '#f2b441'); P(bx + 2, base - 6, b.w - 4, 1, '#7a1f24'); }
+}
+function studioURL(t) {
+  const W = 144, H = 48, base = 40, c = mkCanvas(W, H), x = c.getContext('2d');
+  const night = Math.floor(G.month / 2) % 3 === 2;
+  ditherSky(x, W, base, night ? '#0a0614' : '#3a1530', night ? '#3a2050' : '#e8743a', 5);
+  if (night) { const R = rng('stars'); for (let i = 0; i < 30; i++) { x.fillStyle = '#f4e7d2'; x.fillRect(Math.floor(R() * W), Math.floor(R() * 24), 1, 1); } }
+  else { x.fillStyle = '#ffd36a'; x.fillRect(120, 12, 6, 6); x.fillRect(119, 13, 8, 4); }
+  x.fillStyle = '#1e1014'; x.fillRect(0, 26, W, 14);
+  for (let i = 0; i < W; i += 7) { x.fillStyle = '#2a1520'; x.fillRect(i, 22 + (i * 7) % 5, 5, 18); }
+  x.fillStyle = '#2a1a14'; x.fillRect(0, base, W, H - base);
+  x.fillStyle = '#4a3a30'; for (let i = 0; i < W; i += 6) x.fillRect(i, 44, 3, 1);
+  // garage: where it all started
+  x.fillStyle = '#7a5a4a'; x.fillRect(2, base - 10, 12, 10); x.fillStyle = '#5c3a1e'; x.fillRect(1, base - 11, 14, 1);
+  for (let i = 0; i < 4; i++) { x.fillStyle = i % 2 ? '#9a9aa8' : '#7a7a88'; x.fillRect(4, base - 7 + i * 2, 8, 2); }
+  x.fillStyle = '#f2b441'; x.fillRect(4, base - 9, 8, 1);
+  let bx = 17;
+  for (const u of UPGRADES) {
+    const b = LOT[u.id];
+    if (has(u.id)) drawBuilding(x, bx, base, u.id, t);
+    else { x.fillStyle = '#4a3a30'; x.fillRect(bx + Math.floor(b.w / 2), base - 4, 1, 4); x.fillStyle = '#f4e7d2'; x.fillRect(bx + Math.floor(b.w / 2) - 2, base - 6, 5, 3); x.fillStyle = '#c4452f'; x.fillRect(bx + Math.floor(b.w / 2) - 1, base - 5, 3, 1); }
+    bx += b.w + 1;
+    if (bx > W - 6) break;
+  }
+  return c.toDataURL();
+}
+function lotThumb(id) {
+  const key = 'u' + id; if (pxCache[key]) return pxCache[key];
+  const b = LOT[id], c = mkCanvas(b.w + 4, 24), x = c.getContext('2d');
+  drawBuilding(x, 2, 22, id, 0);
+  x.fillStyle = '#4a3a30'; x.fillRect(0, 22, b.w + 4, 2);
+  return (pxCache[key] = c.toDataURL());
+}
+
+// The film set during production: camera, crew light and the two leads, animated at 6 fps.
+function drawSet(cv, frame, d) {
+  const x = cv.getContext('2d'), W = cv.width, H = cv.height;
+  const P = (a, b, w, h, col) => { x.fillStyle = col; x.fillRect(a, b, w, h); };
+  P(0, 0, W, H, '#1a0c10');
+  const [top, bottom, acc] = POSTER_PAL[d.genre] || POSTER_PAL.drama;
+  for (let j = 4; j < 26; j++) for (let i = 30; i < 62; i++) { const v = (j - 4) / 22 * 3 + BAYER[j % 4][i % 4] / 16 - .5; x.fillStyle = mix(top, bottom, clamp(Math.round(v), 0, 3) / 3); x.fillRect(i, j, 1, 1); }
+  P(29, 3, 34, 1, '#5c3a1e'); P(29, 26, 34, 1, '#5c3a1e');
+  for (let i = 0; i < W; i += 4) P(i + (Math.floor(i / 4) % 2) * 2, 30, 2, 1, '#3a2228');
+  P(0, 31, W, H - 31, '#24121a');
+  for (let i = 0; i < W; i += 4) P(i, 31 + ((i / 4) % 2), 2, 1, '#301a22');
+  // light cone
+  if (frame % 9 !== 0) { x.fillStyle = 'rgba(242,180,65,.13)'; for (let j = 0; j < 28; j++) x.fillRect(40 - j / 2, 4 + j, 14 + j, 1); }
+  P(44, 0, 6, 4, '#555'); P(45, 3, 4, 1, '#f2b441');
+  // actors
+  const faceA = faceURL(d.lead, '#00000000'), faceB = faceURL(d.co, '#00000000');
+  const bob = frame % 4 < 2 ? 0 : 1;
+  const imgs = drawSet.imgs || (drawSet.imgs = {});
+  for (const [src, ax, off] of [[faceA, 38, bob], [faceB, 50, 1 - bob]]) {
+    let im = imgs[src]; if (!im) { im = imgs[src] = new Image(); im.src = src; }
+    if (im.complete) x.drawImage(im, ax, 14 + off);
+    P(ax + 2, 26 + off, 8, 5 - off, '#3a3a5a');
+  }
+  // camera on tripod
+  P(6, 12, 12, 7, '#2a2a33'); P(18, 13, 3, 5, '#55556a'); P(19, 14, 2, 3, frame % 6 < 3 ? '#d0412e' : '#5a1010');
+  P(7, 9, 4, 3, '#2a2a33'); P(12, 9, 4, 3, '#2a2a33'); P(8, 10, 2, 1, '#55556a'); P(13, 10, 2, 1, '#55556a');
+  P(11, 19, 2, 6, '#55556a'); P(8, 25, 2, 6, '#55556a'); P(14, 25, 2, 6, '#55556a'); P(10, 24, 4, 1, '#55556a');
+  // the clapper snaps every few seconds
+  if (frame % 24 < 4) { P(22, 6, 6, 4, '#f4e7d2'); P(22, 6, 6, 1, frame % 24 < 2 ? '#140a0c' : '#f4e7d2'); P(22, frame % 24 < 2 ? 5 : 4, 6, 1, '#140a0c'); }
 }
 
 /* ---------- Icons ---------- */
@@ -656,7 +881,14 @@ function render() {
   let b = $('.bottombar');
   if (bar) { if (!b) { b = document.createElement('div'); b.className = 'bottombar'; document.body.appendChild(b); } b.innerHTML = bar; }
   else if (b) b.remove();
+  if (screen === 'production') animateSet();
+  if (screen === 'home') animateLot();
   syncBackButton();
+}
+let lotTimer;
+function animateLot() {
+  clearInterval(lotTimer); let t = 0;
+  lotTimer = setInterval(() => { const im = $('#lot'); if (!im || screen !== 'home') return clearInterval(lotTimer); im.src = studioURL(++t); }, 700);
 }
 function syncBackButton() {
   if (!inTG || !TG.BackButton) return;
@@ -672,7 +904,7 @@ function header() {
       <div class="stat"><span>${T('rep')}</span><b>${Math.round(G.rep)}</b></div>
       <div class="stat"><span>${T('fans')}</span><b>${count(G.fans)}</b></div>
       <div class="stat"><span>${T('year')}</span><b>${year()}</b></div>
-    </div></div>`;
+    </div>${screen === 'home' ? `<img class="px lot" id="lot" src="${studioURL(0)}" alt="">` : ''}</div>`;
 }
 
 function vOnboard() {
@@ -697,11 +929,14 @@ function vHome() {
   return `<div class="stack" style="margin-top:14px">
     <button class="btn primary big" data-act="newFilm">${T('newFilm')}</button>
     ${G.money < Math.max(60000, cheapest) ? `<div class="card row"><div style="flex:1;min-width:0"><b>${T('gig')}</b><div class="muted small">${T('gigD')}</div></div><button class="btn sm" data-act="gig">+$30k</button></div>` : ''}
+    ${G.news ? `<div class="ticket newsflash"><img class="px" src="${spriteURL('news')}" width="36" height="36" alt=""><div style="flex:1;min-width:0">
+      <div class="muted small caps">${T('breaking')}</div><div style="font-weight:500">${esc(G.news)}</div>
+      <button class="btn sm dark" style="margin-top:8px" data-act="dismissNews">${T('dismiss')}</button></div></div>` : ''}
     <div class="card stack" style="gap:8px">
-      <h3>${T('news')} · ${year()}</h3>
-      <div>${T('hot')}: ${tr.hot.map(g => `<span class="pill" style="color:var(--bulb)">${L(byId(GENRES, g))}</span>`).join(' ')}</div>
-      <div>${T('hotTheme')}: <span class="pill" style="color:var(--bulb)">${L(byId(THEMES, tr.theme))}</span></div>
-      <div class="muted">${T('cold')}: <span class="pill">${L(byId(GENRES, tr.cold))}</span></div>
+      <h3>${T('rumors')} · ${year()}</h3>
+      <div>${T('rumorHot')}: ${tr.hot.map(g => `<span class="pill" style="color:var(--bulb)">${L(byId(GENRES, g))}</span>`).join(' ')}</div>
+      <div>${T('rumorTheme')}: <span class="pill" style="color:var(--bulb)">${L(byId(THEMES, tr.theme))}</span></div>
+      <div class="muted">${T('rumorCold')}: <span class="pill">${L(byId(GENRES, tr.cold))}</span></div>
     </div>
     <div class="ticket">
       <div class="muted small" style="text-transform:uppercase;letter-spacing:.08em">${T('goal')}</div>
@@ -715,9 +950,7 @@ function vHome() {
 
 function poster(f) {
   const g = byId(GENRES, f.genre);
-  const seed = f.id * 37 % 360;
-  return `<div class="poster" style="background:linear-gradient(${160 + seed % 40}deg, ${g.col} 0%, #12070a 85%)">
-    <div class="shape" style="background:radial-gradient(circle at ${30 + seed % 50}% ${25 + seed % 30}%, rgba(255,255,255,.35) 0 ${10 + seed % 14}%, transparent ${11 + seed % 14}%)"></div>
+  return `<div class="poster px" style="background-image:url(${posterURL(f)})">
     <span class="ps ${scoreClass(f.critic)}">${f.critic}</span>
     <div class="pt">${esc(f.title)}</div><div class="py">${f.year} · ${L(g)}</div></div>`;
 }
@@ -727,7 +960,7 @@ function filmRow(f) {
     <div class="muted small">${L(byId(GENRES, f.genre))} · ${L(byId(THEMES, f.theme))} · ${L(byId(ERAS, f.era))}</div>
     <div class="bars" style="margin-top:6px"><span>${T('critics')} <b class="${scoreClass(f.critic)}">${f.critic}</b></span><span>${T('audience')} <b class="${scoreClass(f.aud)}">${f.aud}</b></span></div>
     <div class="bars"><span>${T('gross')} <b>${money(f.gross)}</b></span><span>${T('profitShort')} <b class="${f.profit >= 0 ? 'hi' : 'lo'}">${money(f.profit)}</b></span></div>
-    ${f.award ? `<div class="trophy small">★ ${T('awards')}: ${L({ ru: '«Золотая бобина»', en: 'Golden Reel' })}</div>` : ''}
+    ${f.cult ? `<div class="small" style="color:var(--bulb)">${G.lang === 'ru' ? 'Культовый фильм' : 'Cult classic'}</div>` : ''}${f.award ? `<div class="trophy small">★ ${T('awards')}: ${L({ ru: '«Золотая бобина»', en: 'Golden Reel' })}</div>` : ''}
   </div></div>`;
 }
 
@@ -741,7 +974,9 @@ function vUpgrades() {
   return `<div class="stack" style="margin-top:14px"><h2>${T('upgrades')}</h2>
     ${UPGRADES.map(u => {
       const own = has(u.id), ok = unlocked(u.req), afford = G.money >= u.cost;
+      const th = LOT[u.id];
       return `<div class="card row" style="align-items:flex-start;${own ? 'border-color:var(--bulb-dim)' : ''}${!ok && !own ? 'opacity:.55' : ''}">
+        <img class="px" src="${lotThumb(u.id)}" width="${(th.w + 4) * 2}" height="48" alt="" style="flex:none;${own ? '' : 'filter:grayscale(1) brightness(.7)'}">
         <div style="flex:1;min-width:0"><div style="font-family:var(--display);font-size:18px;text-transform:uppercase;font-weight:500">${L(u)}</div>
         <div class="muted small">${L(u.d)}</div>
         ${!own && !ok ? `<div class="small" style="color:var(--bad);margin-top:4px">${T('locked')}: ${reqText(u.req)}</div>` : ''}</div>
@@ -779,7 +1014,12 @@ function startWizard() {
   ensureTrends();
   const last = G.films[G.films.length - 1];
   W = { step: 0, genre: null, theme: null, era: 'modern', rating: null, writer: null, lead: null, co: null,
-    budget: last && unlocked(byId(BUDGETS, last.budget).req) ? last.budget : 'indie', mkt: 'small', focus: [3, 3, 2, 2], title: '', titleEdited: false };
+    budget: last && unlocked(byId(BUDGETS, last.budget).req) ? last.budget : 'indie', mkt: 'small', focus: [3, 3, 2, 2], title: '', titleEdited: false,
+    feeMult: {}, busy: {} };
+  // Talent is fickle: fees swing every time and some people are busy elsewhere.
+  for (const p of ACTORS.concat(WRITERS)) { W.feeMult[p.id] = Math.round(rand(.7, 1.4) * 100) / 100; if (Math.random() < .2) W.busy[p.id] = true; }
+  const free = list => list.filter(p => unlocked(TIER_REQ[p.tier]) && !W.busy[p.id]).length;
+  if (free(ACTORS) < 3 || free(WRITERS) < 1) W.busy = {};
   screen = 'wizard'; render(); window.scrollTo(0, 0);
 }
 function wizardCost() {
@@ -809,20 +1049,21 @@ function wizardBar() {
     <button class="btn ${last ? 'primary' : 'primary'}" data-act="${last ? 'shoot' : 'wnext'}" ${stepValid(W.step) ? '' : 'disabled'}>${last ? T('start') : T('next')}</button>
   </div>`;
 }
-function optBtn({ act, v, sel, locked, title, desc, tag, sw }) {
+function optBtn({ act, v, sel, locked, title, desc, tag, sw, icon }) {
   return `<button class="opt ${sel ? 'sel' : ''} ${locked ? 'locked' : ''}" data-act="${act}" data-v="${v}" ${locked ? 'data-locked="1"' : ''}>
-    ${sw ? `<div class="swatch" style="background:${sw}"></div>` : ''}${tag || ''}<span class="t">${title}</span>${desc ? `<span class="d">${desc}</span>` : ''}</button>`;
+    ${icon ? `<img class="px gicon" src="${icon}" width="36" height="36" alt="">` : ''}${sw ? `<div class="swatch" style="background:${sw}"></div>` : ''}${tag || ''}<span class="t">${title}</span>${desc ? `<span class="d">${desc}</span>` : ''}</button>`;
 }
 function personBtn(p, act, sel, isActor, disabled) {
   const st = isActor ? actorState(p) : { skill: p.skill };
   const req = TIER_REQ[p.tier], ok = unlocked(req);
   const aff = W.genre && p.aff.includes(W.genre);
-  const initials = L(p).split(' ').map(x => x[0]).join('').slice(0, 2);
-  return `<button class="opt person ${sel ? 'sel' : ''} ${!ok || disabled ? 'locked' : ''}" data-act="${act}" data-v="${p.id}" ${!ok || disabled ? 'data-locked="1"' : ''} ${!ok ? `data-why="${esc(reqText(req))}"` : ''}>
-    <span class="avatar" style="background:${p.col}">${initials}</span>
+  const busy = W.busy && W.busy[p.id];
+  const why = !ok ? reqText(req) : busy ? T('busy') : '';
+  return `<button class="opt person ${sel ? 'sel' : ''} ${!ok || disabled || busy ? 'locked' : ''}" data-act="${act}" data-v="${p.id}" ${!ok || disabled || busy ? 'data-locked="1"' : ''} ${why ? `data-why="${esc(why)}"` : ''}>
+    <img class="avatar px" src="${faceURL(p.id, p.col)}" width="40" height="40" alt="">
     <span class="info"><span class="name">${L(p)}</span>
       <span class="bars"><span>${T('skill')} <b>${st.skill.toFixed(1).replace('.0', '')}</b></span>${isActor ? `<span>${T('star')} <b>${st.star.toFixed(1).replace('.0', '')}</b></span>` : ''}</span>
-      <span class="d" style="${aff ? 'color:var(--good)' : ''}">${p.aff.map(a => L(byId(GENRES, a))).join(', ')}${!ok ? ' · ' + reqText(req) : ''}</span></span>
+      <span class="d">${p.aff.map(a => L(byId(GENRES, a))).join(', ')}${why ? ' · ' + why : ''}</span></span>
     <span class="fee">${money(feeOf(p, isActor))}</span></button>`;
 }
 function vWizard() {
@@ -831,29 +1072,25 @@ function vWizard() {
   if (s === 0) {
     body = `<div class="grid">${GENRES.map(g => {
       const ok = unlocked(g.req), lvl = genreLevel(g.id);
-      const hot = G.trends.hot.includes(g.id), cold = G.trends.cold === g.id;
-      const tag = hot ? `<span class="tag hot">${T('hot')}</span>` : cold ? `<span class="tag gm">↓</span>` : '';
-      return optBtn({ act: 'genre', v: g.id, sel: W.genre === g.id, locked: !ok, title: L(g), sw: g.col, tag,
+      const hot = G.trends.hot.includes(g.id);
+      const tag = hot ? `<span class="tag hot">?${T('hot')}</span>` : '';
+      return optBtn({ act: 'genre', v: g.id, sel: W.genre === g.id, locked: !ok, title: L(g), icon: spriteURL(g.id), tag,
         desc: ok ? (lvl ? `${T('mastery').split(' ')[0]} ${'●'.repeat(lvl)}${'○'.repeat(5 - lvl)}` : '&nbsp;') : reqText(g.req) });
     }).join('')}</div>`;
   } else if (s === 1) {
     body = `<div class="grid">${THEMES.map(t => {
-      const ok = unlocked(t.req), k = G.know.gt[W.genre + '|' + t.id];
-      const hot = G.trends.theme === t.id;
+      const ok = unlocked(t.req), hot = G.trends.theme === t.id;
       return optBtn({ act: 'theme', v: t.id, sel: W.theme === t.id, locked: !ok, title: L(t),
-        tag: ok ? comboTag(k) : '', desc: ok ? (hot ? `<span style="color:var(--bulb)">${T('hotTheme')}</span>` : '&nbsp;') : reqText(t.req) });
+        desc: ok ? (hot ? `<span style="color:var(--bulb)">?${T('hotTheme')}</span>` : '&nbsp;') : reqText(t.req) });
     }).join('')}</div>`;
   } else if (s === 2) {
-    const g = byId(GENRES, W.genre);
     body = `<h3>${T('era')}</h3><div class="grid">${ERAS.map(e => {
-      const ok = unlocked(e.req), k1 = G.know.ge[W.genre + '|' + e.id], k2 = G.know.te[W.theme + '|' + e.id];
-      const known = k1 !== undefined && k2 !== undefined ? Math.round((k1 + k2) / 2) : k1 !== undefined ? k1 : k2;
-      return optBtn({ act: 'era', v: e.id, sel: W.era === e.id, locked: !ok, title: L(e), tag: ok ? comboTag(known) : '',
+      const ok = unlocked(e.req);
+      return optBtn({ act: 'era', v: e.id, sel: W.era === e.id, locked: !ok, title: L(e),
         desc: ok ? `${T('costMult')}${e.mult}` : reqText(e.req) });
     }).join('')}</div>
     <h3 style="margin-top:16px">${T('rating')}</h3><div class="grid" style="grid-template-columns:repeat(4,1fr)">${RATINGS.map(r => {
-      const fit = g.rat.includes(r.id) && G.know.focus[W.genre];
-      return optBtn({ act: 'rating', v: r.id, sel: W.rating === r.id, title: r.label, desc: fit ? `<span style="color:var(--good)">✓</span>` : '&nbsp;' });
+      return optBtn({ act: 'rating', v: r.id, sel: W.rating === r.id, title: r.label });
     }).join('')}</div>`;
   } else if (s === 3) {
     // Show everyone available plus a two-person teaser of the next locked tier.
@@ -873,15 +1110,14 @@ function vWizard() {
       desc: unlocked(m.req) ? money(mktCost(m)) : reqText(m.req) })).join('')}</div>
       ${wizardCost() > G.money ? `<p class="lo">${T('notEnough')}: ${money(wizardCost() - G.money)}</p>` : ''}`;
   } else if (s === 5) {
-    const g = byId(GENRES, W.genre), used = W.focus.reduce((a, b) => a + b, 0), knows = G.know.focus[W.genre];
+    const g = byId(GENRES, W.genre), used = W.focus.reduce((a, b) => a + b, 0);
     body = `<div class="card stack" style="gap:6px"><h3>${T('title')}</h3>
       <div class="row"><input id="in-title" type="text" maxlength="40" value="${esc(W.title)}"><button class="btn sm" data-act="reroll">${T('reroll')}</button></div></div>
       <div class="card"><div class="row"><h3>${T('focus')}</h3><div class="spacer"></div><span class="pill mono">${T('left')}: ${10 - used}</span></div>
-      <p class="muted small" style="margin:6px 0 4px">${T('focusD')}${knows ? ' ' + T('hintIdeal') : ''}</p>
+      <p class="muted small" style="margin:6px 0 4px">${T('focusD')}</p>
       ${AREAS.map((a, i) => {
-        const ideal = Math.round(g.focus[i] / 10);
         return `<div class="focusrow"><span>${L(a)}</span><div class="pm"><button data-act="fminus" data-v="${i}" aria-label="−">−</button><button data-act="fplus" data-v="${i}" aria-label="+">+</button></div>
-        <div class="pips">${Array.from({ length: 10 }, (_, k) => `<i class="${k < W.focus[i] ? 'on' : ''} ${knows && k < ideal ? 'ideal' : ''}"></i>`).join('')}</div></div>`;
+        <div class="pips">${Array.from({ length: 10 }, (_, k) => `<i class="${k < W.focus[i] ? 'on' : ''}"></i>`).join('')}</div></div>`;
       }).join('')}</div>
       <div class="ticket stack" style="gap:4px">
         <div style="font-family:var(--display);font-size:22px;font-weight:700;text-transform:uppercase">${esc(W.title || '…')}</div>
@@ -895,22 +1131,88 @@ function vWizard() {
     <h2 style="margin-bottom:12px">${T('s' + s)}</h2><div class="stack">${body}</div>`;
 }
 
+/* ---------- Chaos ---------- */
+// Things that just happen on set: no choice, only consequences.
+const CHAOS = [
+  { ru: 'Каскадёр сломал ногу. Съёмки встали на неделю.', en: 'The stunt double broke a leg. Shooting stalled for a week.', fx: () => ({ costPct: .1 }) },
+  { ru: 'Кот осветителя забрёл в кадр. Интернет в восторге.', en: "The gaffer's cat wandered into the shot. The internet loves it.", fx: () => ({ hype: .5 }) },
+  { ru: 'Рядом с площадкой упал метеорит, и вы успели его снять!', en: 'A meteorite crashed near the set and you caught it on camera!', fx: () => ({ vis: 1.5 }) },
+  { ru: 'Черновой монтаж утёк в сеть. Реакция… неоднозначная.', en: 'A rough cut leaked online. Reactions are… mixed.', fx: () => ({ hype: rand(-.6, .7) }) },
+  { ru: 'В три часа ночи вам приснился новый финал. Вы переписали всё.', en: 'At 3 a.m. you dreamed a new ending and rewrote everything.', fx: () => ({ q: rand(-1.3, 1.6) }) },
+  { ru: 'Эксцентричный миллионер вложился в фильм просто так.', en: 'An eccentric millionaire invested in the film just because.', fx: () => ({ cost: -Math.round(rand(10000, 60000) * (1 + G.level * .4)) }) },
+  { ru: 'Главная звезда ушла в медитацию и играет «по наитию».', en: 'Your lead went on a meditation retreat and now acts "by instinct".', fx: () => ({ act: rand(-1.2, .6), hype: .3 }) },
+  { ru: 'Курьер потерял коробку с плёнкой. Пересъёмка!', en: 'A courier lost a box of footage. Reshoots!', fx: () => ({ costPct: .12, q: -.2 }) },
+  { ru: 'Солнечное затмение прямо во время съёмок. Кадр века.', en: 'A solar eclipse during the shoot. Shot of the century.', fx: () => ({ vis: .8, crit: 4 }) },
+  { ru: 'Профсоюз осветителей объявил забастовку.', en: 'The lighting crew went on strike.', fx: () => ({ costPct: .08 }) },
+  { ru: 'На площадке завёлся полтергейст. Или это ассистент шутит?', en: 'A poltergeist haunts the set. Or is it the assistant?', fx: () => ({ hype: .4, q: -.3 }) },
+  { ru: 'Пёс-статист сыграл лучше всех. Его взяли на вторую роль.', en: 'A dog extra outperformed everyone. It got promoted.', fx: () => ({ act: .7, hype: .2 }) },
+  { ru: 'Генератор взорвался. Зато получился отличный взрыв для трейлера.', en: 'The generator exploded. Great footage for the trailer, though.', fx: () => ({ costPct: .05, hype: .3 }) },
+  { ru: 'Актёры влюбились друг в друга. Химия на экране зашкаливает.', en: 'Your leads fell in love. The on-screen chemistry is off the charts.', fx: () => ({ act: 1, hype: .2 }) },
+  { ru: 'Актёры поссорились и не разговаривают друг с другом.', en: 'Your leads had a fight and are not speaking.', fx: () => ({ act: -1 }) },
+];
+// What can happen in the week the film opens.
+const PREMIERE = [
+  { ru: 'В тот же день вышел блокбастер конкурентов.', en: 'A rival blockbuster opened the same day.', mult: .55 },
+  { ru: 'Сцена из фильма стала мемом!', en: 'A scene from the film became a meme!', mult: 1.9 },
+  { ru: 'Аномальная жара: все прячутся в кондиционированных залах.', en: 'Heatwave: everyone is hiding in air-conditioned cinemas.', mult: 1.3 },
+  { ru: 'Киномеханики бастуют первые две недели проката.', en: 'Projectionists are on strike for the first two weeks.', strike: true },
+  { ru: 'Поп-звезда написала, что рыдала весь сеанс.', en: 'A pop star posted that they cried through the whole film.', mult: 1.45 },
+  { ru: 'Скандал вокруг съёмок попал на первые полосы.', en: 'A scandal from the shoot made the front pages.', mult: 1.25, rep: -4 },
+  { ru: 'Фильм неожиданно взял приз на фестивале.', en: 'The film won a surprise festival prize.', mult: 1.15, crit: 10 },
+  { ru: 'Ураган закрыл кинотеатры на побережье.', en: 'A hurricane closed cinemas along the coast.', mult: .7 },
+  { ru: 'Пиратская копия утекла в сеть до премьеры.', en: 'A pirated copy leaked before the premiere.', mult: .6 },
+  { ru: 'Известный критик заснул на показе и разгромил фильм.', en: 'A famous critic fell asleep at the screening and trashed the film.', crit: -12 },
+];
+// News that hits the studio between films.
+const WORLD = [
+  { ru: 'Налоговая проверка! Штраф: 12% бюджета студии.', en: 'Tax audit! Fine: 12% of your cash.', run: () => { G.money = Math.round(G.money * .88); } },
+  { ru: 'Дальний родственник оставил вам наследство.', en: 'A distant relative left you an inheritance.', run: () => { G.money += 40000 * G.level; } },
+  { ru: 'Внезапная мода перевернула все тренды года.', en: 'A sudden craze flipped every trend of the year.', run: () => { G.trends = null; ensureTrends(true); } },
+  { ru: 'Фанаты устроили флешмоб в вашу честь.', en: 'Fans staged a flash mob in your honour.', run: () => { G.fans = Math.round(G.fans * 1.25) + 500; } },
+  { ru: 'Таблоиды выдумали про вас скандал.', en: 'The tabloids made up a scandal about you.', run: () => { G.rep = clamp(G.rep - 4, 0, 100); } },
+  { ru: 'Кинобум! Следующий фильм соберёт больше обычного.', en: 'Movie boom! Your next film will earn more than usual.', run: () => { G.nextMult = 1.35; } },
+  { ru: 'Биржевой крах. Зрителям сейчас не до кино.', en: 'Market crash. Nobody has money for movies right now.', run: () => { G.nextMult = .65; } },
+  { ru: 'Короткое замыкание в офисе. Ремонт обошёлся в 8% бюджета.', en: 'A short circuit in the office. Repairs cost 8% of your cash.', run: () => { G.money = Math.round(G.money * .92); } },
+  { ru: 'Фонд кино выдал студии грант.', en: 'The film fund gave your studio a grant.', run: () => { G.money += 25000 + Math.round(G.rep) * 3000; } },
+  { ru: 'Телешоу сделало «{a}» звездой. Гонорар вырос.', en: '{a} woke up famous after a TV show. Their fee went up.', actor: 1 },
+  { ru: 'Вокруг «{a}» громкий скандал. Звёздность упала.', en: '{a} is caught in a scandal. Star power dropped.', actor: -1 },
+  { ru: 'Ваш старый провал внезапно стал культовым. Пошли отчисления!', en: 'One of your old flops suddenly became a cult classic. Royalties!', cult: true },
+];
+function rollWorldEvent() {
+  if (!G.films.length || Math.random() > .5) return;
+  let ev = pick(WORLD);
+  if (ev.cult && !G.films.some(f => f.critic < 50)) ev = WORLD[1];
+  let text = L(ev);
+  if (ev.run) ev.run();
+  if (ev.actor) {
+    const a = pick(ACTORS.filter(a => unlocked(TIER_REQ[a.tier]))), c = G.cast[a.id] || (G.cast[a.id] = { skill: 0, star: 0 });
+    c.star = clamp(c.star + 2 * ev.actor, -2, 4);
+    text = text.replace('{a}', L(a));
+  }
+  if (ev.cult) { const f = pick(G.films.filter(f => f.critic < 50)), bonus = Math.round(Math.max(30000, f.gross * rand(.3, .8))); G.money += bonus; f.cult = true; text += ` «${f.title}»: +${money(bonus)}`; }
+  G.news = text;
+}
+
 /* ---------- Production ---------- */
 function startProduction() {
   const cost = wizardCost();
   if (cost > G.money) { toast(T('notEnough')); haptic('err'); return; }
   G.money -= cost;
-  P = { draft: Object.assign({}, W), cost, progress: 0, stage: 0, event: pick(EVENTS), eventDone: false, fx: {}, choice: null, extra: 0 };
+  // Two things will happen during the shoot: either a decision or plain chaos.
+  const choices = EVENTS.slice().sort(() => Math.random() - .5), chaos = CHAOS.slice().sort(() => Math.random() - .5);
+  const events = [0, 1].map(i => Math.random() < .5 ? { kind: 'choice', idx: EVENTS.indexOf(choices[i]) } : { kind: 'chaos', idx: CHAOS.indexOf(chaos[i]) });
+  P = { draft: Object.assign({}, W), cost, progress: 0, stage: 0, events, at: [30 + Math.floor(rand(0, 10)), 65 + Math.floor(rand(0, 15))], evIdx: 0, pending: null, fx: {}, extra: 0, log: [] };
   G.prod = P; W = null; screen = 'production'; save(); render(); haptic('medium');
   tickProduction();
 }
-let prodTimer;
+let prodTimer, setTimer;
 function tickProduction() {
   clearInterval(prodTimer);
   prodTimer = setInterval(() => {
     if (!P || screen !== 'production') return clearInterval(prodTimer);
-    if (!P.eventDone && P.progress >= 50) { clearInterval(prodTimer); render(); haptic('warn'); return; }
-    P.progress = Math.min(100, P.progress + 2.5);
+    if (P.pending) return;
+    if (P.evIdx < 2 && P.progress >= P.at[P.evIdx]) { openEvent(); return; }
+    P.progress = Math.min(100, P.progress + 2);
     P.stage = Math.min(3, Math.floor(P.progress / 25));
     if (P.progress >= 100) { clearInterval(prodTimer); render(); haptic('ok'); return; }
     const bar = $('.progress i'), st = $('#stage');
@@ -918,32 +1220,75 @@ function tickProduction() {
     if (st) st.textContent = T('prod')[P.stage];
   }, 70);
 }
+function mergeFx(fx) {
+  for (const [k, v] of Object.entries(fx)) {
+    if (k === 'reach') P.fx.reach = (P.fx.reach || 1) * v;
+    else if (typeof v === 'number') P.fx[k] = (P.fx[k] || 0) + v;
+    else P.fx[k] = v;
+  }
+}
+function payExtra(fx) {
+  const d = P.draft, base = byId(BUDGETS, d.budget).cost * byId(ERAS, d.era).mult;
+  const extra = (fx.cost || 0) + (fx.costPct ? Math.round(base * fx.costPct) : 0);
+  G.money -= extra; P.extra += extra;
+  return extra;
+}
+function openEvent() {
+  const e = P.events[P.evIdx];
+  if (e.kind === 'chaos') {
+    const ev = CHAOS[e.idx], fx = ev.fx();
+    const extra = payExtra(fx); mergeFx(fx);
+    P.pending = { kind: 'chaos', text: L(ev), extra };
+    P.log.push(L(ev));
+  } else P.pending = { kind: 'choice', idx: e.idx };
+  save(); render(); haptic('warn');
+}
+function chooseEvent(v) {
+  const ev = EVENTS[P.pending.idx], opt = ev[v], fx = Object.assign({}, opt.fx);
+  const base = byId(BUDGETS, P.draft.budget).cost * byId(ERAS, P.draft.era).mult;
+  if ((fx.cost || 0) + (fx.costPct ? base * fx.costPct : 0) > G.money) { toast(T('notEnough')); haptic('err'); if (v === 'a') return chooseEvent('b'); }
+  let note = '';
+  // Fate does not always cooperate: sometimes a decision backfires, sometimes it pays off twice.
+  const roll = Math.random();
+  if (roll < .18) { for (const k of ['q', 'hype', 'crit', 'act']) if (fx[k]) fx[k] = -fx[k]; if (!fx.q) fx.q = -.4; note = T('backfire'); }
+  else if (roll > .88) { for (const k of ['q', 'hype', 'crit', 'act']) if (fx[k]) fx[k] *= 2; if (!fx.hype) fx.hype = .3; note = T('jackpot'); }
+  payExtra(fx); mergeFx(fx);
+  P.log.push(L(ev) + ' → ' + L(opt) + (note ? ' ' + note : ''));
+  P.pending = null; P.evIdx++;
+  if (note) toast(note);
+  save(); render(); haptic(note ? 'warn' : 'light'); tickProduction();
+}
+function closeChaos() { P.pending = null; P.evIdx++; save(); render(); tickProduction(); }
 function vProduction() {
-  const d = P.draft, waiting = !P.eventDone && P.progress >= 50, done = P.progress >= 100;
+  const d = P.draft, done = P.progress >= 100, pend = P.pending;
+  let card = '';
+  if (pend && pend.kind === 'choice') {
+    const ev = EVENTS[pend.idx];
+    card = `<div class="ticket stack" style="text-align:left;gap:10px"><div class="row"><img class="px" src="${spriteURL('clapper')}" width="24" height="24" alt=""><div class="muted small caps">${T('decision')}</div></div>
+      <div style="font-size:17px;font-weight:500">${L(ev)}</div>
+      <button class="btn primary" data-act="evt" data-v="a">${L(ev.a)}</button>
+      <button class="btn dark" data-act="evt" data-v="b">${L(ev.b)}</button></div>`;
+  } else if (pend) {
+    card = `<div class="ticket stack" style="text-align:left;gap:10px"><div class="row"><img class="px" src="${spriteURL('bolt')}" width="24" height="24" alt=""><div class="muted small caps">${T('chaos')}</div></div>
+      <div style="font-size:17px;font-weight:500">${pend.text}</div>
+      ${pend.extra ? `<div class="small">${pend.extra > 0 ? T('costs') + ': ' + money(-pend.extra) : T('money') + ': +' + money(-pend.extra)}</div>` : ''}
+      <button class="btn dark" data-act="chaosOk">${T('okay')}</button></div>`;
+  }
   return `<div class="stack" style="padding-top:12px;text-align:center">
     <div class="muted small">${L(byId(GENRES, d.genre))} · ${L(byId(THEMES, d.theme))}</div>
     <h2 style="font-size:28px;color:var(--bulb)">${esc(d.title)}</h2>
-    <div class="reel ${waiting || done ? 'stop' : ''}"></div>
-    <div id="stage" style="font-family:var(--display);text-transform:uppercase;letter-spacing:.08em">${done ? T('premiere') : T('prod')[P.stage]}</div>
+    <canvas id="set" class="px scene" width="64" height="36"></canvas>
+    <div id="stage" class="pixel caps">${done ? T('premiere') : T('prod')[P.stage]}</div>
     <div class="progress"><i style="width:${P.progress}%"></i></div>
-    ${waiting ? `<div class="ticket stack" style="text-align:left;gap:10px"><div class="muted small" style="text-transform:uppercase;letter-spacing:.08em">${T('decision')}</div>
-      <div style="font-size:17px;font-weight:500">${L(P.event)}</div>
-      <button class="btn primary" data-act="evt" data-v="a">${L(P.event.a)}</button>
-      <button class="btn" style="background:#2a1218;color:var(--cream)" data-act="evt" data-v="b">${L(P.event.b)}</button></div>` : ''}
+    ${card}
     ${done ? `<button class="btn primary big" data-act="release">${T('premiere')}</button>` : ''}
   </div>`;
 }
-function chooseEvent(v) {
-  const opt = P.event[v], fx = Object.assign({}, opt.fx);
-  const d = P.draft, base = byId(BUDGETS, d.budget).cost * byId(ERAS, d.era).mult;
-  let extra = (fx.cost || 0) + (fx.costPct ? Math.round(base * fx.costPct) : 0);
-  if (extra > G.money) { // cannot pay: take the other option
-    toast(T('notEnough')); haptic('err');
-    if (v === 'a') return chooseEvent('b');
-    extra = 0;
-  }
-  G.money -= extra; P.extra += extra; P.fx = fx; P.eventDone = true; P.choice = v;
-  save(); render(); haptic('light'); tickProduction();
+function animateSet() {
+  clearInterval(setTimer);
+  let frame = 0;
+  const tick = () => { const cv = $('#set'); if (!cv || !P) return clearInterval(setTimer); drawSet(cv, P.pending || P.progress >= 100 ? 0 : frame++, P.draft); };
+  tick(); setTimer = setInterval(tick, 160);
 }
 
 /* ---------- Simulation ---------- */
@@ -951,13 +1296,15 @@ function simulate(d, fx, spent) {
   const g = byId(GENRES, d.genre), era = byId(ERAS, d.era), b = byId(BUDGETS, d.budget), m = byId(MARKETING, d.mkt);
   const w = byId(WRITERS, d.writer), lead = byId(ACTORS, d.lead), co = byId(ACTORS, d.co);
   const ls = actorState(lead), cs = actorState(co), sk = G.skills;
+  // Everyone has good days and bad days.
+  const form = () => rand(-1.8, 1.8);
 
   const area = [
-    w.skill + (w.aff.includes(d.genre) ? 1 : 0) + sk.story * .5 + (has('office') ? .5 : 0) + (has('school') ? 1 : 0),
-    ls.skill * .6 + cs.skill * .4 + (lead.aff.includes(d.genre) ? .6 : 0) + (co.aff.includes(d.genre) ? .4 : 0) + sk.actors * .5 + (fx.improv ? ((ls.skill + cs.skill) / 2 >= 6 ? 1 : -.8) : 0),
-    b.vis + sk.visual * .5 + (has('vfx') ? 1 : 0) + (era.period && has('costume') ? .5 : 0),
-    b.snd + 1.5 + sk.sound * .5 + (has('sound') ? 1.5 : 0) + (fx.sndOnly ? 1.2 : 0),
-  ];
+    w.skill + form() + (w.aff.includes(d.genre) ? 1 : 0) + sk.story * .5 + (has('office') ? .5 : 0) + (has('school') ? 1 : 0),
+    (ls.skill + form()) * .6 + (cs.skill + form()) * .4 + (lead.aff.includes(d.genre) ? .6 : 0) + (co.aff.includes(d.genre) ? .4 : 0) + sk.actors * .5 + (fx.act || 0) + (fx.improv ? ((ls.skill + cs.skill) / 2 + rand(-3, 3) >= 6 ? 1.2 : -1) : 0),
+    b.vis + sk.visual * .5 + (has('vfx') ? 1 : 0) + (era.period && has('costume') ? .5 : 0) + (fx.vis || 0),
+    b.snd + 1.5 + sk.sound * .5 + (has('sound') ? 1.5 : 0) + (fx.snd || 0),
+  ].map(v => Math.max(.5, v));
   const craft = area.reduce((s, a, i) => s + a * g.focus[i] / 100, 0);
   const focusMatch = 1 - d.focus.reduce((s, f, i) => s + Math.abs(f / 10 - g.focus[i] / 100), 0) / 2;
   const gt = gtVal(d.genre, d.theme), ge = geVal(d.genre, d.era), te = teVal(d.theme, d.era);
@@ -968,36 +1315,46 @@ function simulate(d, fx, spent) {
   const ratingOk = g.rat.includes(d.rating);
 
   let raw = craft * (.5 + .5 * focusMatch) * (.45 + .55 * fit) + 1.6 + genreLevel(d.genre) * .3
-    + (fx.q && !fx.sndOnly ? fx.q : 0) + (fx.risk ? rand(-fx.risk, fx.risk * 1.15) : 0)
-    - (ratingOk ? 0 : .6) - (repeat ? 1 : 0) + rand(-.6, .6);
+    + (fx.q || 0) + (fx.risk ? rand(-fx.risk, fx.risk * 1.15) : 0)
+    - (ratingOk ? 0 : .6) - (repeat ? 1 : 0) + rand(-1.2, 1.2);
   const q = 10 * (1 - Math.exp(-Math.max(.2, raw) / 6.5));
 
-  const hot = G.trends.hot.includes(d.genre), cold = G.trends.cold === d.genre, hotTheme = G.trends.theme === d.theme;
-  const critic = Math.round(clamp(q * 10 + rand(-4, 4) + (fx.crit || 0) + (d.genre === 'documentary' ? 4 : 0), 3, 99));
-  const aud = Math.round(clamp(q * 8.5 + (ls.star + cs.star) * .8 + 5 + (hot ? 4 : 0) + (hotTheme ? 3 : 0) - (cold ? 4 : 0) + rand(-5, 5), 3, 99));
+  const tr = G.trends.real;
+  const hot = tr.hot.includes(d.genre), cold = tr.cold === d.genre, hotTheme = tr.theme === d.theme;
+  const fakeTrend = (G.trends.hot.includes(d.genre) && !hot) || (G.trends.theme === d.theme && !hotTheme);
+  const prem = Math.random() < .55 ? PREMIERE[Math.floor(Math.random() * PREMIERE.length)] : null;
+  let critic = Math.round(clamp(q * 10 + rand(-10, 10) + (fx.crit || 0) + (prem && prem.crit || 0) + (d.genre === 'documentary' ? 4 : 0), 3, 99));
+  let aud = Math.round(clamp(q * 8.5 + (ls.star + cs.star) * .8 + 5 + (hot ? 4 : 0) + (hotTheme ? 3 : 0) - (cold ? 4 : 0) + rand(-12, 12), 3, 99));
 
-  const hype = 1 + m.hype * (has('marketing') ? 1.2 : 1) + b.hype + (ls.star + cs.star * .5) / 10 + G.rep / 120
-    + Math.log10(1 + G.fans) / 10 + sk.showman * .1 + (fx.hype || 0);
+  const hype = Math.max(.4, 1 + m.hype * (has('marketing') ? 1.2 : 1) + b.hype + (ls.star + cs.star * .5) / 10 + G.rep / 120
+    + Math.log10(1 + G.fans) / 10 + sk.showman * .1 + (fx.hype || 0));
   const qMult = .15 + 1.35 * Math.pow(q / 10, 1.6);
   const trend = (hot ? 1.35 : 1) * (cold ? .75 : 1) * (hotTheme ? 1.15 : 1);
   const reach = byId(RATINGS, d.rating).reach * (fx.reach || 1);
   const fatigue = (repeat ? .7 : 1) * (sameGenre ? .85 : 1);
-  const opening = 25000 * Math.pow(m.screens, .85) * Math.pow(hype, 1.2) * qMult * g.aud * trend * reach * fatigue * rand(.9, 1.1);
-  const legs = clamp(.42 + aud / 100 * .43, .4, .88);
+  // Wildcards: a terrible film can become a cult hit, a masterpiece can be ignored.
+  let wild = null, wildMult = 1;
+  if (critic < 38 && Math.random() < .1) { wild = 'cult'; wildMult = 2.6; aud = Math.max(aud, 80 + Math.floor(rand(0, 15))); }
+  else if (critic > 78 && Math.random() < .1) { wild = 'ignored'; wildMult = .4; }
+  const luck = rand(.7, 1.35);
+  const opening = 25000 * Math.pow(m.screens, .85) * Math.pow(hype, 1.2) * qMult * g.aud * trend * reach * fatigue
+    * luck * (prem && prem.mult || 1) * wildMult * (G.nextMult || 1);
+  const legs = clamp(.42 + aud / 100 * .43 + rand(-.06, .06), .35, .9);
   const weeks = []; let wk = opening;
-  for (let i = 0; i < 8; i++) { weeks.push(Math.round(wk)); wk *= legs * rand(.95, 1.03); }
+  for (let i = 0; i < 8; i++) { weeks.push(Math.round(wk * (prem && prem.strike && i < 2 ? .35 : 1))); wk *= legs * rand(.88, 1.1); }
   const gross = weeks.reduce((a, b) => a + b, 0);
   const shareRate = .55 + (has('cinemas') ? .1 : 0);
   const share = Math.round(gross * shareRate);
   const stream = has('streaming') ? Math.round(gross * .2) : 0;
   const profit = share + stream - spent;
 
-  return { q, critic, aud, weeks, gross, share, stream, profit, gt, ge, te, repeat, sameGenre, hot, hotTheme, ratingOk };
+  return { q, critic, aud, weeks, gross, share, stream, profit, repeat, sameGenre, hot, hotTheme, fakeTrend, prem, wild, luck, ratingOk };
 }
 
 function release() {
   const d = P.draft, fx = P.fx, spent = P.cost + P.extra;
   const s = simulate(d, fx, spent);
+  G.nextMult = null;
   const prevYear = year();
   const film = { id: G.nextId++, title: d.title.trim(), genre: d.genre, theme: d.theme, era: d.era, rating: d.rating, budget: d.budget,
     writer: d.writer, lead: d.lead, co: d.co, critic: s.critic, aud: s.aud, gross: s.gross, profit: s.profit, cost: spent, year: prevYear, award: false };
@@ -1005,19 +1362,17 @@ function release() {
   G.money += s.share + s.stream;
   G.totalGross += s.gross;
 
-  // Discoveries
-  const disc = [];
-  const k = G.know;
-  const reveal = (tbl, key, val, a, b) => { if (tbl[key] === undefined) { tbl[key] = val; disc.push(`${a} + ${b}: <b class="${val > 0 ? 'hi' : val < 0 ? 'lo' : 'mid'}">${T('combo' + val)}</b>`); } };
-  const gn = L(byId(GENRES, d.genre)), tn = L(byId(THEMES, d.theme)), en = L(byId(ERAS, d.era));
-  reveal(k.gt, d.genre + '|' + d.theme, s.gt, gn, tn);
-  reveal(k.ge, d.genre + '|' + d.era, s.ge, gn, en);
-  reveal(k.te, d.theme + '|' + d.era, s.te, tn, en);
-  if (!k.focus[d.genre]) { k.focus[d.genre] = true; disc.push(G.lang === 'ru' ? `Вы поняли, какой баланс нужен жанру «${gn}». Подсказка появится в фокусе съёмок.` : `You learned the ideal balance for ${gn}. It now shows in production focus.`); }
-  if (!s.ratingOk) disc.push(T('ratingMiss'));
+  // What happened, told as a story rather than as hints.
+  const story = P.log.slice();
+  if (s.prem) story.push(L(s.prem));
+  if (s.wild === 'cult') story.push(T('wildCult'));
+  if (s.wild === 'ignored') story.push(T('wildIgnored'));
+  if (s.luck > 1.25) story.push(T('luckyWeek'));
+  if (s.luck < .78) story.push(T('unluckyWeek'));
+  if (s.fakeTrend) story.push(T('fakeTrend'));
 
   // Career
-  const repDelta = Math.round(clamp((s.critic - 48) / 3 + (s.profit > 0 ? 1 : -1) + (fx.rep || 0), -8, 15));
+  const repDelta = Math.round(clamp((s.critic - 48) / 3 + (s.profit > 0 ? 1 : -1) + (fx.rep || 0) + (s.prem && s.prem.rep || 0), -8, 15));
   G.rep = clamp(G.rep + repDelta, 0, 100);
   const fansDelta = Math.round(s.gross / 40 * s.aud / 100);
   G.fans += fansDelta;
@@ -1029,7 +1384,7 @@ function release() {
   for (const id of [d.lead, d.co]) {
     const c = G.cast[id] || (G.cast[id] = { skill: 0, star: 0 });
     c.skill = Math.min(c.skill + .2, 3);
-    c.star = clamp(c.star + (s.critic >= 75 ? .5 : s.critic < 35 ? -.3 : .1), -2, 3);
+    c.star = clamp(c.star + (s.critic >= 75 ? .5 : s.critic < 35 ? -.3 : .1), -2, 4);
   }
 
   // Time & goals
@@ -1037,7 +1392,7 @@ function release() {
   const newYear = year() !== prevYear;
   if (newYear) { G.pendingAwards = runAwards(prevYear); G.trends = null; ensureTrends(); }
   const goalsDone = checkGoals();
-  R = { film, s, repDelta, fansDelta, xpGain, leveled, disc, goalsDone, newYear, prevYear };
+  R = { film, s, repDelta, fansDelta, xpGain, leveled, story, goalsDone, newYear, prevYear };
   P = null; G.prod = null; screen = 'results'; save(); render(); window.scrollTo(0, 0);
   haptic(s.critic >= 70 ? 'ok' : s.critic < 40 ? 'err' : 'light');
   requestAnimationFrame(() => setTimeout(() => {
@@ -1052,8 +1407,8 @@ function checkGoals() {
 }
 function runAwards(y) {
   const films = G.films.filter(f => f.year === y);
-  const noms = films.filter(f => f.critic >= 72).map(f => {
-    const win = Math.random() < (f.critic - 60) / 38;
+  const noms = films.filter(f => f.critic >= 72 || Math.random() < .08).map(f => {
+    const win = Math.random() < clamp((f.critic - 55) / 45, .05, .9);
     if (win) { f.award = true; G.awards++; G.rep = clamp(G.rep + 6, 0, 100); G.fans = Math.round(G.fans * 1.15); }
     return { id: f.id, title: f.title, critic: f.critic, win };
   });
@@ -1064,17 +1419,13 @@ function vResults() {
   const { film: f, s } = R;
   const tier = f.critic >= 80 ? 3 : f.critic >= 60 ? 2 : f.critic >= 40 ? 1 : 0;
   const quote = pick(QUOTES[G.lang][tier]), outlet = pick(OUTLETS[G.lang]);
-  const notes = [];
-  if (s.hot || s.hotTheme) notes.push(`<span class="hi">${T('trendHit')}</span>`);
-  if (s.repeat || s.sameGenre) notes.push(`<span class="lo">${T('fatigue')}</span>`);
   return `<div class="stack" style="padding-top:8px">
-    <div class="row" style="align-items:flex-end;gap:14px"><div style="width:110px;flex:none">${poster(f)}</div>
+    <div class="row" style="align-items:flex-end;gap:14px"><div style="width:120px;flex:none">${poster(f)}</div>
       <div style="min-width:0"><div class="muted small">${T('premiere')} · ${f.year}</div><h2 style="font-size:26px">${esc(f.title)}</h2>
       <div class="muted small">${L(byId(GENRES, f.genre))} · ${L(byId(THEMES, f.theme))} · ${L(byId(ERAS, f.era))}</div></div></div>
     <div class="row"><div class="scorebox"><span>${T('critics')}</span><div class="score ${scoreClass(f.critic)}">${f.critic}</div></div>
       <div class="scorebox"><span>${T('audience')}</span><div class="score ${scoreClass(f.aud)}">${f.aud}</div></div></div>
     <div class="ticket"><div style="font-size:17px;font-style:italic">«${quote}»</div><div class="muted small" style="margin-top:4px">— ${outlet}</div></div>
-    ${notes.length ? `<div class="small stack" style="gap:4px">${notes.join('')}</div>` : ''}
     <div class="card"><h3>${T('boxoffice')}</h3>
       <div class="chart">${s.weeks.map((w, i) => `<div class="col"><div class="bar" style="height:0"></div><div class="lbl">${i + 1}${T('wk')}</div></div>`).join('')}</div></div>
     <div class="card ledger">
@@ -1084,24 +1435,24 @@ function vResults() {
       <span>${T('costs')}</span><span class="v">${money(-f.cost)}</span>
       <span class="total">${T('profit')}</span><span class="v total ${s.profit >= 0 ? 'hi' : 'lo'}">${money(s.profit)}</span>
     </div>
+    ${R.story.length ? `<div class="card"><h3>${T('story')}</h3><ul class="discover" style="margin-top:8px">${R.story.map(x => `<li>${x}</li>`).join('')}</ul></div>` : ''}
     <div class="card stack" style="gap:6px"><h3>${T('gains')}</h3>
       <div class="bars" style="font-size:14px"><span>${T('rep')} <b class="${R.repDelta >= 0 ? 'hi' : 'lo'}">${R.repDelta >= 0 ? '+' : ''}${R.repDelta}</b></span>
       <span>${T('fans')} <b>+${count(R.fansDelta)}</b></span><span>${T('xp')} <b>+${R.xpGain}</b></span></div>
       ${R.leveled ? `<div class="trophy">${T('levelUp')} ${T('lvl')} ${G.level}</div>` : ''}
       ${R.goalsDone.map(g => `<div class="trophy">${T('goalDone')}: ${L(g)} · +${money(g.reward)}</div>`).join('')}
     </div>
-    ${R.disc.length ? `<div class="card"><h3>${T('discover')}</h3><ul class="discover" style="margin-top:8px">${R.disc.map(x => `<li>${x}</li>`).join('')}</ul></div>` : ''}
   </div>`;
 }
 function vAwards() {
   const a = G.pendingAwards;
   return `<div class="stack" style="padding-top:12px">
-    <div class="marquee"><div class="sub">${a.year}</div><div class="studio">${T('awardsTitle')}</div></div>
+    <div class="marquee"><div class="sub">${a.year}</div><div class="row"><img class="px" src="${spriteURL('trophy')}" width="36" height="36" alt=""><div class="studio">${T('awardsTitle')}</div></div></div>
     ${a.noms.length ? a.noms.map(n => `<div class="ticket row"><div style="flex:1;min-width:0"><div class="muted small">${T('nominated')}</div>
-      <div style="font-family:var(--display);font-size:20px;font-weight:700;text-transform:uppercase">${esc(n.title)}</div></div>
-      <div style="text-align:right"><div class="mono">${n.critic}</div><b style="color:${n.win ? '#2f7a3a' : '#8a3a30'}">${n.win ? '★ ' + T('won') : T('lost')}</b></div></div>`).join('')
+      <div class="pixel" style="font-size:20px;text-transform:uppercase">${esc(n.title)}</div></div>
+      <div style="text-align:right">${n.win ? `<img class="px" src="${spriteURL('trophy')}" width="28" height="28" alt="">` : ''}<div><b style="color:${n.win ? '#2f7a3a' : '#8a3a30'}">${n.win ? T('won') : T('lost')}</b></div></div></div>`).join('')
       : `<p class="muted">${T('noNoms')}</p>`}
-    <p class="muted">${T('newYear')} ${a.year + 1}. ${T('hot')}: ${G.trends.hot.map(g => L(byId(GENRES, g))).join(', ')}.</p>
+    <p class="muted">${T('newYear')} ${a.year + 1}.</p>
   </div>`;
 }
 
@@ -1138,9 +1489,11 @@ document.addEventListener('click', e => {
     case 'wback': wizardBack(); break;
     case 'shoot': startProduction(); break;
     case 'evt': chooseEvent(v); break;
+    case 'chaosOk': closeChaos(); break;
+    case 'dismissNews': G.news = null; save(); render(); break;
     case 'release': release(); break;
-    case 'closeResults': screen = G.pendingAwards && G.pendingAwards.any ? 'awards' : 'home'; if (screen === 'home') G.pendingAwards = null; R = null; save(); render(); window.scrollTo(0, 0); break;
-    case 'closeAwards': G.pendingAwards = null; screen = 'home'; save(); render(); window.scrollTo(0, 0); break;
+    case 'closeResults': screen = G.pendingAwards && G.pendingAwards.any ? 'awards' : 'home'; if (screen === 'home') { G.pendingAwards = null; rollWorldEvent(); } R = null; save(); render(); window.scrollTo(0, 0); break;
+    case 'closeAwards': G.pendingAwards = null; rollWorldEvent(); screen = 'home'; save(); render(); window.scrollTo(0, 0); break;
     case 'buy': { const u = byId(UPGRADES, v); if (!has(v) && unlocked(u.req) && G.money >= u.cost) { G.money -= u.cost; G.upgrades[v] = true; checkGoals(); save(); render(); toast(`${T('unlockedNew')}: ${L(u)}`); haptic('ok'); } break; }
     case 'skill': if (G.points > 0 && G.skills[v] < SKILL_MAX) { G.skills[v]++; G.points--; save(); render(); haptic('medium'); } break;
     case 'reset': if (!resetArm) { resetArm = true; render(); } else { const lang = G.lang; G = newGame(lang); resetArm = false; screen = 'onboard'; save(); render(); } break;
@@ -1162,6 +1515,8 @@ if (inTG && TG.BackButton) { try { TG.BackButton.onClick(wizardBack); } catch (e
 
 // Resume a production that was interrupted (the app was closed mid-shoot).
 function boot() {
+  if (G.prod && !G.prod.events) { G.money += G.prod.cost; G.prod = null; save(); }
+  if (G.trends && !G.trends.real) G.trends = null;
   if (G.prod) { P = G.prod; screen = 'production'; }
   render();
   if (P && screen === 'production') tickProduction();
