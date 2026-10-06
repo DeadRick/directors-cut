@@ -169,6 +169,8 @@ input[type=text] { width: 100%; background: var(--velvet-2); border: 1px solid v
 .trophy { font-family: var(--display); color: var(--bulb); }
 .discover li { margin-bottom: 4px; }
 .discover { padding-left: 18px; margin: 0; }
+.row.mine { background: rgba(242,180,65,.14); border-radius: 6px; color: var(--bulb); }
+.chartrow { padding: 4px 6px; font-size: 14px; }
 .reallink { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; color: var(--cream); text-decoration: none; padding: 8px 10px; border-radius: 8px; background: rgba(0,0,0,.22); }
 .reallink:hover, .reallink:focus-visible { background: rgba(242,180,65,.12); }
 .pop { animation: popin .35s ease-out; }
@@ -484,7 +486,7 @@ const STR = {
     newYear: 'Наступил', levelUp: 'Новый уровень режиссёра!', goalDone: 'Цель выполнена',
     unlockedNew: 'Открыто', profitShort: 'приб.', gigDone: 'Ролик снят: +30 000 $',
     ratingMiss: 'Рейтинг не подходит жанру.', saved: 'Прогресс сохраняется автоматически.',
-    playedIn: 'Telegram', browser: 'браузер', backfire: 'Всё пошло не по плану!', similar: 'Похоже на реальные фильмы', skip: 'Пропустить', jackpot: 'Сработало лучше, чем мечтали!', chaos: 'Тем временем на площадке', okay: 'Ну что ж…', story: 'Как это было', wildCult: 'Фильм настолько плох, что стал культовым! Залы забиты.', wildIgnored: 'Шедевр не поняли: зрители прошли мимо.', luckyWeek: 'Звёзды сошлись: прокат сложился удачно.', unluckyWeek: 'Прокату просто не повезло.', fakeTrend: 'Слух о тренде оказался уткой.', rumors: 'Слухи', rumorHot: 'Говорят, в тренде', rumorTheme: 'Шепчутся про тему', rumorCold: 'Говорят, надоело', busy: 'Занят на другом проекте', breaking: 'Срочные новости', dismiss: 'Понятно', moreTalent: 'Ещё {n} — откроются с ростом репутации и студии.',
+    playedIn: 'Telegram', browser: 'браузер', backfire: 'Всё пошло не по плану!', sequels: 'Продолжить успех', sequelNote: 'Сиквел: жанр, тема и эпоха как в оригинале.', refuse: 'Не хочет с вами работать', loyal: 'свой', chart: 'Чарт проката', rank: 'Ваше место', studioYear: 'Студия года', contract: 'Заказ продюсера', contractDone: 'Заказ выполнен', contractFail: 'Заказ сорвался: время вышло.', filmsLeft: 'Осталось фильмов', reviews: 'Рецензии', sequelBetter: 'Сиквел превзошёл оригинал!', sequelTired: 'Публика начинает уставать от франшизы.', pairStory: 'Дуэт снова зажёг экран: химия между актёрами налицо.', loyalStory: '«{a}» теперь в вашей постоянной команде.', refuseStory: '«{a}» больше не хочет с вами работать.', studioWin: 'Вы — студия года! +5 репутации и бонус', similar: 'Похоже на реальные фильмы', skip: 'Пропустить', jackpot: 'Сработало лучше, чем мечтали!', chaos: 'Тем временем на площадке', okay: 'Ну что ж…', story: 'Как это было', wildCult: 'Фильм настолько плох, что стал культовым! Залы забиты.', wildIgnored: 'Шедевр не поняли: зрители прошли мимо.', luckyWeek: 'Звёзды сошлись: прокат сложился удачно.', unluckyWeek: 'Прокату просто не повезло.', fakeTrend: 'Слух о тренде оказался уткой.', rumors: 'Слухи', rumorHot: 'Говорят, в тренде', rumorTheme: 'Шепчутся про тему', rumorCold: 'Говорят, надоело', busy: 'Занят на другом проекте', breaking: 'Срочные новости', dismiss: 'Понятно', moreTalent: 'Ещё {n} — откроются с ростом репутации и студии.',
   },
   en: {
     tagline: 'Studio', newFilm: 'Make a new film', money: 'Cash', rep: 'Reputation', fans: 'Fans', year: 'Year',
@@ -516,7 +518,7 @@ const STR = {
     newYear: 'Welcome to', levelUp: 'Director level up!', goalDone: 'Goal complete',
     unlockedNew: 'Unlocked', profitShort: 'profit', gigDone: 'Commercial done: +$30,000',
     ratingMiss: 'The rating does not suit the genre.', saved: 'Progress saves automatically.',
-    playedIn: 'Telegram', browser: 'browser', backfire: 'It all went wrong!', similar: 'Real films like yours', skip: 'Skip', jackpot: 'It worked better than you dreamed!', chaos: 'Meanwhile, on set', okay: 'Oh well…', story: 'How it went', wildCult: 'So bad it is good: the film became a cult hit!', wildIgnored: 'A misunderstood masterpiece: audiences walked past it.', luckyWeek: 'The stars aligned for this release.', unluckyWeek: 'The release was simply unlucky.', fakeTrend: 'The trend rumour turned out to be fake.', rumors: 'Rumours', rumorHot: 'Word is, trending', rumorTheme: 'People whisper about', rumorCold: 'Word is, people are tired of', busy: 'Busy on another project', breaking: 'Breaking news', dismiss: 'Got it', moreTalent: '{n} more unlock as your reputation and studio grow.',
+    playedIn: 'Telegram', browser: 'browser', backfire: 'It all went wrong!', sequels: 'Build on a hit', sequelNote: 'Sequel: same genre, theme and era as the original.', refuse: 'Refuses to work with you', loyal: 'regular', chart: 'Box office chart', rank: 'Your rank', studioYear: 'Studio of the year', contract: 'Producer request', contractDone: 'Request fulfilled', contractFail: 'Request expired.', filmsLeft: 'Films left', reviews: 'Reviews', sequelBetter: 'The sequel beat the original!', sequelTired: 'Audiences are starting to tire of the franchise.', pairStory: 'The duo lit up the screen again: real chemistry.', loyalStory: '{a} is now one of your regulars.', refuseStory: '{a} no longer wants to work with you.', studioWin: 'You are studio of the year! +5 reputation and a bonus', similar: 'Real films like yours', skip: 'Skip', jackpot: 'It worked better than you dreamed!', chaos: 'Meanwhile, on set', okay: 'Oh well…', story: 'How it went', wildCult: 'So bad it is good: the film became a cult hit!', wildIgnored: 'A misunderstood masterpiece: audiences walked past it.', luckyWeek: 'The stars aligned for this release.', unluckyWeek: 'The release was simply unlucky.', fakeTrend: 'The trend rumour turned out to be fake.', rumors: 'Rumours', rumorHot: 'Word is, trending', rumorTheme: 'People whisper about', rumorCold: 'Word is, people are tired of', busy: 'Busy on another project', breaking: 'Breaking news', dismiss: 'Got it', moreTalent: '{n} more unlock as your reputation and studio grow.',
   },
 };
 
@@ -629,6 +631,7 @@ function feeOf(p, isActor) {
   let fee = p.fee;
   if (isActor) { const s = actorState(p); fee *= 1 + .18 * (s.star - p.star); }
   if (W && W.feeMult && W.feeMult[p.id]) fee *= W.feeMult[p.id];
+  if (isActor && isLoyal(p.id)) fee *= .8;
   fee *= 1 - .06 * G.skills.charisma;
   if (has('casting')) fee *= .9;
   return Math.round(fee / 500) * 500;
@@ -938,6 +941,7 @@ function vHome() {
   const tr = G.trends, last = G.films[G.films.length - 1];
   const goal = GOALS.find(g => !G.goals[g.id]);
   const cheapest = BUDGETS[0].cost + 3500 * 3;
+  ensureContract();
   return `<div class="stack" style="margin-top:14px">
     <button class="btn primary big" data-act="newFilm">${T('newFilm')}</button>
     ${G.money < Math.max(60000, cheapest) ? `<div class="card row"><div style="flex:1;min-width:0"><b>${T('gig')}</b><div class="muted small">${T('gigD')}</div></div><button class="btn sm" data-act="gig">+$30k</button></div>` : ''}
@@ -950,6 +954,9 @@ function vHome() {
       <div>${T('rumorTheme')}: <span class="pill" style="color:var(--bulb)">${L(byId(THEMES, tr.theme))}</span></div>
       <div class="muted">${T('rumorCold')}: <span class="pill">${L(byId(GENRES, tr.cold))}</span></div>
     </div>
+    ${G.contract ? `<div class="card row" style="align-items:flex-start"><img class="px" src="${spriteURL('clapper')}" width="32" height="32" alt=""><div style="flex:1;min-width:0">
+      <h3>${T('contract')}</h3><div style="margin-top:4px">${esc(contractText(G.contract))}</div>
+      <div class="bars" style="margin-top:4px"><span>${T('reward')} <b>${money(G.contract.reward)}</b></span><span>${T('filmsLeft')} <b>${G.contract.left}</b></span></div></div></div>` : ''}
     <div class="ticket">
       <div class="muted small" style="text-transform:uppercase;letter-spacing:.08em">${T('goal')}</div>
       ${goal ? `<div style="font-family:var(--display);font-size:20px;font-weight:600;text-transform:uppercase">${L(goal)}</div><div class="small">${T('reward')}: <b class="mono">${money(goal.reward)}</b></div>` : `<div style="font-family:var(--display);font-size:20px">${T('allGoals')}</div>`}
@@ -1032,6 +1039,7 @@ function startWizard() {
   for (const p of ACTORS.concat(WRITERS)) { W.feeMult[p.id] = Math.round(rand(.7, 1.4) * 100) / 100; if (Math.random() < .2) W.busy[p.id] = true; }
   const free = list => list.filter(p => unlocked(TIER_REQ[p.tier]) && !W.busy[p.id]).length;
   if (free(ACTORS) < 3 || free(WRITERS) < 1) W.busy = {};
+  for (const p of ACTORS) if (refuses(p.id)) W.busy[p.id] = 'refuse';
   screen = 'wizard'; render(); window.scrollTo(0, 0);
 }
 function wizardCost() {
@@ -1070,10 +1078,10 @@ function personBtn(p, act, sel, isActor, disabled) {
   const req = TIER_REQ[p.tier], ok = unlocked(req);
   const aff = W.genre && p.aff.includes(W.genre);
   const busy = W.busy && W.busy[p.id];
-  const why = !ok ? reqText(req) : busy ? T('busy') : '';
+  const why = !ok ? reqText(req) : busy ? (busy === 'refuse' ? T('refuse') : T('busy')) : '';
   return `<button class="opt person ${sel ? 'sel' : ''} ${!ok || disabled || busy ? 'locked' : ''}" data-act="${act}" data-v="${p.id}" ${!ok || disabled || busy ? 'data-locked="1"' : ''} ${why ? `data-why="${esc(why)}"` : ''}>
     <img class="avatar px" src="${faceURL(p.id, p.col)}" width="40" height="40" alt="">
-    <span class="info"><span class="name">${L(p)}</span>
+    <span class="info"><span class="name">${L(p)}${isActor && isLoyal(p.id) ? ` <span class="pill" style="color:var(--good);font-size:11px">♥ ${T('loyal')}</span>` : ''}</span>
       <span class="bars"><span>${T('skill')} <b>${st.skill.toFixed(1).replace('.0', '')}</b></span>${isActor ? `<span>${T('star')} <b>${st.star.toFixed(1).replace('.0', '')}</b></span>` : ''}</span>
       <span class="d">${p.aff.map(a => L(byId(GENRES, a))).join(', ')}${why ? ' · ' + why : ''}</span></span>
     <span class="fee">${money(feeOf(p, isActor))}</span></button>`;
@@ -1082,7 +1090,9 @@ function vWizard() {
   const s = W.step;
   let body = '';
   if (s === 0) {
-    body = `<div class="grid">${GENRES.map(g => {
+    const fr = franchiseCandidates();
+    body = (fr.length ? `<h3>${T('sequels')}</h3><div class="grid">${fr.map(f => optBtn({ act: 'sequel', v: f.id, title: esc(baseTitle(f)) + ' ' + ((f.part || 1) + 1),
+      icon: spriteURL(f.genre), desc: `${L(byId(GENRES, f.genre))} · ${f.year}` })).join('')}</div><h3 style="margin-top:16px">${T('s0')}</h3>` : '') + `<div class="grid">${GENRES.map(g => {
       const ok = unlocked(g.req), lvl = genreLevel(g.id);
       const hot = G.trends.hot.includes(g.id);
       const tag = hot ? `<span class="tag hot">?${T('hot')}</span>` : '';
@@ -1105,13 +1115,14 @@ function vWizard() {
       return optBtn({ act: 'rating', v: r.id, sel: W.rating === r.id, title: r.label });
     }).join('')}</div>`;
   } else if (s === 3) {
+    const seqNote = W.sequelOf ? `<div class="ticket small">${T('sequelNote')} <b>${L(byId(GENRES, W.genre))} · ${L(byId(THEMES, W.theme))} · ${L(byId(ERAS, W.era))}</b></div>` : '';
     // Show everyone available plus a two-person teaser of the next locked tier.
     const roster = (list, fn) => {
       const open = list.filter(x => unlocked(TIER_REQ[x.tier])), locked = list.filter(x => !unlocked(TIER_REQ[x.tier]));
       const tease = locked.slice(0, 2), more = locked.length - tease.length;
       return `<div class="stack" style="gap:8px">${open.concat(tease).map(fn).join('')}${more > 0 ? `<div class="muted small">${T('moreTalent').replace('{n}', more)}</div>` : ''}</div>`;
     };
-    body = `<h3>${T('writer')}</h3>${roster(WRITERS, w => personBtn(w, 'writer', W.writer === w.id, false))}
+    body = seqNote + `<h3>${T('writer')}</h3>${roster(WRITERS, w => personBtn(w, 'writer', W.writer === w.id, false))}
       <h3 style="margin-top:16px">${T('lead')}</h3>${roster(ACTORS, a => personBtn(a, 'lead', W.lead === a.id, true, W.co === a.id))}
       <h3 style="margin-top:16px">${T('co')}</h3>${roster(ACTORS, a => personBtn(a, 'co', W.co === a.id, true, W.lead === a.id))}`;
   } else if (s === 4) {
@@ -1204,6 +1215,93 @@ function rollWorldEvent() {
   if (ev.cult) { const f = pick(G.films.filter(f => f.critic < 50)), bonus = Math.round(Math.max(30000, f.gross * rand(.3, .8))); G.money += bonus; f.cult = true; text += ` «${f.title}»: +${money(bonus)}`; }
   G.news = text;
 }
+
+/* ---------- Rivals, critics, contracts, franchises ---------- */
+const RIVALS = [
+  { id: 'colossus', ru: 'Колосс Пикчерз', en: 'Colossus Pictures', col: '#2f7fa0', likes: ['action', 'scifi', 'fantasy', 'animation'], power: 1.4 },
+  { id: 'noir', ru: 'Нео Нуар', en: 'Neo Noir Films', col: '#5a7a93', likes: ['thriller', 'drama', 'horror'], power: .9 },
+  { id: 'dawn', ru: 'Студия «Рассвет»', en: 'Dawn Studio', col: '#d68a2e', likes: ['comedy', 'romance', 'musical'], power: 1.1 },
+];
+// Rivals grow with the market and keep pace with your recent hits.
+function rivalScale() {
+  const best = G.films.slice(-5).reduce((m, f) => Math.max(m, f.gross), 0);
+  return Math.max(110000 * Math.pow(1.22, year() - 1990), best * .55);
+}
+function rivalFilms() {
+  const out = [];
+  for (const r of RIVALS) for (let i = 0, n = Math.random() < .5 ? 1 : 2; i < n; i++) {
+    const g = Math.random() < .65 ? pick(r.likes) : pick(GENRES).id, t = pick(THEMES).id;
+    out.push({ studio: r.id, title: genTitle(g, t), genre: g, gross: Math.round(rivalScale() * r.power * Math.exp(rand(-1.1, 1.1))) });
+  }
+  return out;
+}
+function standings() {
+  if (!G.standings || G.standings.year !== year()) G.standings = { year: year(), you: 0, colossus: 0, noir: 0, dawn: 0 };
+  return G.standings;
+}
+function studioName(id) { return id === 'you' ? G.studio : L(byId(RIVALS, id)); }
+
+const CRITICS = [
+  { id: 'k1', ru: 'Арсений Плёнкин', en: 'Arseny Plyonkin', outlet: { ru: 'Киновзгляд', en: 'The Reel Review' }, col: '#7b4b8e', loves: ['drama', 'documentary', 'western'], hates: ['action', 'animation', 'fantasy'], mood: -4 },
+  { id: 'k2', ru: 'Вера Попкорнова', en: 'Vera Popcorn', outlet: { ru: 'Ночной сеанс', en: 'Midnight Matinee' }, col: '#c4452f', loves: ['action', 'scifi', 'fantasy', 'animation'], hates: ['documentary', 'drama'], mood: 3 },
+  { id: 'k3', ru: 'Гоша Мрак', en: 'Gosha Gloom', outlet: { ru: 'Плёнка', en: 'Celluloid' }, col: '#3d5a73', loves: ['horror', 'thriller', 'comedy'], hates: ['romance', 'musical'], mood: 0 },
+];
+function critiqueAll(base, genre) {
+  return CRITICS.map(c => {
+    const score = Math.round(clamp(base + (c.loves.includes(genre) ? 12 : c.hates.includes(genre) ? -12 : 0) + c.mood + rand(-9, 9), 3, 99));
+    const tier = score >= 80 ? 3 : score >= 60 ? 2 : score >= 40 ? 1 : 0;
+    return { id: c.id, score, q: Math.floor(Math.random() * 3), tier };
+  });
+}
+
+// Contracts: a producer's request with a reward. One at a time, expires after two films.
+function ensureContract() {
+  if (G.contract || !G.started) return;
+  const g = pick(GENRES.filter(x => unlocked(x.req))), t = pick(THEMES.filter(x => unlocked(x.req))), e = pick(ERAS.filter(x => unlocked(x.req)));
+  const base = Math.round(30000 * (1 + G.level * .6) / 1000) * 1000;
+  const kinds = [
+    { kind: 'genreCrit', genre: g.id, crit: 55 + Math.min(30, G.level * 3), reward: base * 1.6 },
+    { kind: 'themeEra', theme: t.id, era: e.id, reward: base * 1.3 },
+    { kind: 'indie', genre: g.id, reward: base, rep: 3 },
+    { kind: 'gross', gross: Math.round(rivalScale() * 1.3 / 10000) * 10000, reward: base * 2 },
+    { kind: 'rating', genre: g.id, rating: pick(['0', '18']), reward: base * 1.1 },
+  ];
+  G.contract = Object.assign(pick(kinds), { left: 2 });
+}
+function contractText(c) {
+  const g = c.genre && L(byId(GENRES, c.genre)), t = c.theme && L(byId(THEMES, c.theme)), e = c.era && L(byId(ERAS, c.era));
+  const ru = G.lang === 'ru';
+  switch (c.kind) {
+    case 'genreCrit': return ru ? `Стриминг ищет жанр «${g}» с оценкой критиков от ${c.crit}.` : `A streamer wants a ${g} film rated ${c.crit}+ by critics.`;
+    case 'themeEra': return ru ? `Спонсор оплатит фильм на тему «${t}», эпоха: ${e}.` : `A sponsor will pay for a "${t}" film set in: ${e}.`;
+    case 'indie': return ru ? `Фестиваль ждёт инди-фильм в жанре «${g}» (бюджет «Инди»).` : `A festival wants an Indie-budget ${g} film.`;
+    case 'gross': return ru ? `Продюсеру нужен хит: сборы от ${money(c.gross)}.` : `A producer wants a hit grossing ${money(c.gross)}+.`;
+    case 'rating': return ru ? `Телеканалу нужен фильм «${g}» с рейтингом ${c.rating}+.` : `A TV channel wants a ${g} film rated ${c.rating}+.`;
+  }
+  return '';
+}
+function contractMet(c, f) {
+  switch (c.kind) {
+    case 'genreCrit': return f.genre === c.genre && f.critic >= c.crit;
+    case 'themeEra': return f.theme === c.theme && f.era === c.era;
+    case 'indie': return f.genre === c.genre && f.budget === 'indie';
+    case 'gross': return f.gross >= c.gross;
+    case 'rating': return f.genre === c.genre && f.rating === c.rating;
+  }
+  return false;
+}
+
+// Loyalty: people remember how working with you went.
+function castInfo(id) { return G.cast[id] || (G.cast[id] = { skill: 0, star: 0 }); }
+function isLoyal(id) { const c = G.cast[id]; return !!c && (c.films || 0) >= 3 && (c.mood || 0) >= 1; }
+function refuses(id) { const c = G.cast[id]; return !!c && (c.mood || 0) <= -2; }
+function pairKey(a, b) { return [a, b].sort().join('|'); }
+
+// Franchises: a hit can get a sequel.
+function franchiseCandidates() {
+  return G.films.filter(f => !f.hasSequel && ((f.profit > 0 && f.aud >= 60) || f.critic >= 72)).slice(-3).reverse();
+}
+function baseTitle(f) { return f.base || f.title; }
 
 /* ---------- Production ---------- */
 function startProduction() {
@@ -1313,7 +1411,7 @@ function simulate(d, fx, spent) {
 
   const area = [
     w.skill + form() + (w.aff.includes(d.genre) ? 1 : 0) + sk.story * .5 + (has('office') ? .5 : 0) + (has('school') ? 1 : 0),
-    (ls.skill + form()) * .6 + (cs.skill + form()) * .4 + (lead.aff.includes(d.genre) ? .6 : 0) + (co.aff.includes(d.genre) ? .4 : 0) + sk.actors * .5 + (fx.act || 0) + (fx.improv ? ((ls.skill + cs.skill) / 2 + rand(-3, 3) >= 6 ? 1.2 : -1) : 0),
+    (ls.skill + form()) * .6 + (cs.skill + form()) * .4 + (lead.aff.includes(d.genre) ? .6 : 0) + (co.aff.includes(d.genre) ? .4 : 0) + sk.actors * .5 + (fx.act || 0) + (isLoyal(d.lead) ? .4 : 0) + (isLoyal(d.co) ? .3 : 0) + ((G.pairs || {})[pairKey(d.lead, d.co)] >= 65 ? .5 : 0) + (fx.improv ? ((ls.skill + cs.skill) / 2 + rand(-3, 3) >= 6 ? 1.2 : -1) : 0),
     b.vis + sk.visual * .5 + (has('vfx') ? 1 : 0) + (era.period && has('costume') ? .5 : 0) + (fx.vis || 0),
     b.snd + 1.5 + sk.sound * .5 + (has('sound') ? 1.5 : 0) + (fx.snd || 0),
   ].map(v => Math.max(.5, v));
@@ -1322,13 +1420,17 @@ function simulate(d, fx, spent) {
   const gt = gtVal(d.genre, d.theme), ge = geVal(d.genre, d.era), te = teVal(d.theme, d.era);
   const fit = clamp(.55 + .15 * gt + .1 * ge + .07 * te, .05, 1);
   const recent = G.films.slice(-3);
-  const repeat = recent.some(f => f.genre === d.genre && f.theme === d.theme);
+  const orig = d.sequelOf ? G.films.find(f => f.id === d.sequelOf) : null;
+  const repeat = !orig && recent.some(f => f.genre === d.genre && f.theme === d.theme);
   const sameGenre = recent.length && recent[recent.length - 1].genre === d.genre;
   const ratingOk = g.rat.includes(d.rating);
 
   let raw = craft * (.5 + .5 * focusMatch) * (.45 + .55 * fit) + 1.6 + genreLevel(d.genre) * .3
     + (fx.q || 0) + (fx.risk ? rand(-fx.risk, fx.risk * 1.15) : 0)
     - (ratingOk ? 0 : .6) - (repeat ? 1 : 0) + rand(-1.2, 1.2);
+  // Sequels: the audience comes, but each part tends to be weaker, unless lightning strikes.
+  let seq = null;
+  if (orig) { const part = (orig.part || 1) + 1; raw -= .45 * (part - 1); if (Math.random() < .15) { raw += 1.8; seq = 'better'; } else if (part >= 3) seq = 'tired'; }
   const q = 10 * (1 - Math.exp(-Math.max(.2, raw) / 6.5));
 
   const tr = G.trends.real;
@@ -1339,7 +1441,8 @@ function simulate(d, fx, spent) {
   let aud = Math.round(clamp(q * 8.5 + (ls.star + cs.star) * .8 + 5 + (hot ? 4 : 0) + (hotTheme ? 3 : 0) - (cold ? 4 : 0) + rand(-12, 12), 3, 99));
 
   const hype = Math.max(.4, 1 + m.hype * (has('marketing') ? 1.2 : 1) + b.hype + (ls.star + cs.star * .5) / 10 + G.rep / 120
-    + Math.log10(1 + G.fans) / 10 + sk.showman * .1 + (fx.hype || 0));
+    + Math.log10(1 + G.fans) / 10 + sk.showman * .1 + (fx.hype || 0)
+    + (orig ? .3 + orig.aud / 100 * .8 + Math.log10(1 + orig.gross) / 25 : 0));
   const qMult = .15 + 1.35 * Math.pow(q / 10, 1.6);
   const trend = (hot ? 1.35 : 1) * (cold ? .75 : 1) * (hotTheme ? 1.15 : 1);
   const reach = byId(RATINGS, d.rating).reach * (fx.reach || 1);
@@ -1360,16 +1463,19 @@ function simulate(d, fx, spent) {
   const stream = has('streaming') ? Math.round(gross * .2) : 0;
   const profit = share + stream - spent;
 
-  return { q, critic, aud, weeks, gross, share, stream, profit, repeat, sameGenre, hot, hotTheme, fakeTrend, prem, wild, luck, ratingOk };
+  return { q, critic, aud, weeks, gross, share, stream, profit, seq, orig, repeat, sameGenre, hot, hotTheme, fakeTrend, prem, wild, luck, ratingOk };
 }
 
 function release() {
   const d = P.draft, fx = P.fx, spent = P.cost + P.extra;
   const s = simulate(d, fx, spent);
   G.nextMult = null;
+  const critics = critiqueAll(s.critic, d.genre);
+  s.critic = Math.round(critics.reduce((a, c) => a + c.score, 0) / critics.length);
   const prevYear = year();
   const film = { id: G.nextId++, title: d.title.trim(), genre: d.genre, theme: d.theme, era: d.era, rating: d.rating, budget: d.budget,
     writer: d.writer, lead: d.lead, co: d.co, critic: s.critic, aud: s.aud, gross: s.gross, profit: s.profit, cost: spent, year: prevYear, award: false };
+  if (s.orig) { film.sequelOf = s.orig.id; film.part = (s.orig.part || 1) + 1; film.base = baseTitle(s.orig); s.orig.hasSequel = true; }
   G.films.push(film);
   G.money += s.share + s.stream;
   G.totalGross += s.gross;
@@ -1382,6 +1488,34 @@ function release() {
   if (s.luck > 1.25) story.push(T('luckyWeek'));
   if (s.luck < .78) story.push(T('unluckyWeek'));
   if (s.fakeTrend) story.push(T('fakeTrend'));
+  if (s.seq === 'better') story.push(T('sequelBetter'));
+  if (s.seq === 'tired') story.push(T('sequelTired'));
+  if ((G.pairs || {})[pairKey(d.lead, d.co)] >= 65) story.push(T('pairStory'));
+
+  // The box office chart: your film against this season's rival releases.
+  const rf = rivalFilms(), st = standings();
+  st.you += s.gross; for (const r of rf) st[r.studio] += r.gross;
+  const chart = rf.concat([{ studio: 'you', title: film.title, genre: film.genre, gross: s.gross, mine: true }]).sort((a, b) => b.gross - a.gross);
+
+  // Producer request
+  let contractMsg = null;
+  if (G.contract) {
+    if (contractMet(G.contract, film)) { G.money += G.contract.reward; G.rep = clamp(G.rep + (G.contract.rep || 1), 0, 100); contractMsg = `${T('contractDone')}: +${money(G.contract.reward)}`; G.contract = null; }
+    else if (--G.contract.left <= 0) { contractMsg = T('contractFail'); G.contract = null; }
+  }
+  if (contractMsg) story.push(contractMsg);
+
+  // Loyalty and grudges
+  G.pairs = G.pairs || {};
+  G.pairs[pairKey(d.lead, d.co)] = Math.max(G.pairs[pairKey(d.lead, d.co)] || 0, s.critic);
+  for (const id of [d.lead, d.co]) {
+    const c = castInfo(id), wasLoyal = isLoyal(id);
+    c.films = (c.films || 0) + 1;
+    c.mood = clamp((c.mood || 0) + (s.critic >= 60 || s.profit > 0 ? 1 : s.critic < 40 ? -1 : 0) + (Math.random() < .12 ? -1 : 0), -3, 3);
+    const nm = L(byId(ACTORS, id));
+    if (!wasLoyal && isLoyal(id)) story.push(T('loyalStory').replace('{a}', nm));
+    if (refuses(id)) story.push(T('refuseStory').replace('{a}', nm));
+  }
 
   // Career
   const repDelta = Math.round(clamp((s.critic - 48) / 3 + (s.profit > 0 ? 1 : -1) + (fx.rep || 0) + (s.prem && s.prem.rep || 0), -8, 15));
@@ -1402,9 +1536,12 @@ function release() {
   // Time & goals
   G.month += 4;
   const newYear = year() !== prevYear;
-  if (newYear) { G.pendingAwards = runAwards(prevYear); G.trends = null; ensureTrends(); }
+  if (newYear) {
+    G.pendingAwards = runAwards(prevYear); G.trends = null; ensureTrends();
+    for (const c of Object.values(G.cast)) if ((c.mood || 0) < 0) c.mood++;
+  }
   const goalsDone = checkGoals();
-  R = { film, s, repDelta, fansDelta, xpGain, leveled, story, goalsDone, newYear, prevYear, similar: similarFilms(film) };
+  R = { film, s, critics, chart, repDelta, fansDelta, xpGain, leveled, story, goalsDone, newYear, prevYear, similar: similarFilms(film) };
   P = null; G.prod = null; screen = 'results'; save(); render(); window.scrollTo(0, 0);
   revealResults();
 }
@@ -1420,7 +1557,12 @@ function runAwards(y) {
     if (win) { f.award = true; G.awards++; G.rep = clamp(G.rep + 6, 0, 100); G.fans = Math.round(G.fans * 1.15); }
     return { id: f.id, title: f.title, critic: f.critic, win };
   });
-  return { year: y, noms, any: films.length > 0 };
+  let stand = null, studioWin = false;
+  if (G.standings && G.standings.year === y) {
+    stand = Object.entries(G.standings).filter(([k]) => k !== 'year').map(([id, gross]) => ({ id, gross })).sort((a, b) => b.gross - a.gross);
+    if (stand[0].id === 'you') { studioWin = true; G.rep = clamp(G.rep + 5, 0, 100); G.money += Math.round(stand[0].gross * .05); }
+  }
+  return { year: y, noms, any: films.length > 0, stand, studioWin };
 }
 
 function similarFilms(f) {
@@ -1440,10 +1582,15 @@ function vResults() {
       <div class="muted small">${L(byId(GENRES, f.genre))} · ${L(byId(THEMES, f.theme))} · ${L(byId(ERAS, f.era))}</div></div></div>
     <div class="row"><div class="scorebox"><span>${T('critics')}</span><div class="score" id="r-critic">${R.revealed ? f.critic : '··'}</div></div>
       <div class="scorebox"><span>${T('audience')}</span><div class="score" id="r-aud">${R.revealed ? f.aud : '··'}</div></div></div>
-    <div class="ticket reveal" id="r-quote" ${hide}><div style="font-size:17px;font-style:italic">«${R.quote}»</div><div class="muted small" style="margin-top:4px">— ${R.outlet}</div></div>
+    <div class="stack reveal" id="r-critics" style="gap:8px" ${hide}>${R.critics.map((c, i) => { const k = byId(CRITICS, c.id); return `<div class="ticket row critic" style="gap:12px">
+      <img class="px" src="${faceURL(k.id, k.col)}" width="40" height="40" alt="" style="flex:none;border-radius:6px">
+      <div style="flex:1;min-width:0"><div style="font-style:italic">«${QUOTES[G.lang][c.tier][c.q]}»</div><div class="muted small">${L(k)}, ${L(k.outlet)}</div></div>
+      <div class="pixel" style="font-size:26px;flex:none" id="r-k${i}">${R.revealed ? c.score : '··'}</div></div>`; }).join('')}</div>
     <div class="card"><div class="row"><h3>${T('boxoffice')}</h3><div class="spacer"></div><b class="mono" id="r-gross">${R.revealed ? money(s.gross) : money(0)}</b></div>
-      <div class="chart">${s.weeks.map((w, i) => `<div class="col"><div class="bar" style="height:0"></div><div class="lbl">${i + 1}${T('wk')}</div></div>`).join('')}</div>
+      <div class="chart">${s.weeks.map((w, i) => `<div class="col"><div class="bar" style="height:${R.revealed ? w / Math.max(...s.weeks) * 100 : 0}%"></div><div class="lbl">${i + 1}${T('wk')}</div></div>`).join('')}</div>
       <div class="muted small" id="r-week" style="min-height:1.4em"></div></div>
+    <div class="card reveal" id="r-chart" ${hide}><div class="row"><h3>${T('chart')}</h3><div class="spacer"></div><span class="pill" style="color:var(--bulb)">${T('rank')}: #${R.chart.findIndex(x => x.mine) + 1}</span></div>
+      <div class="stack" style="gap:4px;margin-top:8px">${R.chart.map((x, i) => `<div class="row chartrow ${x.mine ? 'mine' : ''}"><span class="mono" style="width:20px">${i + 1}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.title)} <span class="muted small">· ${esc(studioName(x.studio))}</span></span><span class="mono small">${money(x.gross)}</span></div>`).join('')}</div></div>
     <div class="card ledger reveal" id="r-ledger" ${hide}>
       <span>${T('gross')}</span><span class="v">${money(s.gross)}</span>
       <span>${T('share')} (${Math.round((.55 + (has('cinemas') ? .1 : 0)) * 100)}%)</span><span class="v">${money(s.share)}</span>
@@ -1484,17 +1631,22 @@ const showEl = el => { if (el) { el.hidden = false; el.classList.add('pop'); } }
 async function revealResults() {
   const { film: f, s } = R;
   const barBtn = $('.bottombar [data-act="closeResults"]');
-  await sleep(600);
-  await countUp($('#r-critic'), f.critic, 1700, v => v, scoreClass); haptic(f.critic >= 70 ? 'ok' : f.critic < 40 ? 'err' : 'light');
+  if (!R || R.skip) return;
+  await sleep(500);
+  if (!R || R.skip) return;
+  showEl($('#r-critics'));
+  for (let i = 0; i < R.critics.length; i++) { if (!R || R.skip) return; await countUp($('#r-k' + i), R.critics[i].score, 800, v => v, scoreClass); haptic('light'); await sleep(250); }
+  await countUp($('#r-critic'), f.critic, 900, v => v, scoreClass); haptic(f.critic >= 70 ? 'ok' : f.critic < 40 ? 'err' : 'light');
+  if (!R || R.skip) return;
   await sleep(400);
+  if (!R || R.skip) return;
   await countUp($('#r-aud'), f.aud, 1500, v => v, scoreClass); haptic('light');
-  await sleep(300);
-  showEl($('#r-quote'));
-  await sleep(900);
+  if (!R || R.skip) return;
+  await sleep(500);
   const bars = document.querySelectorAll('.chart .bar'), max = Math.max(...s.weeks), weekEl = $('#r-week'), grossEl = $('#r-gross');
   let total = 0;
   for (let i = 0; i < s.weeks.length; i++) {
-    if (!R) return;
+    if (!R || R.skip) return;
     if (bars[i]) bars[i].style.height = (s.weeks[i] / max * 100) + '%';
     if (weekEl) weekEl.textContent = `${i + 1}${T('wk')}: +${money(s.weeks[i])}`;
     const prev = total; total += s.weeks[i];
@@ -1504,14 +1656,26 @@ async function revealResults() {
     await sleep(150);
   }
   if (weekEl) weekEl.textContent = '';
+  if (!R || R.skip) return;
   await sleep(300);
+  if (!R || R.skip) return;
+  showEl($('#r-chart'));
+  if (!R || R.skip) return;
+  await sleep(900);
+  if (!R || R.skip) return;
   showEl($('#r-ledger'));
+  if (!R || R.skip) return;
   await countUp($('#r-profit'), s.profit, 1100, money); haptic(s.profit >= 0 ? 'ok' : 'err');
+  if (!R || R.skip) return;
   await sleep(400);
+  if (!R || R.skip) return;
   showEl($('#r-story'));
-  for (const li of document.querySelectorAll('#r-story li')) { showEl(li); await sleep(650); }
+  for (const li of document.querySelectorAll('#r-story li')) { if (!R || R.skip) return; showEl(li); await sleep(650); }
+  if (!R || R.skip) return;
   showEl($('#r-similar'));
+  if (!R || R.skip) return;
   await sleep(300);
+  if (!R || R.skip) return;
   showEl($('#r-gains'));
   if (R) R.revealed = true;
   if (barBtn) barBtn.textContent = T('toStudio');
@@ -1524,6 +1688,8 @@ function vAwards() {
       <div class="pixel" style="font-size:20px;text-transform:uppercase">${esc(n.title)}</div></div>
       <div style="text-align:right">${n.win ? `<img class="px" src="${spriteURL('trophy')}" width="28" height="28" alt="">` : ''}<div><b style="color:${n.win ? '#2f7a3a' : '#8a3a30'}">${n.win ? T('won') : T('lost')}</b></div></div></div>`).join('')
       : `<p class="muted">${T('noNoms')}</p>`}
+    ${a.stand ? `<div class="card"><h3>${T('studioYear')}</h3><div class="stack" style="gap:6px;margin-top:8px">${a.stand.map((r, i) => `<div class="row ${r.id === 'you' ? 'mine' : ''}"><span class="mono" style="width:22px">${i + 1}</span><span style="flex:1;min-width:0">${esc(studioName(r.id))}</span><span class="mono">${money(r.gross)}</span></div>`).join('')}</div>
+      ${a.studioWin ? `<div class="trophy" style="margin-top:8px">${T('studioWin')}</div>` : ''}</div>` : ''}
     <p class="muted">${T('newYear')} ${a.year + 1}.</p>
   </div>`;
 }
@@ -1547,6 +1713,13 @@ document.addEventListener('click', e => {
     case 'newFilm': startWizard(); haptic('medium'); break;
     case 'gig': G.money += 30000; G.xp += 20; G.month += 2; while (G.xp >= xpNeed(G.level)) { G.xp -= xpNeed(G.level); G.level++; G.points++; }
       ensureTrends(); save(); render(); toast(T('gigDone')); haptic('ok'); break;
+    case 'sequel': {
+      const f = G.films.find(x => x.id === +v); if (!f) break;
+      Object.assign(W, { sequelOf: f.id, genre: f.genre, theme: f.theme, era: f.era, rating: f.rating, title: baseTitle(f) + ' ' + ((f.part || 1) + 1), titleEdited: true, step: 3 });
+      if (!W.busy[f.lead]) W.lead = f.lead;
+      if (!W.busy[f.co] && f.co !== W.lead) W.co = f.co;
+      render(); window.scrollTo(0, 0); haptic('medium'); break;
+    }
     case 'genre': W.genre = v; if (!W.titleEdited) W.title = ''; render(); haptic('light'); break;
     case 'theme': W.theme = v; if (!W.titleEdited) W.title = ''; render(); haptic('light'); break;
     case 'era': W.era = v; render(); haptic('light'); break;
@@ -1566,7 +1739,7 @@ document.addEventListener('click', e => {
     case 'chaosOk': closeChaos(); break;
     case 'dismissNews': G.news = null; save(); render(); break;
     case 'release': release(); break;
-    case 'closeResults': if (R && !R.revealed) { R.skip = true; break; } screen = G.pendingAwards && G.pendingAwards.any ? 'awards' : 'home'; if (screen === 'home') { G.pendingAwards = null; rollWorldEvent(); } R = null; save(); render(); window.scrollTo(0, 0); break;
+    case 'closeResults': if (R && !R.revealed) { R.skip = true; R.revealed = true; render(); break; } screen = G.pendingAwards && G.pendingAwards.any ? 'awards' : 'home'; if (screen === 'home') { G.pendingAwards = null; rollWorldEvent(); } R = null; save(); render(); window.scrollTo(0, 0); break;
     case 'closeAwards': G.pendingAwards = null; rollWorldEvent(); screen = 'home'; save(); render(); window.scrollTo(0, 0); break;
     case 'buy': { const u = byId(UPGRADES, v); if (!has(v) && unlocked(u.req) && G.money >= u.cost) { G.money -= u.cost; G.upgrades[v] = true; checkGoals(); save(); render(); toast(`${T('unlockedNew')}: ${L(u)}`); haptic('ok'); } break; }
     case 'skill': if (G.points > 0 && G.skills[v] < SKILL_MAX) { G.skills[v]++; G.points--; save(); render(); haptic('medium'); } break;
@@ -1582,7 +1755,9 @@ document.addEventListener('input', e => {
 });
 function wizardBack() {
   if (!W) return;
-  if (W.step === 0) { W = null; screen = 'home'; } else W.step--;
+  if (W.step === 0) { W = null; screen = 'home'; }
+  else if (W.sequelOf && W.step === 3) Object.assign(W, { step: 0, sequelOf: null, genre: null, theme: null, era: 'modern', rating: null, title: '', titleEdited: false, lead: null, co: null });
+  else W.step--;
   render(); window.scrollTo(0, 0); haptic('light');
 }
 if (inTG && TG.BackButton) { try { TG.BackButton.onClick(wizardBack); } catch (e) {} }
@@ -1592,6 +1767,7 @@ function boot() {
   if (G.prod && !G.prod.events) { G.money += G.prod.cost; G.prod = null; save(); }
   if (G.trends && !G.trends.real) G.trends = null;
   if (G.prod) { P = G.prod; screen = 'production'; }
+  else if (G.pendingAwards && G.pendingAwards.any) screen = 'awards';
   render();
   if (P && screen === 'production') tickProduction();
 }
