@@ -239,6 +239,8 @@ input[type=text]:focus { box-shadow: inset 0 0 0 2px var(--bulb); outline: none;
 .mark { display: inline-flex; gap: 1px; align-items: center; }
 .mark .ico { width: 10px; height: 10px; }
 
+.card.danger { box-shadow: inset 0 0 0 2px var(--bad), inset 0 -4px 0 rgba(0,0,0,.25); }
+.card.danger h3 { color: var(--bad); }
 .scene { width: 100%; height: auto; aspect-ratio: 16 / 9; max-width: 100%; box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 2px var(--edge); background: #1a0c10; padding: 2px; }
 .lot { width: 100%; height: auto; aspect-ratio: 3 / 1; display: block; margin-top: 12px; background: var(--ink); padding: 2px; }
 .newsflash { display: flex; gap: 12px; align-items: flex-start; }
@@ -462,6 +464,18 @@ const EVENTS = [
   { id: 'test', ru: 'Тестовый показ прошёл плохо: зрители скучали.', en: 'The test screening went badly. The audience was bored.',
     a: { ru: 'Доснять сцены (+20% бюджета)', en: 'Reshoot scenes (+20% of budget)', fx: { costPct: .2, q: .8 } },
     b: { ru: 'Выпускать как есть', en: 'Release as is', fx: { q: -.3 } } },
+  { id: 'raise', ru: 'Агент главной звезды требует прибавку: у неё есть другие предложения.', en: "Your lead's agent wants a raise: there are other offers on the table.",
+    a: { ru: 'Заплатить (+50% гонорара)', en: 'Pay up (+50% of the fee)', fx: { feePct: .5 } },
+    b: { ru: 'Отказать', en: 'Refuse', fx: { act: -1.3, hype: -.15 } } },
+  { id: 'overrun', ru: 'Бухгалтерия в панике: смета превышена на четверть.', en: 'Accounting is panicking: the shoot is a quarter over budget.',
+    a: { ru: 'Доплатить (+25% бюджета)', en: 'Cover it (+25% of budget)', fx: { costPct: .25 } },
+    b: { ru: 'Вырезать дорогие сцены', en: 'Cut the expensive scenes', fx: { vis: -1.6, q: -.4 } } },
+  { id: 'poach', ru: 'Конкуренты переманивают вашего оператора.', en: 'A rival studio is poaching your cinematographer.',
+    a: { ru: 'Перекупить (+10% бюджета)', en: 'Outbid them (+10% of budget)', fx: { costPct: .1 } },
+    b: { ru: 'Отпустить', en: 'Let them go', fx: { vis: -1.1 } } },
+  { id: 'presale', ru: 'Прокатчик предлагает выкупить фильм заранее: затраты плюс 15%, без риска.', en: 'A distributor offers to buy the film outright: your costs plus 15%, no risk.',
+    a: { ru: 'Продать права', en: 'Sell the rights', fx: { sell: true } },
+    b: { ru: 'Рискнуть в прокате', en: 'Take your chances', fx: {} } },
   { id: 'cameo', ru: 'Знаменитость хочет сыграть эпизодическую роль бесплатно.', en: 'A celebrity offers a cameo for free.',
     a: { ru: 'Конечно!', en: 'Of course!', fx: { hype: .25 } },
     b: { ru: 'Это отвлечёт от сюжета', en: 'It would distract from the story', fx: { crit: 2 } } },
@@ -545,7 +559,7 @@ const SEASON_START = [11, 2, 5, 8];
 function seasonOf(m) { const k = ((m % 12) + 12) % 12; return SEASONS[k === 11 || k < 2 ? 0 : k < 5 ? 1 : k < 8 ? 2 : 3]; }
 function whenLabel(m) { return `${L(seasonOf(m))} ${1990 + Math.floor(m / 12)}`; }
 const CAREER_END = 2010;
-function careerOver() { return !G.endless && year() >= CAREER_END; }
+function careerOver() { return !!G.bankrupt || (!G.endless && year() >= CAREER_END); }
 function prodMonths(budget) { return byId(BUDGETS, budget).months; }
 // Release dates you can pick: as soon as the film is ready, or hold it for one of the next three seasons.
 function releaseOptions(budget) {
@@ -572,7 +586,28 @@ function knowMark(v) { return v === undefined ? '' : MARK(v); }
 const FMARK = v => v > 0 ? ico('up', 'good') : v < 0 ? ico('down', 'bad') : ico('check', 'muted');
 // Expectations grow with your name and your budget: a famous director is judged harder.
 function expectation(d) { return G.rep * .14 + BUDGETS.findIndex(b => b.id === d.budget) * 2 + (d.sequelOf ? 2 : 0); }
-function upkeepPerMonth() { return Math.round(UPGRADES.filter(u => has(u.id)).reduce((a, u) => a + u.cost, 0) * .0035); }
+// Payroll plus the running cost of everything you have built, at today's prices.
+function upkeepPerMonth() { return Math.round((TUNE.payroll + UPGRADES.filter(u => has(u.id)).reduce((a, u) => a + u.cost, 0) * TUNE.upk) * infl()); }
+// Prices rise every year, and faster than ticket sales do.
+function infl() { return Math.pow(TUNE.infl, year() - 1990); }
+function budgetCost(b, era) { return Math.round(b.cost * era.mult * infl()); }
+function upCost(u) { return Math.round(u.cost * infl()); }
+function gigPay() { return Math.round(30000 * infl()); }
+// Agents know who is rich and famous, and bargain accordingly.
+function agentMult() { return (1 + G.rep / 150) * (1 + TUNE.wealth * Math.log2(1 + Math.max(0, G.money) / 1e6)) * (G.feeBoost === year() ? 1.25 : 1); }
+// Stars with real pull also take a cut of the box office.
+function backendOf(a) { const st = actorState(a).star; return st >= 6 ? Math.round((st - 5) * 2.5) / 100 : 0; }
+// A studio in the red has half a year to pay the bank back.
+function checkDebt() {
+  if (G.money >= 0) { G.debtSince = null; return; }
+  if (G.debtSince == null) G.debtSince = G.month;
+  if (G.month - G.debtSince >= TUNE.grace) G.bankrupt = true;
+}
+// Debt grows while you are in it.
+function payInterest(months) { if (G.money < 0) G.money = Math.round(G.money * Math.pow(1 + TUNE.interest, months)); }
+// The bank will lend against your name. Borrowing is the fastest way up, and the fastest way out.
+function creditLine() { return G.debtSince != null ? 0 : Math.round((50000 + G.rep * 15000) * infl()); }
+function debtMonthsLeft() { return Math.max(0, TUNE.grace - (G.month - (G.debtSince == null ? G.month : G.debtSince))); }
 const RANKS = [
   { min: 0, ru: 'Любитель', en: 'Amateur' }, { min: 2200, ru: 'Ремесленник', en: 'Journeyman' }, { min: 2900, ru: 'Автор', en: 'Auteur' },
   { min: 3500, ru: 'Мастер', en: 'Master' }, { min: 4300, ru: 'Легенда', en: 'Legend' }, { min: 5200, ru: 'Икона кино', en: 'Screen Icon' },
@@ -587,6 +622,8 @@ function legacyScore(g) {
     notes: knownCount(g),
     goals: Object.keys(g.goals).length * 50,
   };
+  // Going bust costs a third of everything else.
+  if (g.bankrupt) parts.bust = -Math.round(Object.values(parts).reduce((a, b) => a + b, 0) / 3);
   const total = Object.values(parts).reduce((a, b) => a + b, 0);
   let rank = 0; RANKS.forEach((r, i) => { if (total >= r.min) rank = i; });
   return { parts, total, rank };
@@ -699,11 +736,23 @@ Object.assign(STR.ru, {
   s4: 'Бюджет и премьера', focusD: 'У каждого жанра свой баланс.', moreTalent: 'Ещё {n} откроются позже.',
   onbText: 'Гараж, старая камера и $120 000. Двадцать лет, чтобы стать легендой.', noFilms: 'Фильмов пока нет.', allGoals: 'Все цели выполнены.',
   notebookD: 'Выводы из рецензий. Переходят в следующую карьеру.', hot: 'тренд?', hotTheme: 'тренд?', noNotes: 'Пусто. Снимайте и читайте рецензии.',
+  loanNote: 'Не хватает {m}: банк даст в долг. Если фильм провалится, на возврат будет {n} мес., потом банкротство.', creditNote: 'Банк готов одолжить до {m}.', onLoan: 'в кредит',
+  backend: 'Доля звёзд', soldRights: 'Права проданы', agentNote: 'Цены на таланты: ×{x}. Растут с инфляцией, вашей славой и вашим счётом.',
+  starRise: '«{a}» проснулся звездой. Следующий гонорар будет другим.', inDebt: 'Студия ушла в минус. У банка терпения на {n} мес.',
+  debtTitle: 'Студия в долгах', debtD: 'Через {n} мес. банк объявит банкротство. Снимите рекламу или продайте что-нибудь из студии.',
+  sell: 'Продать', sold: 'Продано', bustTitle: 'Банкротство', bustD: 'Банк забрал студию. Карьера окончена раньше срока.', pBust: 'Банкротство',
+  gigD: 'Денег мало. Реклама йогурта принесёт немного денег и опыта, но содержание студии никто не отменял.', gigDone: 'Ролик снят: +{m}',
 });
 Object.assign(STR.en, {
   s4: 'Budget and release', focusD: 'Every genre wants its own balance.', moreTalent: '{n} more unlock later.',
   onbText: 'A garage, an old camera and $120,000. Twenty years to become a legend.', noFilms: 'No films yet.', allGoals: 'Every goal complete.',
   notebookD: 'Lessons from your reviews. They carry over to your next career.', hot: 'trend?', hotTheme: 'trend?', noNotes: 'Empty. Make films and read the reviews.',
+  loanNote: 'You are {m} short: the bank will lend it. If the film flops you get {n} months to repay, then bankruptcy.', creditNote: 'The bank will lend you up to {m}.', onLoan: 'on loan',
+  backend: 'Star cut', soldRights: 'Rights sold', agentNote: 'Talent prices: ×{x}. They rise with inflation, your fame and your bank balance.',
+  starRise: '{a} woke up a star. The next fee will be different.', inDebt: 'The studio is in the red. The bank will wait {n} months.',
+  debtTitle: 'Studio in debt', debtD: 'In {n} months the bank declares you bankrupt. Shoot a commercial or sell part of the studio.',
+  sell: 'Sell', sold: 'Sold', bustTitle: 'Bankrupt', bustD: 'The bank took the studio. Your career ended early.', pBust: 'Bankruptcy',
+  gigD: 'Cash is tight. A yogurt ad pays a little money and experience, but the studio upkeep keeps running.', gigDone: 'Commercial done: +{m}',
 });
 
 /* ---------- State ---------- */
@@ -812,16 +861,18 @@ function actorState(a) {
   return { skill, star };
 }
 function feeOf(p, isActor) {
-  let fee = p.fee;
-  if (isActor) { const s = actorState(p); fee *= 1 + .18 * (s.star - p.star); }
+  const c = G.cast[p.id] || {};
+  let fee = p.fee * infl() * agentMult();
+  if (isActor) { const s = actorState(p); fee *= Math.pow(1.25, s.star - p.star); }
+  // Everyone who has worked with you knows their worth and asks for more each time.
+  fee *= 1 + Math.min(.8, .08 * (c.films || 0));
   if (W && W.feeMult && W.feeMult[p.id]) fee *= W.feeMult[p.id];
-  if (isActor && isLoyal(p.id)) fee *= .8;
   fee *= 1 - .06 * G.skills.charisma;
   if (has('casting')) fee *= .9;
   return Math.round(fee / 500) * 500;
 }
 function xpNeed(l) { return 100 + 70 * (l - 1); }
-function mktCost(m) { return Math.round(m.cost * (has('marketing') ? .8 : 1)); }
+function mktCost(m) { return Math.round(m.cost * (has('marketing') ? .8 : 1) * infl()); }
 function genreLevel(g) { return Math.min(5, G.mastery[g] || 0); }
 function ensureTrends() {
   if (G.trends && G.trends.year === year() && G.trends.real) return;
@@ -1323,12 +1374,13 @@ function vHome() {
   ensureTrends();
   const tr = G.trends, last = G.films[G.films.length - 1];
   const goal = GOALS.find(g => !G.goals[g.id]);
-  const cheapest = BUDGETS[0].cost + 3500 * 3;
+  const cheapest = Math.round((BUDGETS[0].cost + 10000) * infl());
   ensureContract();
   return `<div class="stack" style="margin-top:14px">
     <button class="btn primary big" data-act="newFilm">${T('newFilm')}</button>
     ${G.endless ? '' : `<div class="row small muted"><span>${T('career')} 1990–${CAREER_END}</span><div class="xpbar" style="flex:1;margin:0"><i style="width:${clamp((G.month / 12) / (CAREER_END - 1990) * 100, 0, 100)}%"></i></div><span>${T('yearsLeft').replace('{n}', Math.max(0, CAREER_END - year()))}</span></div>`}
-    ${G.money < Math.max(60000, cheapest) ? `<div class="card row"><div style="flex:1;min-width:0"><b>${T('gig')}</b><div class="muted small">${T('gigD')}</div></div><button class="btn sm" data-act="gig">+$30k</button></div>` : ''}
+    ${G.money < Math.max(60000, cheapest) ? `<div class="card row"><div style="flex:1;min-width:0"><b>${T('gig')}</b><div class="muted small">${T('gigD')}</div></div><button class="btn sm" data-act="gig">+${money(gigPay())}</button></div>` : ''}
+    ${G.money < 0 ? `<div class="card danger"><h3>${T('debtTitle')}</h3><div style="margin-top:6px">${T('debtD').replace('{n}', debtMonthsLeft())}</div></div>` : ''}
     ${G.news ? `<div class="ticket newsflash"><img class="px" src="${spriteURL('news')}" width="36" height="36" alt=""><div style="flex:1;min-width:0">
       <div class="muted small caps">${T('breaking')}</div><div style="font-weight:500">${esc(G.news)}</div>
       <button class="btn sm dark" style="margin-top:8px" data-act="dismissNews">${T('dismiss')}</button></div></div>` : ''}
@@ -1379,14 +1431,15 @@ function vFilms() {
 function vUpgrades() {
   return `<div class="stack" style="margin-top:14px"><h2>${T('upgrades')}</h2>
     ${UPGRADES.map(u => {
-      const own = has(u.id), ok = unlocked(u.req), afford = G.money >= u.cost;
+      const own = has(u.id), ok = unlocked(u.req), afford = G.money >= upCost(u);
       const th = LOT[u.id];
       return `<div class="card row" style="align-items:flex-start;${own ? 'border-color:var(--bulb-dim)' : ''}${!ok && !own ? 'opacity:.55' : ''}">
         <img class="px" src="${lotThumb(u.id)}" width="${(th.w + 4) * 2}" height="48" alt="" style="flex:none;${own ? '' : 'filter:grayscale(1) brightness(.7)'}">
         <div style="flex:1;min-width:0"><div style="font-family:var(--display);font-size:18px;text-transform:uppercase;font-weight:500">${L(u)}</div>
         <div class="muted small">${L(u.d)}</div>
-        ${!own && !ok ? `<div class="small" style="color:var(--bad);margin-top:4px">${T('locked')}: ${reqText(u.req)}</div>` : ''}</div>
-        ${own ? `<span class="pill" style="color:var(--good)">${T('owned')}</span>` : `<button class="btn sm ${ok && afford ? 'primary' : ''}" data-act="buy" data-v="${u.id}" ${ok && afford ? '' : 'disabled'}>${money(u.cost)}</button>`}
+        ${!own && !ok ? `<div class="small" style="color:var(--bad);margin-top:4px">${T('locked')}: ${reqText(u.req)}</div>` : ''}
+        ${own ? `<button class="btn sm dark" style="margin-top:8px" data-act="sell" data-v="${u.id}">${T('sell')} · ${money(Math.round(upCost(u) * TUNE.refund))}</button>` : ''}</div>
+        ${own ? `<span class="pill" style="color:var(--good)">${T('owned')}</span>` : `<button class="btn sm ${ok && afford ? 'primary' : ''}" data-act="buy" data-v="${u.id}" ${ok && afford ? '' : 'disabled'}>${money(upCost(u))}</button>`}
       </div>`;
     }).join('')}</div>`;
 }
@@ -1409,16 +1462,17 @@ function vLegacy() {
   const sc = legacyScore(G), rk = RANKS[sc.rank], best = G.films.slice().sort((a, b) => b.critic - a.critic)[0];
   const lg = G.legacy || {}, perk = legacyPerk(sc.rank);
   return `<div class="stack" style="padding-top:12px">
-    <div class="marquee"><div class="sub">1990–${year() - 1}</div><div class="studio">${T('legacyTitle')}</div></div>
+    <div class="marquee"><div class="sub">1990–${G.bankrupt ? year() : year() - 1}</div><div class="studio">${G.bankrupt ? T('bustTitle') : T('legacyTitle')}</div></div>
+    ${G.bankrupt ? `<div class="card danger">${T('bustD')}</div>` : ''}
     <div class="ticket stack" style="gap:6px;text-align:center"><div class="muted small caps">${T('legacyScore')}</div>
       <div class="pixel" style="font-size:44px;color:var(--bulb)" id="lg-score">${sc.total}</div>
       <div style="font-family:var(--display);font-size:24px;text-transform:uppercase">${L(rk)}</div>
       ${lg.best ? `<div class="muted small">${T('legacyBest')}: ${lg.best}</div>` : ''}</div>
-    <div class="card ledger">${[['pFilms', sc.parts.films], ['pAwards', sc.parts.awards], ['pStudio', sc.parts.studio], ['pGross', sc.parts.gross], ['pNotes', sc.parts.notes], ['pGoals', sc.parts.goals]].map(([k, v]) => `<span>${T(k)}</span><span class="v">${v}</span>`).join('')}</div>
+    <div class="card ledger">${[['pFilms', sc.parts.films], ['pAwards', sc.parts.awards], ['pStudio', sc.parts.studio], ['pGross', sc.parts.gross], ['pNotes', sc.parts.notes], ['pGoals', sc.parts.goals]].concat(sc.parts.bust ? [['pBust', sc.parts.bust]] : []).map(([k, v]) => `<span>${T(k)}</span><span class="v">${v}</span>`).join('')}</div>
     ${best ? `<div class="stack" style="gap:8px"><h3>${T('bestFilm')}</h3>${filmRow(best)}</div>` : ''}
     <div class="muted small">${T('legacyPerk').replace('{m}', money(perk.money)).replace('{p}', perk.point ? T('legacyPerkPt') : '')}</div>
     <button class="btn primary big" data-act="newCareer">${T('newCareer')}</button>
-    <button class="btn" data-act="keepGoing">${T('keepGoing')}</button>
+    ${G.bankrupt ? '' : `<button class="btn" data-act="keepGoing">${T('keepGoing')}</button>`}
   </div>`;
 }
 function legacyPerk(rank) { return { money: 15000 * (rank + 1), point: rank >= 3 }; }
@@ -1466,7 +1520,7 @@ function startWizard() {
 function wizardCost() {
   if (!W) return 0;
   const era = byId(ERAS, W.era), b = byId(BUDGETS, W.budget), m = byId(MARKETING, W.mkt);
-  let c = b.cost * era.mult + mktCost(m);
+  let c = budgetCost(b, era) + mktCost(m);
   if (W.writer) c += feeOf(byId(WRITERS, W.writer));
   if (W.lead) c += feeOf(byId(ACTORS, W.lead), true);
   if (W.co) c += feeOf(byId(ACTORS, W.co), true);
@@ -1477,16 +1531,16 @@ function stepValid(s) {
   if (s === 1) return !!W.theme;
   if (s === 2) return !!W.era && !!W.rating;
   if (s === 3) return W.writer && W.lead && W.co && W.lead !== W.co;
-  if (s === 4) return wizardCost() <= G.money && W.release !== null;
-  if (s === 5) return W.focus.reduce((a, b) => a + b, 0) === 10 && W.title.trim() && wizardCost() <= G.money;
+  if (s === 4) return wizardCost() <= G.money + creditLine() && W.release !== null;
+  if (s === 5) return W.focus.reduce((a, b) => a + b, 0) === 10 && W.title.trim() && wizardCost() <= G.money + creditLine();
   return true;
 }
 function wizardBar() {
-  const c = wizardCost(), over = c > G.money;
+  const c = wizardCost(), over = c > G.money + creditLine(), loan = !over && c > G.money;
   const last = W.step === STEPS - 1;
   return `<div class="inner">
     <button class="btn" data-act="wback">${T('back')}</button>
-    <div style="flex:1;min-width:0;text-align:center"><div class="muted small">${T('total')}</div><div class="mono ${over ? 'lo' : ''}" style="font-weight:600">${money(c)}</div></div>
+    <div style="flex:1;min-width:0;text-align:center"><div class="muted small">${T('total')}</div><div class="mono ${over ? 'lo' : loan ? 'mid' : ''}" style="font-weight:600">${money(c)}</div>${loan ? `<div class="muted small">${T('onLoan')}</div>` : ''}</div>
     <button class="btn ${last ? 'primary' : 'primary'}" data-act="${last ? 'shoot' : 'wnext'}" ${stepValid(W.step) ? '' : 'disabled'}>${last ? T('start') : T('next')}</button>
   </div>`;
 }
@@ -1503,7 +1557,7 @@ function personBtn(p, act, sel, isActor, disabled) {
   return `<button class="opt person ${sel ? 'sel' : ''} ${!ok || disabled || busy ? 'locked' : ''}" data-act="${act}" data-v="${p.id}" ${!ok || disabled || busy ? 'data-locked="1"' : ''} ${why ? `data-why="${esc(why)}"` : ''}>
     <img class="avatar px" src="${faceURL(p.id, p.col)}" width="40" height="40" alt="">
     <span class="info"><span class="name">${L(p)}${isActor && isLoyal(p.id) ? ` <span class="pill good">${ico('heart', 'good')}${T('loyal')}</span>` : ''}</span>
-      <span class="bars"><span>${T('skill')} <b>${st.skill.toFixed(1).replace('.0', '')}</b></span>${isActor ? `<span>${T('star')} <b>${st.star.toFixed(1).replace('.0', '')}</b></span>` : ''}</span>
+      <span class="bars"><span>${T('skill')} <b>${st.skill.toFixed(1).replace('.0', '')}</b></span>${isActor ? `<span>${T('star')} <b>${st.star.toFixed(1).replace('.0', '')}</b></span>` : ''}${isActor && backendOf(p) ? `<span>${T('backend')} <b>${Math.round(backendOf(p) * 100)}%</b></span>` : ''}</span>
       <span class="d">${p.aff.map(a => L(byId(GENRES, a))).join(', ')}${why ? ' · ' + why : ''}</span></span>
     <span class="fee">${money(feeOf(p, isActor))}</span></button>`;
 }
@@ -1544,16 +1598,16 @@ function vWizard() {
       const tease = locked.slice(0, 2), more = locked.length - tease.length;
       return `<div class="stack" style="gap:8px">${open.concat(tease).map(fn).join('')}${more > 0 ? `<div class="muted small">${T('moreTalent').replace('{n}', more)}</div>` : ''}</div>`;
     };
-    body = seqNote + `<h3>${T('writer')}</h3>${roster(WRITERS, w => personBtn(w, 'writer', W.writer === w.id, false))}
+    body = seqNote + `<div class="muted small" style="margin-bottom:10px">${T('agentNote').replace('{x}', (infl() * agentMult()).toFixed(1).replace('.', G.lang === 'ru' ? ',' : '.'))}</div><h3>${T('writer')}</h3>${roster(WRITERS, w => personBtn(w, 'writer', W.writer === w.id, false))}
       <h3 style="margin-top:16px">${T('lead')}</h3>${roster(ACTORS, a => personBtn(a, 'lead', W.lead === a.id, true, W.co === a.id))}
       <h3 style="margin-top:16px">${T('co')}</h3>${roster(ACTORS, a => personBtn(a, 'co', W.co === a.id, true, W.lead === a.id))}`;
   } else if (s === 4) {
     const era = byId(ERAS, W.era);
     body = `<h3>${T('budget')}</h3><div class="grid">${BUDGETS.map(b => optBtn({ act: 'budget', v: b.id, sel: W.budget === b.id, locked: !unlocked(b.req), title: L(b),
-      desc: unlocked(b.req) ? money(b.cost * era.mult) : reqText(b.req) })).join('')}</div>
+      desc: unlocked(b.req) ? money(budgetCost(b, era)) : reqText(b.req) })).join('')}</div>
       <h3 style="margin-top:16px">${T('marketing')}</h3><div class="grid">${MARKETING.map(m => optBtn({ act: 'mkt', v: m.id, sel: W.mkt === m.id, locked: !unlocked(m.req), title: L(m),
       desc: unlocked(m.req) ? money(mktCost(m)) : reqText(m.req) })).join('')}</div>
-      ${wizardCost() > G.money ? `<p class="lo">${T('notEnough')}: ${money(wizardCost() - G.money)}</p>` : ''}
+      ${wizardCost() > G.money + creditLine() ? `<p class="lo">${T('notEnough')}: ${money(wizardCost() - G.money - creditLine())}</p>` : wizardCost() > G.money ? `<div class="card danger small">${T('loanNote').replace('{m}', money(wizardCost() - Math.max(0, G.money))).replace('{n}', TUNE.grace)}</div>` : creditLine() ? `<p class="muted small">${T('creditNote').replace('{m}', money(creditLine()))}</p>` : ''}
       <h3 style="margin-top:16px">${T('releaseDate')} <span class="muted small">· ${T('shootMonths').replace('{n}', prodMonths(W.budget))}</span></h3>
       <div class="stack" style="gap:8px">${releaseOptions(W.budget).map((m, i) => {
         const se = seasonOf(m), cl = clashesAt(m);
@@ -1602,6 +1656,9 @@ const CHAOS = [
   { ru: 'Генератор взорвался. Зато получился отличный взрыв для трейлера.', en: 'The generator exploded. Great footage for the trailer, though.', fx: () => ({ costPct: .05, hype: .3 }) },
   { ru: 'Актёры влюбились друг в друга. Химия на экране зашкаливает.', en: 'Your leads fell in love. The on-screen chemistry is off the charts.', fx: () => ({ act: 1, hype: .2 }) },
   { ru: 'Актёры поссорились и не разговаривают друг с другом.', en: 'Your leads had a fight and are not speaking.', fx: () => ({ act: -1 }) },
+  { ru: 'Звезда загуляла и сорвала неделю съёмок.', en: 'Your star went on a bender and lost you a week of shooting.', fx: () => ({ costPct: .15, act: -.4 }) },
+  { ru: 'Иск о плагиате. Адвокаты обошлись недёшево.', en: 'A plagiarism lawsuit. The lawyers were not cheap.', fx: () => ({ costPct: .12 }) },
+  { ru: 'Плёнка подорожала вдвое за месяц.', en: 'Film stock doubled in price this month.', fx: () => ({ costPct: .08 }) },
 ];
 // What can happen in the week the film opens.
 const PREMIERE = [
@@ -1619,14 +1676,17 @@ const PREMIERE = [
 // News that hits the studio between films.
 const WORLD = [
   { ru: 'Налоговая проверка! Штраф: 12% бюджета студии.', en: 'Tax audit! Fine: 12% of your cash.', run: () => { G.money = Math.round(G.money * .88); } },
-  { ru: 'Дальний родственник оставил вам наследство.', en: 'A distant relative left you an inheritance.', run: () => { G.money += 40000 * G.level; } },
+  { ru: 'Дальний родственник оставил вам наследство.', en: 'A distant relative left you an inheritance.', run: () => { G.money += Math.round(20000 * G.level * infl()); } },
+  { ru: 'Агенты звёзд сговорились: до конца года гонорары на 25% выше.', en: 'The star agents closed ranks: fees are 25% higher for the rest of the year.', run: () => { G.feeBoost = year(); } },
+  { ru: 'Банк поднял ставки. Обслуживание кредитов съело четыре месяца содержания.', en: 'The bank raised rates. Servicing your loans cost four months of upkeep.', run: () => { G.money -= upkeepPerMonth() * 4; checkDebt(); } },
+  { ru: 'Пожар на складе декораций.', en: 'A fire in the prop warehouse.', run: () => { G.money -= Math.round(upkeepPerMonth() * 3 + G.money * .05 * (G.money > 0)); checkDebt(); } },
   { ru: 'Внезапная мода перевернула все тренды года.', en: 'A sudden craze flipped every trend of the year.', run: () => { G.trends = null; ensureTrends(true); } },
   { ru: 'Фанаты устроили флешмоб в вашу честь.', en: 'Fans staged a flash mob in your honour.', run: () => { G.fans = Math.round(G.fans * 1.25) + 500; } },
   { ru: 'Таблоиды выдумали про вас скандал.', en: 'The tabloids made up a scandal about you.', run: () => { G.rep = clamp(G.rep - 4, 0, 100); } },
   { ru: 'Кинобум! Следующий фильм соберёт больше обычного.', en: 'Movie boom! Your next film will earn more than usual.', run: () => { G.nextMult = 1.35; } },
   { ru: 'Биржевой крах. Зрителям сейчас не до кино.', en: 'Market crash. Nobody has money for movies right now.', run: () => { G.nextMult = .65; } },
   { ru: 'Короткое замыкание в офисе. Ремонт обошёлся в 8% бюджета.', en: 'A short circuit in the office. Repairs cost 8% of your cash.', run: () => { G.money = Math.round(G.money * .92); } },
-  { ru: 'Фонд кино выдал студии грант.', en: 'The film fund gave your studio a grant.', run: () => { G.money += 25000 + Math.round(G.rep) * 3000; } },
+  { ru: 'Фонд кино выдал студии грант.', en: 'The film fund gave your studio a grant.', run: () => { G.money += Math.round((25000 + G.rep * 3000) * infl()); } },
   { ru: 'Телешоу сделало «{a}» звездой. Гонорар вырос.', en: '{a} woke up famous after a TV show. Their fee went up.', actor: 1 },
   { ru: 'Вокруг «{a}» громкий скандал. Звёздность упала.', en: '{a} is caught in a scandal. Star power dropped.', actor: -1 },
   { ru: 'Ваш старый провал внезапно стал культовым. Пошли отчисления!', en: 'One of your old flops suddenly became a cult classic. Royalties!', cult: true },
@@ -1736,7 +1796,7 @@ function baseTitle(f) { return f.base || f.title; }
 /* ---------- Production ---------- */
 function startProduction() {
   const cost = wizardCost();
-  if (cost > G.money) { toast(T('notEnough')); haptic('err'); return; }
+  if (cost > G.money + creditLine()) { toast(T('notEnough')); haptic('err'); return; }
   G.money -= cost;
   // Two things will happen during the shoot: either a decision or plain chaos.
   const choices = EVENTS.slice().sort(() => Math.random() - .5), chaos = CHAOS.slice().sort(() => Math.random() - .5);
@@ -1768,8 +1828,8 @@ function mergeFx(fx) {
   }
 }
 function payExtra(fx) {
-  const d = P.draft, base = byId(BUDGETS, d.budget).cost * byId(ERAS, d.era).mult;
-  const extra = (fx.cost || 0) + (fx.costPct ? Math.round(base * fx.costPct) : 0);
+  const d = P.draft, base = budgetCost(byId(BUDGETS, d.budget), byId(ERAS, d.era));
+  const extra = (fx.cost || 0) + (fx.costPct ? Math.round(base * fx.costPct) : 0) + (fx.feePct ? Math.round(feeOf(byId(ACTORS, d.lead), true) * fx.feePct) : 0);
   G.money -= extra; P.extra += extra;
   return extra;
 }
@@ -1786,8 +1846,8 @@ function openEvent() {
 }
 function chooseEvent(v) {
   const ev = EVENTS[P.pending.idx], opt = ev[v], fx = Object.assign({}, opt.fx);
-  const base = byId(BUDGETS, P.draft.budget).cost * byId(ERAS, P.draft.era).mult;
-  if ((fx.cost || 0) + (fx.costPct ? base * fx.costPct : 0) > G.money) { toast(T('notEnough')); haptic('err'); if (v === 'a') return chooseEvent('b'); }
+  const base = budgetCost(byId(BUDGETS, P.draft.budget), byId(ERAS, P.draft.era));
+  if ((fx.cost || 0) + (fx.costPct ? base * fx.costPct : 0) + (fx.feePct ? feeOf(byId(ACTORS, P.draft.lead), true) * fx.feePct : 0) > G.money + creditLine()) { toast(T('notEnough')); haptic('err'); if (v === 'a') return chooseEvent('b'); }
   let note = '';
   // Fate does not always cooperate: sometimes a decision backfires, sometimes it pays off twice.
   const roll = Math.random();
@@ -1835,7 +1895,7 @@ function animateSet() {
 }
 
 /* ---------- Simulation ---------- */
-const TUNE = { gross: 1, screens: .85, hype: 1.2, market: 8e6, growth: 1.08, rival: .065, tent: .36, rivalN: 1, audExp: .5 };
+const TUNE = { gross: 1.3, screens: .85, hype: 1.2, market: 8e6, growth: 1.08, rival: .065, tent: .36, rivalN: 1, audExp: .5, infl: 1.05, payroll: 800, upk: .0045, wealth: .12, risk: .22, interest: .02, grace: 6, refund: .3 };
 // The audience is finite: even a perfect film cannot sell more tickets than the market has.
 function marketSize() { return TUNE.market * Math.pow(TUNE.growth, year() - 1990); }
 function simulate(d, fx, spent) {
@@ -1897,7 +1957,7 @@ function simulate(d, fx, spent) {
   let wild = null, wildMult = 1;
   if (critic < 38 && Math.random() < .1) { wild = 'cult'; wildMult = 2.6; aud = Math.max(aud, 80 + Math.floor(rand(0, 15))); }
   else if (critic > 78 && Math.random() < .1) { wild = 'ignored'; wildMult = .4; }
-  const luck = Math.exp(rand(-.45, .35));
+  const bi = BUDGETS.findIndex(x => x.id === d.budget), luck = Math.exp(rand(-.45 - TUNE.risk * bi, .35 + .05 * bi));
   const opening = 25000 * Math.pow(m.screens, TUNE.screens) * Math.pow(hype, TUNE.hype) * qMult * g.aud * trend * reach * fatigue
     * luck * (prem && prem.mult || 1) * wildMult * (G.nextMult || 1) * seasonMult * clashMult * Math.pow(1.03, year() - 1990) * TUNE.gross;
   const legs = clamp(.42 + aud / 100 * .43 + rand(-.06, .06), .35, .9);
@@ -1909,10 +1969,14 @@ function simulate(d, fx, spent) {
   const shareRate = .55 + (has('cinemas') ? .1 : 0);
   const share = Math.round(gross * shareRate);
   const stream = has('streaming') ? Math.round(gross * .2) : 0;
-  const profit = share + stream - spent;
+  const pts = backendOf(lead) + backendOf(co), backend = Math.round(gross * pts);
+  // Sold to the distributor in advance: a flat fee, whatever happens at the box office.
+  const sold = fx.sell ? Math.round(spent * 1.15) : 0;
+  const income = sold || share + stream - backend;
+  const profit = income - spent;
 
   const gap = d.focus.map((f, i) => f / 10 - g.focus[i] / 100);
-  return { q, critic, aud, weeks, gross, share, stream, profit, seq, orig, repeat, sameGenre, hot, hotTheme, fakeTrend, prem, wild, luck, ratingOk,
+  return { q, critic, aud, weeks, gross, share: sold ? 0 : share, stream: sold ? 0 : stream, backend: sold ? 0 : backend, pts, sold, profit, seq, orig, repeat, sameGenre, hot, hotTheme, fakeTrend, prem, wild, luck, ratingOk,
     gt, ge, te, gap, season, seasonMult, clash, debut, expect, rm };
 }
 
@@ -1941,6 +2005,7 @@ function release() {
   const s = simulate(d, fx, spent + upkeep);
   s.upkeep = upkeep;
   G.money -= upkeep;
+  payInterest(months);
   G.nextMult = null;
   const critics = critiqueAll(s.critic, d.genre);
   s.critic = Math.round(critics.reduce((a, c) => a + c.score, 0) / critics.length);
@@ -1949,7 +2014,7 @@ function release() {
     writer: d.writer, lead: d.lead, co: d.co, critic: s.critic, aud: s.aud, gross: s.gross, profit: s.profit, cost: spent, year: 1990 + Math.floor(s.rm / 12), award: false, focus: d.focus.slice(), month: s.rm };
   if (s.orig) { film.sequelOf = s.orig.id; film.part = (s.orig.part || 1) + 1; film.base = baseTitle(s.orig); s.orig.hasSequel = true; }
   G.films.push(film);
-  G.money += s.share + s.stream;
+  G.money += s.sold || s.share + s.stream - s.backend;
   G.totalGross += s.gross;
 
   // What happened, told as a story rather than as hints.
@@ -2012,11 +2077,18 @@ function release() {
   let leveled = 0;
   while (G.xp >= xpNeed(G.level)) { G.xp -= xpNeed(G.level); G.level++; G.points++; leveled++; }
   G.mastery[d.genre] = (G.mastery[d.genre] || 0) + 1;
+  // A hit makes your actors famous, and famous actors cost more next time.
+  const hit = s.gross / marketSize();
   for (const id of [d.lead, d.co]) {
     const c = G.cast[id] || (G.cast[id] = { skill: 0, star: 0 });
     c.skill = Math.min(c.skill + .2, 3);
-    c.star = clamp(c.star + (s.critic >= 75 ? .5 : s.critic < 35 ? -.3 : .1), -2, 4);
+    const bump = (hit >= .25 ? 1.5 : hit >= .1 ? .8 : hit >= .04 ? .3 : 0) + (s.critic >= 75 ? .5 : s.critic < 35 ? -.4 : 0);
+    c.star = clamp(c.star + bump, -2, 6);
+    if (bump >= 1) story.push(T('starRise').replace('{a}', L(byId(ACTORS, id))));
   }
+  castInfo(d.writer).films = (castInfo(d.writer).films || 0) + 1;
+  checkDebt();
+  if (G.money < 0) story.push(T('inDebt').replace('{n}', debtMonthsLeft()));
 
   ensureSlate();
   const goalsDone = checkGoals();
@@ -2168,8 +2240,10 @@ function vResults() {
       <div class="stack" style="gap:4px;margin-top:8px">${R.chart.map((x, i) => `<div class="row chartrow ${x.mine ? 'mine' : ''}"><span class="mono" style="width:20px">${i + 1}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.title)} <span class="muted small">· ${esc(studioName(x.studio))}</span></span><span class="mono small">${money(x.gross)}</span></div>`).join('')}</div></div>
     <div class="card ledger reveal" id="r-ledger" ${hide}>
       <span>${T('gross')}</span><span class="v">${money(s.gross)}</span>
-      <span>${T('share')} (${Math.round((.55 + (has('cinemas') ? .1 : 0)) * 100)}%)</span><span class="v">${money(s.share)}</span>
+      ${s.sold ? '' : `<span>${T('share')} (${Math.round((.55 + (has('cinemas') ? .1 : 0)) * 100)}%)</span><span class="v">${money(s.share)}</span>`}
       ${s.stream ? `<span>${T('streaming')}</span><span class="v">${money(s.stream)}</span>` : ''}
+      ${s.backend ? `<span>${T('backend')} (${Math.round(s.pts * 100)}%)</span><span class="v">${money(-s.backend)}</span>` : ''}
+      ${s.sold ? `<span>${T('soldRights')}</span><span class="v">${money(s.sold)}</span>` : ''}
       <span>${T('costs')}</span><span class="v">${money(-f.cost)}</span>
       ${s.upkeep ? `<span>${T('upkeep')}</span><span class="v">${money(-s.upkeep)}</span>` : ''}
       <span class="total">${T('profit')}</span><span class="v total ${s.profit >= 0 ? 'hi' : 'lo'}" id="r-profit">${R.revealed ? money(s.profit) : money(0)}</span>
@@ -2295,8 +2369,8 @@ document.addEventListener('click', e => {
     }
     case 'tab': screen = v; resetArm = false; render(); window.scrollTo(0, 0); haptic('light'); break;
     case 'newFilm': startWizard(); haptic('medium'); break;
-    case 'gig': G.money += 30000; G.xp += 20; G.month += 2; while (G.xp >= xpNeed(G.level)) { G.xp -= xpNeed(G.level); G.level++; G.points++; }
-      ensureTrends(); save(); render(); toast(T('gigDone')); haptic('ok'); break;
+    case 'gig': G.money += gigPay() - 2 * upkeepPerMonth(); payInterest(2); G.xp += 20; G.month += 2; checkDebt(); if (careerOver()) { screen = 'legacy'; save(); render(); break; } while (G.xp >= xpNeed(G.level)) { G.xp -= xpNeed(G.level); G.level++; G.points++; }
+      ensureTrends(); save(); render(); toast(T('gigDone').replace('{m}', money(gigPay()))); haptic('ok'); break;
     case 'sequel': {
       const f = G.films.find(x => x.id === +v); if (!f) break;
       Object.assign(W, { sequelOf: f.id, genre: f.genre, theme: f.theme, era: f.era, rating: f.rating, title: baseTitle(f) + ' ' + ((f.part || 1) + 1), titleEdited: true, step: 3 });
@@ -2327,7 +2401,8 @@ document.addEventListener('click', e => {
     case 'share': if (R) shareFilm(R.film); break;
     case 'closeResults': if (R && !R.revealed) { R.skip = true; R.revealed = true; render(); break; } screen = G.pendingAwards && G.pendingAwards.any ? 'awards' : careerOver() ? 'legacy' : 'home'; if (screen !== 'awards') { G.pendingAwards = null; if (screen === 'home') rollWorldEvent(); } R = null; save(); render(); window.scrollTo(0, 0); break;
     case 'closeAwards': G.pendingAwards = null; screen = careerOver() ? 'legacy' : 'home'; if (screen === 'home') rollWorldEvent(); save(); render(); window.scrollTo(0, 0); break;
-    case 'buy': { const u = byId(UPGRADES, v); if (!has(v) && unlocked(u.req) && G.money >= u.cost) { G.money -= u.cost; G.upgrades[v] = true; checkGoals(); save(); render(); toast(`${T('unlockedNew')}: ${L(u)}`); haptic('ok'); } break; }
+    case 'sell': { const u = byId(UPGRADES, v); if (has(v)) { G.money += Math.round(upCost(u) * TUNE.refund); delete G.upgrades[v]; checkDebt(); save(); render(); toast(`${T('sold')}: ${L(u)}`); haptic('warn'); } break; }
+    case 'buy': { const u = byId(UPGRADES, v); if (!has(v) && unlocked(u.req) && G.money >= upCost(u)) { G.money -= upCost(u); G.upgrades[v] = true; checkGoals(); save(); render(); toast(`${T('unlockedNew')}: ${L(u)}`); haptic('ok'); } break; }
     case 'skill': if (G.points > 0 && G.skills[v] < SKILL_MAX) { G.skills[v]++; G.points--; save(); render(); haptic('medium'); } break;
     case 'newCareer': {
       const sc = legacyScore(G), perk = legacyPerk(sc.rank), old = G;
